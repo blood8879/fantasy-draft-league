@@ -598,6 +598,94 @@
   font-weight: 900;
 }
 
+/* ---------- 선수 풀 보기 모달 ---------- */
+
+.pool-modal {
+  width: min(560px, 100%);
+  display: grid;
+  gap: 12px;
+}
+
+.pool-modal-title {
+  margin: 0;
+  padding-right: 64px;
+}
+
+.pool-modal-hint {
+  color: #496054;
+  font-size: 13px;
+}
+
+.pool-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pool-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(16, 32, 27, 0.25);
+  background: transparent;
+  color: #496054;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 6px 11px;
+}
+
+.pool-tab[aria-selected="true"] {
+  border-color: #10201b;
+  background: #10201b;
+  color: #e6ff74;
+}
+
+.pool-tab-count {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.pool-browser-list {
+  display: grid;
+  gap: 4px;
+  max-height: 50vh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.pool-browser-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1.2fr) minmax(0, 1fr) 34px;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px solid rgba(16, 32, 27, 0.1);
+  padding: 7px 4px;
+}
+
+.pool-browser-name {
+  overflow: hidden;
+  font-weight: 800;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pool-browser-meta {
+  overflow: hidden;
+  color: #496054;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pool-browser-cost {
+  font-weight: 900;
+  text-align: right;
+}
+
 /* ---------- 랜덤 후보 패널 ---------- */
 
 .candidate-panel {

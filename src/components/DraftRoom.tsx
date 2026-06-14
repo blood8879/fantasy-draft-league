@@ -14,6 +14,7 @@ import {
   placeCardInBestSlot,
 } from "../domain/fantasyDraft"
 import { USER_CLUB_ID } from "../domain/game"
+import { PoolBrowser } from "./PoolBrowser"
 import { RewardedAdButton } from "./RewardedAdButton"
 import { SquadPitch } from "./SquadPitch"
 
@@ -35,6 +36,7 @@ const axisLabels: Readonly<Record<string, string>> = {
 
 export function DraftRoom({ state, dispatch }: DraftRoomProps) {
   const [scoutClubId, setScoutClubId] = useState<string | undefined>(undefined)
+  const [poolOpen, setPoolOpen] = useState(false)
   const draft = state.draft
   if (draft === undefined) {
     return null
@@ -156,6 +158,10 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
         })}
       </div>
 
+      {poolOpen ? (
+        <PoolBrowser draft={draft} onClose={() => setPoolOpen(false)} userSquad={userSquad} />
+      ) : null}
+
       {scoutClub !== undefined && scoutSquad !== undefined ? (
         <div
           className="pitch-modal-overlay"
@@ -202,6 +208,9 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                   <h3>
                     지명 후보 <span className="candidate-count">{candidates.length}장</span>
                   </h3>
+                  <button className="ghost-action" onClick={() => setPoolOpen(true)} type="button">
+                    선수 풀 보기
+                  </button>
                   {candidatesEmpty ? (
                     <button
                       className="ghost-action"
