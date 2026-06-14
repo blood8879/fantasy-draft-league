@@ -23,3 +23,7 @@ DerivedData/
 
 # 작업 도구 산출물
 .omo/
+.vercel
+
+# Vercel
+.vercel

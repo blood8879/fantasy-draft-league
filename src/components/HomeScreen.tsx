@@ -15,8 +15,8 @@ type HomeScreenProps = {
 }
 
 const modeDescriptions: Readonly<Record<GameMode, string>> = {
-  리그: "8개 구단 풀리그 7라운드. 승점으로 우승을 가립니다.",
-  컵: "8강 싱글 엘리미네이션. 지면 끝, 무승부는 승부차기.",
+  리그: "20개 구단 풀리그 38라운드(홈&원정). 승점으로 우승을 가립니다.",
+  컵: "16강 토너먼트. 지면 끝, 무승부는 승부차기.",
 }
 
 export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
@@ -35,16 +35,16 @@ export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
           드래프트 리그
         </h1>
         <p className="home-pitch">
-          역대 최고의 선수 500인이 한 풀에 모였습니다. 나와 AI 감독 7명이 한 명씩 번갈아 지명하는
-          스네이크 드래프트로 스쿼드를 완성하고, 그 팀으로 한 시즌을 치러 우승에 도전하세요. 내가
-          지명한 선수는 다른 구단이 영입할 수 없습니다.
+          역대 최고의 선수 1,100명이 한 풀에 모였습니다. 나와 AI 감독들이 한 명씩 번갈아, 매 차례
+          제시되는 후보 카드 중에서 원하는 포지션의 선수를 골라 베스트 XI를 완성합니다. 그 팀으로 한
+          시즌을 치러 우승에 도전하세요. 내가 지명한 선수는 다른 구단이 영입할 수 없습니다.
         </p>
         <ol className="home-steps">
           <li>
-            <strong>1. 드래프트</strong> 8개 구단이 11라운드 스네이크 픽으로 베스트 XI 구성
+            <strong>1. 드래프트</strong> 모든 구단이 11라운드 동안 후보 카드 중 골라 베스트 XI 구성
           </li>
           <li>
-            <strong>2. 대회</strong> 풀리그 또는 8강 토너먼트를 라운드별로 진행
+            <strong>2. 대회</strong> 리그(20팀·38R 홈/원정) 또는 컵(16강 토너먼트)을 라운드별로 진행
           </li>
           <li>
             <strong>3. 시상</strong> 우승 트로피와 득점왕까지, 시즌 기록 정산
