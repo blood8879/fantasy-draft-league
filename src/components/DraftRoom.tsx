@@ -23,17 +23,6 @@ type DraftRoomProps = {
   readonly dispatch: (action: GameAction) => void
 }
 
-const axisLabels: Readonly<Record<string, string>> = {
-  scoring: "결정력",
-  creation: "창의성",
-  progression: "전진",
-  control: "탈압박",
-  defense: "수비",
-  physical: "피지컬",
-  mobility: "스피드",
-  mental: "경기지능",
-}
-
 export function DraftRoom({ state, dispatch }: DraftRoomProps) {
   const [scoutClubId, setScoutClubId] = useState<string | undefined>(undefined)
   const [poolOpen, setPoolOpen] = useState(false)
@@ -301,7 +290,6 @@ function CandidateCard({
   readonly onPick: () => void
   readonly slotLabel: string | undefined
 }) {
-  const strengths = topAxes(card, 3)
   return (
     <button
       className={`candidate-card rarity-border-${card.rarity.toLowerCase()}`}
@@ -316,24 +304,9 @@ function CandidateCard({
       <span className="candidate-meta">
         {card.positions.join("/")} · {card.country}
       </span>
-      <ul className="candidate-axes">
-        {strengths.map((axis) => (
-          <li key={axis.key}>
-            <span>{axisLabels[axis.key] ?? axis.key}</span>
-            <span className="candidate-axis-val">{axis.value}</span>
-          </li>
-        ))}
-      </ul>
       <span className="candidate-pick-cta">
         {slotLabel === undefined ? "지명" : `${slotLabel} 자리에 지명`}
       </span>
     </button>
   )
-}
-
-function topAxes(card: PlayerCard, count: number): readonly { key: string; value: number }[] {
-  return Object.entries(card.internalScores)
-    .map(([key, value]) => ({ key, value }))
-    .sort((left, right) => right.value - left.value)
-    .slice(0, count)
 }
