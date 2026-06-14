@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">레전드 드래프트 리그</string>
+    <string name="title_activity_main">레전드 드래프트 리그</string>
+    <string name="package_name">com.legenddraft.league</string>
+    <string name="custom_url_scheme">com.legenddraft.league</string>
+</resources>

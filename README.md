@@ -1,0 +1,75 @@
+# 레전드 드래프트 리그 (Legend Draft League)
+
+역대 축구 레전드 500인이 한 풀에 모인 **판타지 드래프트 + 시즌 시뮬레이션** 싱글플레이 웹게임.
+
+## 게임 컨셉
+
+> 나와 AI 감독 7명, 총 8개 구단이 **스네이크 드래프트**로 한 명씩 선수를 지명해 베스트 XI를
+> 완성하고, 그 스쿼드로 **풀리그(7라운드)** 또는 **녹아웃 컵(8강)** 한 시즌을 치러
+> 우승 트로피와 득점왕을 노린다.
+
+핵심 규칙:
+
+1. **드래프트** — 11라운드 × 8구단 = 총 88픽. 픽 순서는 매 라운드 뒤집히는 스네이크 방식.
+   내가 지명한 선수는 다른 구단이 영입할 수 없다. AI 감독 7명은 각자 뚜렷한 철학(카테나치오,
+   티키타카, 게겐프레싱, 역습, 스타 수집 등)에 따라 선수를 평가해 지명한다.
+2. **대회** — 리그 모드는 8팀 싱글 라운드로빈(7라운드, 승점제), 컵 모드는 8강
+   싱글 엘리미네이션(무승부 시 승부차기). 라운드마다 내 전술(점유율/강한 압박/역습/로우블록)을
+   바꿀 수 있다.
+3. **경기 엔진** — 양 팀 스쿼드에서 공격력·기회창출·중원장악·압박저항·수비안정 등
+   팀 프로파일을 계산하고, xG 기반 푸아송 샘플링으로 스코어를 결정한다(시드 기반 결정론).
+   득점은 선수별 득점 능력치에 가중 배분되어 시즌 득점왕 레이스가 만들어진다.
+4. **시즌 결산** — 우승 구단, 최종 순위/대진 결과, 득점왕 TOP 10을 시상 화면에서 정산.
+
+진행 중인 시즌은 localStorage에 자동 저장되며 홈 화면에서 이어할 수 있다.
+
+## 실행
+
+```bash
+bun install
+bun run dev        # http://localhost:5173
+```
+
+품질 체크:
+
+```bash
+bun run check      # biome lint/format
+bun run typecheck  # tsc --noEmit
+bun run test       # vitest (도메인 + 풀 플로우 E2E)
+bun run build      # 프로덕션 빌드
+```
+
+## 구조
+
+| 영역 | 경로 |
+| --- | --- |
+| 스네이크 드래프트 엔진 (AI 픽 포함) | `src/domain/fantasyDraft.ts` |
+| 리그 일정·순위표·컵 대진·득점왕 | `src/domain/competition.ts` |
+| 구단/AI 감독 페르소나 | `src/domain/game.ts` |
+| 경기 시뮬레이션 (xG·득점자·승부차기) | `src/simulation/fixture.ts`, `src/simulation/teamProfile.ts` |
+| 게임 상태 리듀서 + 저장 | `src/app/gameStore.ts` |
+| 화면 (홈/드래프트/시즌/리포트/시상) | `src/components/` |
+| 선수 데이터 (텍스트 전용, 포지션별 50인 × 10) | `src/data/curatedPlayerPool.json` 외 |
+
+선수 데이터는 공개된 이름·국가·포지션 텍스트만 사용한다(사진·엠블럼·연도 스탯 없음).
+평가 기준은 `docs/rating-rubric.md` 참고.
+
+## 모바일 & 수익화 (AdMob)
+
+Capacitor로 Android/iOS 앱 빌드가 가능하며, 광고는 AdMob을 네이티브 레이어에
+오버레이한다. 웹에서는 동일 코드가 mock 광고로 동작한다. 보상형 광고 포인트는
+재경기·지명 되돌리기·스카우트 리포트 3종, 전면 광고는 라운드 전환 시 노출된다.
+
+```bash
+bun run cap:sync       # 웹 빌드 → 네이티브 동기화
+bun run cap:android    # Android Studio 열기
+```
+
+광고 단위 설정, App ID 교체, 출시 체크리스트는 `docs/mobile-admob.md` 참고.
+
+## 웹 배포 & 광고
+
+Vite 정적 빌드라 Vercel에 그대로 배포된다(`vercel.json` 포함). 웹 광고는 Google
+**H5 Games Ads**로 연결돼 있고, 게시자 ID(`VITE_ADSENSE_CLIENT`)를 넣으면 리롤·재경기
+등 보상형 광고가 실제로 뜬다. ID가 없으면 mock으로 폴백하므로 승인 전에도 배포·플레이가
+가능하다. 배포 절차와 AdSense 연결은 `docs/deploy-and-web-ads.md` 참고.

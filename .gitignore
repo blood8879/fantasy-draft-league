@@ -1,0 +1,25 @@
+node_modules/
+dist/
+*.log
+
+# Capacitor / 네이티브 빌드 산출물
+android/app/build/
+android/build/
+android/.gradle/
+android/captures/
+android/local.properties
+ios/App/Pods/
+ios/App/build/
+ios/App/output/
+DerivedData/
+
+# 환경 변수 (실제 AdMob 광고 단위 ID 등)
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+
+# 작업 도구 산출물
+.omo/
