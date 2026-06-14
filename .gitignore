@@ -31,3 +31,8 @@ DerivedData/
 # 임베드 빌드/배포 zip
 dist-embed
 *.zip
+
+# Android 서명 키 (절대 커밋 금지)
+*.jks
+*.keystore
+android/keystore.properties

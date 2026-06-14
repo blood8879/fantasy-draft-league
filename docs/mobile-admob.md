@@ -68,6 +68,31 @@ bun run cap:ios            # build + sync ios + open ios
 `android/` 네이티브 프로젝트는 이미 생성되어 있다(`@capacitor/android`). 웹 코드를
 바꾼 뒤에는 `bun run cap:sync`로 다시 동기화하면 된다.
 
+## AAB 빌드 (플레이스토어 업로드용)
+
+```bash
+bun run android:aab
+```
+
+- 산출물: `android/app/build/outputs/bundle/release/app-release.aab`
+- **JDK 21 필요** (Capacitor 8 요구사항). 스크립트가 `/usr/libexec/java_home -v 21`로
+  자동 지정한다. 없으면 `brew install openjdk@21`.
+- **서명 키스토어**는 `android/app/upload-keystore.jks`, 비밀번호는
+  `android/keystore.properties`에 있다. **두 파일 다 git에 커밋되지 않으며(.gitignore),
+  분실하지 않도록 안전하게 백업**해야 한다. (플레이스토어는 Play App Signing을 쓰므로
+  이건 "업로드 키" — 분실 시 구글에 재설정 요청 가능)
+
+## AdMob 실제 광고 ID 적용 (출시 전)
+
+1. [AdMob 콘솔](https://apps.admob.com)에서 **앱 추가** → Android, 패키지명
+   `com.legenddraft.league`.
+2. **광고 단위** 생성: 보상형(Rewarded) + 전면(Interstitial) → 각 단위 ID 발급.
+3. **앱 ID**(`ca-app-pub-XXXX~YYYY`)를 `android/app/src/main/AndroidManifest.xml`의
+   `com.google.android.gms.ads.APPLICATION_ID` 값으로 교체.
+4. **광고 단위 ID**를 `.env`에 입력:
+   `VITE_ADMOB_REWARDED_ANDROID`, `VITE_ADMOB_INTERSTITIAL_ANDROID`.
+5. `bun run android:aab`로 재빌드.
+
 ## 출시 전 체크리스트
 
 - [ ] `.env`에 실제 광고 단위 ID 4종 입력 (또는 의도적으로 테스트 ID 유지)

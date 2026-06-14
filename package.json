@@ -16,7 +16,8 @@
     "cap:add:ios": "cap add ios",
     "cap:sync": "bun run build && cap sync",
     "cap:android": "bun run build && cap sync android && cap open android",
-    "cap:ios": "bun run build && cap sync ios && cap open ios"
+    "cap:ios": "bun run build && cap sync ios && cap open ios",
+    "android:aab": "bun run build && cap sync android && cd android && JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew bundleRelease"
   },
   "overrides": {
     "vite": "4.5.5"
