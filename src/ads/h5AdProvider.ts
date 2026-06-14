@@ -59,7 +59,11 @@ export function createH5AdProvider(): AdProvider {
       if (client === undefined || typeof document === "undefined") {
         return
       }
-      if (document.querySelector("script[data-h5-ads]") !== null) {
+      // index.html에 정적으로 넣은 adsbygoogle 태그가 이미 있으면 다시 로드하지 않는다.
+      if (
+        document.querySelector("script[data-h5-ads]") !== null ||
+        document.querySelector('script[src*="adsbygoogle"]') !== null
+      ) {
         return
       }
       const script = document.createElement("script")
