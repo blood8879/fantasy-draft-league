@@ -36,3 +36,6 @@ dist-embed
 *.jks
 *.keystore
 android/keystore.properties
+
+# 스토어 스크린샷(로컬 업로드용)
+store-assets/
