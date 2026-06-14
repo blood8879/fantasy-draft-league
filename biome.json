@@ -41,6 +41,6 @@
     }
   },
   "files": {
-    "ignore": ["node_modules", "dist", "coverage", "android", "ios", ".vercel"]
+    "ignore": ["node_modules", "dist", "dist-embed", "coverage", "android", "ios", ".vercel"]
   }
 }

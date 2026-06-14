@@ -27,3 +27,7 @@ DerivedData/
 
 # Vercel
 .vercel
+
+# 임베드 빌드/배포 zip
+dist-embed
+*.zip

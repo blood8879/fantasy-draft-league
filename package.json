@@ -11,6 +11,7 @@
     "format": "biome check --write .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "build:embed": "vite build --base ./ --outDir dist-embed",
     "cap:add:android": "cap add android",
     "cap:add:ios": "cap add ios",
     "cap:sync": "bun run build && cap sync",

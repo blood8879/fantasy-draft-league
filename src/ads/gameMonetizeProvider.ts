@@ -3,17 +3,14 @@ import { createMockAdProvider } from "./mockAdProvider"
 import type { AdProvider, RewardedAction, RewardedOutcome } from "./types"
 
 /**
- * GameMonetize HTML5 광고 provider — 스켈레톤.
+ * GameMonetize HTML5 광고 provider.
  *
- * - VITE_GAMEMONETIZE_ID(게임 ID)가 설정되면 GameMonetize SDK를 동적 로드하고,
- *   보상형/전면 광고를 sdk.showBanner() + onEvent 콜백으로 처리한다.
- * - ID가 없거나 SDK가 아직 준비되지 않았으면 mock provider로 폴백한다.
+ * GameMonetize SDK는 sdk.showBanner() 하나로 광고를 띄우고, onEvent로
+ * SDK_GAME_PAUSE(광고 시작) → SDK_GAME_START(광고 종료) 흐름을 알려준다. 별도의
+ * 보상형 전용 콜백이 없으므로, 광고가 끝나(SDK_GAME_START) 콘텐츠가 재개되는 시점에
+ * 보상을 지급한다(광고 인벤토리가 없어 바로 재개돼도 진행이 막히지 않는다).
  *
- * 실제 광고를 켜려면: GameMonetize 가입 → 게임 등록 → 발급된 게임 ID를
- * .env(VITE_GAMEMONETIZE_ID) / Vercel 환경변수에 설정.
- *
- * ⚠️ 아래 onEvent의 이벤트 이름(SDK_REWARDED_WATCH_COMPLETE 등)은 GameMonetize SDK
- *    문서 기준 스켈레톤이다. 실제 통합 시 대시보드의 최신 SDK 가이드로 확인·조정한다.
+ * VITE_GAMEMONETIZE_ID가 없거나 SDK가 준비되지 않았으면 mock으로 폴백한다.
  */
 
 type SdkEvent = { readonly name: string }
@@ -37,14 +34,19 @@ export function createGameMonetizeProvider(): AdProvider {
   const fallback = createMockAdProvider()
   let rewardResolver: ((outcome: RewardedOutcome) => void) | undefined
   let interstitialResolver: (() => void) | undefined
-  let rewardedWatched = false
 
   function settleReward(outcome: RewardedOutcome): void {
     if (rewardResolver !== undefined) {
       rewardResolver(outcome)
       rewardResolver = undefined
     }
-    rewardedWatched = false
+  }
+
+  function settleInterstitial(): void {
+    if (interstitialResolver !== undefined) {
+      interstitialResolver()
+      interstitialResolver = undefined
+    }
   }
 
   return {
@@ -61,18 +63,10 @@ export function createGameMonetizeProvider(): AdProvider {
       window.SDK_OPTIONS = {
         gameId,
         onEvent: (event) => {
-          if (event.name === "SDK_REWARDED_WATCH_COMPLETE") {
-            rewardedWatched = true
-          }
-          // 광고가 끝나 콘텐츠가 재개되는 시점에 보상 여부를 확정한다.
+          // 광고가 끝나 콘텐츠가 재개되는 시점에 보상을 지급한다.
           if (event.name === "SDK_GAME_START") {
-            settleReward(
-              rewardedWatched ? { rewarded: true } : { rewarded: false, reason: "dismissed" },
-            )
-            if (interstitialResolver !== undefined) {
-              interstitialResolver()
-              interstitialResolver = undefined
-            }
+            settleReward({ rewarded: true })
+            settleInterstitial()
           }
         },
       }
@@ -87,16 +81,13 @@ export function createGameMonetizeProvider(): AdProvider {
         return fallback.showRewarded(action)
       }
       return new Promise<RewardedOutcome>((resolve) => {
-        rewardResolver = resolve
-        rewardedWatched = false
         const timer = setTimeout(
           () => settleReward({ rewarded: false, reason: "not_ready" }),
           AD_TIMEOUT_MS,
         )
-        const original = rewardResolver
         rewardResolver = (outcome) => {
           clearTimeout(timer)
-          original(outcome)
+          resolve(outcome)
         }
         window.sdk?.showBanner()
       })
@@ -107,17 +98,10 @@ export function createGameMonetizeProvider(): AdProvider {
         return fallback.showInterstitial()
       }
       return new Promise<void>((resolve) => {
-        interstitialResolver = resolve
-        const timer = setTimeout(() => {
-          if (interstitialResolver !== undefined) {
-            interstitialResolver()
-            interstitialResolver = undefined
-          }
-        }, AD_TIMEOUT_MS)
-        const original = interstitialResolver
+        const timer = setTimeout(() => settleInterstitial(), AD_TIMEOUT_MS)
         interstitialResolver = () => {
           clearTimeout(timer)
-          original()
+          resolve()
         }
         window.sdk?.showBanner()
       })
