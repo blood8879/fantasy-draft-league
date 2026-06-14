@@ -48,6 +48,11 @@ export function getAdsenseClient(): string | undefined {
   return env("VITE_ADSENSE_CLIENT")
 }
 
+/** GameMonetize 게임 ID. 설정되면 웹 광고를 GameMonetize SDK로 처리한다. */
+export function getGameMonetizeId(): string | undefined {
+  return env("VITE_GAMEMONETIZE_ID")
+}
+
 /** 실제 광고 ID가 하나라도 주입됐는지 — 프로덕션 빌드 점검용 */
 export function isUsingTestAds(): boolean {
   return (
