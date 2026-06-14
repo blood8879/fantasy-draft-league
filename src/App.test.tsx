@@ -36,6 +36,19 @@ function completeDraft(): void {
   throw new Error("draft did not complete")
 }
 
+// 킥오프 후 라이브 경기면 "건너뛰기"로 즉시 종료하고, 결과 화면에서 다음으로 넘어간다.
+async function advancePastMatch(): Promise<void> {
+  const button = await screen.findByRole("button", {
+    name: /건너뛰기|계속 진행|시즌 결산 보기/,
+  })
+  if (button.textContent?.includes("건너뛰기")) {
+    fireEvent.click(button)
+    fireEvent.click(await screen.findByRole("button", { name: /계속 진행|시즌 결산 보기/ }))
+  } else {
+    fireEvent.click(button)
+  }
+}
+
 describe("레전드 드래프트 리그 앱", () => {
   beforeEach(() => {
     window.localStorage.clear()
@@ -68,8 +81,7 @@ describe("레전드 드래프트 리그 앱", () => {
     // 38라운드 전체 완주는 느리므로 초반 3라운드 진행만 확인한다
     for (let round = 1; round <= 3; round += 1) {
       fireEvent.click(await screen.findByRole("button", { name: /킥오프|관전/ }))
-      expect(await screen.findByText(`${round}라운드 결과`)).toBeInTheDocument()
-      fireEvent.click(screen.getByRole("button", { name: "계속 진행" }))
+      await advancePastMatch()
     }
     expect(await screen.findByText("리그 순위표")).toBeInTheDocument()
   }, 20000)
@@ -87,11 +99,7 @@ describe("레전드 드래프트 리그 앱", () => {
     // 16강 → 8강 → 준결승 → 결승 (4라운드)
     for (let stage = 1; stage <= 4; stage += 1) {
       fireEvent.click(await screen.findByRole("button", { name: /킥오프|관전/ }))
-      fireEvent.click(
-        await screen.findByRole("button", {
-          name: stage < 4 ? "계속 진행" : "시즌 결산 보기",
-        }),
-      )
+      await advancePastMatch()
     }
 
     expect(await screen.findByText(/컵 우승/)).toBeInTheDocument()

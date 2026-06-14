@@ -1206,6 +1206,178 @@
   padding: 7px 0;
 }
 
+/* ---------- 라이브 경기 관전 ---------- */
+
+.live-match {
+  display: grid;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.live-head {
+  text-align: center;
+}
+
+.live-board {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid #10201b;
+  background: linear-gradient(180deg, #10201b, #1c3a30);
+  color: #f4f0df;
+  padding: 22px 20px;
+  transition: box-shadow 0.2s ease;
+}
+
+.live-board--flash-home {
+  box-shadow: inset 12px 0 0 -4px #e6ff74;
+}
+
+.live-board--flash-away {
+  box-shadow: inset -12px 0 0 -4px #e6ff74;
+}
+
+.live-team {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+}
+
+.live-team-swatch {
+  width: 26px;
+  aspect-ratio: 1;
+  border-radius: 3px;
+}
+
+.live-team-name {
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.live-team[data-user="true"] .live-team-name {
+  color: #e6ff74;
+}
+
+.live-score-wrap {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+}
+
+.live-score {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.live-clock {
+  border-radius: 999px;
+  background: rgba(230, 255, 116, 0.18);
+  color: #e6ff74;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 2px 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.live-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(16, 32, 27, 0.14);
+  overflow: hidden;
+}
+
+.live-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2e6b34, #e6ff74);
+}
+
+.live-timeline {
+  min-height: 160px;
+  border: 1px solid rgba(16, 32, 27, 0.18);
+  background: rgba(244, 240, 223, 0.6);
+  padding: 14px 16px;
+}
+
+.live-timeline-empty {
+  color: #496054;
+  font-weight: 700;
+  text-align: center;
+  padding: 48px 0;
+}
+
+.live-timeline ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.live-event {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  animation: live-event-in 0.35s ease;
+}
+
+.live-event--away {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.live-event-min {
+  min-width: 34px;
+  color: #b3541e;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.live-event-assist {
+  color: #74837b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+@keyframes live-event-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.live-shootout {
+  border: 1px solid rgba(16, 32, 27, 0.3);
+  background: rgba(230, 255, 116, 0.4);
+  font-weight: 800;
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.live-fulltime {
+  display: grid;
+  gap: 14px;
+}
+
+.live-result-line {
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center;
+}
+
 /* ---------- 경기 리포트 ---------- */
 
 .match-report {

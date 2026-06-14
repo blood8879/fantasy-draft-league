@@ -1,7 +1,7 @@
 import type { PlayerCard } from "../data/schema"
 import type { DraftState } from "../domain/draft"
 import type { Club } from "../domain/game"
-import { type Rng, createRng, weightedPick } from "../domain/rng"
+import { type Rng, createRng, shuffle, weightedPick } from "../domain/rng"
 import { createTeamProfile } from "./teamProfile"
 import type { TeamProfile } from "./types"
 
@@ -9,6 +9,15 @@ export type GoalScorer = {
   readonly cardId: string
   readonly label: string
   readonly count: number
+}
+
+/** 라이브 관전용 골 이벤트(몇 분에 누가 넣었는지) */
+export type MatchEvent = {
+  readonly minute: number
+  readonly side: "home" | "away"
+  readonly cardId: string
+  readonly label: string
+  readonly assistLabel: string | undefined
 }
 
 export type ShootoutResult = {
@@ -26,6 +35,7 @@ export type FixtureResult = {
   readonly awayScorers: readonly GoalScorer[]
   readonly homeAssists: readonly GoalScorer[]
   readonly awayAssists: readonly GoalScorer[]
+  readonly events: readonly MatchEvent[]
   readonly homeProfile: TeamProfile
   readonly awayProfile: TeamProfile
   readonly shootout: ShootoutResult | undefined
@@ -57,8 +67,9 @@ export function simulateFixture(input: SimulateFixtureInput): FixtureResult {
   const homeGoals = sampleGoals(homeXg, rng)
   const awayGoals = sampleGoals(awayXg, rng)
 
-  const home = attributeGoals(input.home.squad, input.cards, homeGoals, rng)
-  const away = attributeGoals(input.away.squad, input.cards, awayGoals, rng)
+  const homeRaw = buildGoalEvents(input.home.squad, input.cards, homeGoals, "home", rng)
+  const awayRaw = buildGoalEvents(input.away.squad, input.cards, awayGoals, "away", rng)
+  const events = assignMinutes([...homeRaw, ...awayRaw], rng)
 
   const shootout =
     !input.allowDraw && homeGoals === awayGoals
@@ -70,10 +81,21 @@ export function simulateFixture(input: SimulateFixtureInput): FixtureResult {
     awayGoals,
     homeXg: roundOne(homeXg),
     awayXg: roundOne(awayXg),
-    homeScorers: home.scorers,
-    awayScorers: away.scorers,
-    homeAssists: home.assists,
-    awayAssists: away.assists,
+    homeScorers: tallyEvents(
+      events,
+      "home",
+      (event) => event.cardId,
+      (event) => event.label,
+    ),
+    awayScorers: tallyEvents(
+      events,
+      "away",
+      (event) => event.cardId,
+      (event) => event.label,
+    ),
+    homeAssists: tallyAssists(events, "home"),
+    awayAssists: tallyAssists(events, "away"),
+    events,
     homeProfile,
     awayProfile,
     shootout,
@@ -92,40 +114,6 @@ export function getFixtureWinnerId(
     return awayId
   }
   return result.shootout?.winnerClubId
-}
-
-export function describeMatchForClub(result: FixtureResult, isHome: boolean): readonly string[] {
-  const mine = isHome ? result.homeProfile : result.awayProfile
-  const theirs = isHome ? result.awayProfile : result.homeProfile
-  const myGoals = isHome ? result.homeGoals : result.awayGoals
-  const theirGoals = isHome ? result.awayGoals : result.homeGoals
-
-  const lines: string[] = []
-  if (mine.midfieldControl > theirs.midfieldControl + 3) {
-    lines.push("중원 장악력에서 우위를 점하며 경기 템포를 통제했습니다.")
-  } else if (theirs.midfieldControl > mine.midfieldControl + 3) {
-    lines.push("중원 싸움에서 밀리며 점유 구간을 자주 내줬습니다.")
-  }
-  if (mine.attack > theirs.defensiveStability + 4) {
-    lines.push("공격진이 상대 수비 라인을 반복적으로 흔들었습니다.")
-  }
-  if (theirs.attack > mine.defensiveStability + 4) {
-    lines.push("상대 공격력이 우리 수비 안정성을 상회해 위험 장면이 많았습니다.")
-  }
-  if (mine.pressResistance < theirs.attack - 8) {
-    lines.push("강한 압박 아래에서 빌드업이 흔들리는 장면이 나왔습니다.")
-  }
-  if (mine.chemistry >= 90) {
-    lines.push("같은 시대 선수 조합의 케미스트리가 시너지를 냈습니다.")
-  }
-  if (myGoals > theirGoals) {
-    lines.push("결정적인 순간의 집중력이 승점을 가져왔습니다.")
-  } else if (myGoals < theirGoals) {
-    lines.push("기회 대비 마무리가 아쉬워 승부가 기울었습니다.")
-  } else {
-    lines.push("양 팀 모두 결정타를 꽂지 못한 팽팽한 승부였습니다.")
-  }
-  return lines
 }
 
 function sideXg(attacking: TeamProfile, defending: TeamProfile, homeBonus: number): number {
@@ -159,54 +147,100 @@ function sampleGoals(xg: number, rng: Rng): number {
 /** 한 골이 도움 없이 터질(개인 돌파·세트피스 등) 확률 */
 const SOLO_GOAL_CHANCE = 0.28
 
-function attributeGoals(
+type RawGoal = Omit<MatchEvent, "minute">
+
+/** 한 팀의 골들에 대해 득점자·도움자를 정하되, 분(minute)은 아직 비워둔다. */
+function buildGoalEvents(
   squad: DraftState,
   cards: readonly PlayerCard[],
   goals: number,
+  side: "home" | "away",
   rng: Rng,
-): { readonly scorers: readonly GoalScorer[]; readonly assists: readonly GoalScorer[] } {
+): readonly RawGoal[] {
   const lineup = squad.picks.flatMap((pick) => {
     const card = cards.find((candidate) => candidate.id === pick.cardId)
     return card === undefined ? [] : [card]
   })
   if (lineup.length === 0 || goals === 0) {
-    return { scorers: [], assists: [] }
+    return []
   }
-  const scorerCounts = new Map<string, number>()
-  const assistCounts = new Map<string, number>()
+  const result: RawGoal[] = []
   for (let goal = 0; goal < goals; goal += 1) {
     const scorer = weightedPick(lineup, scorerWeight, rng)
     if (scorer === undefined) {
       continue
     }
-    scorerCounts.set(scorer.id, (scorerCounts.get(scorer.id) ?? 0) + 1)
     // 득점자 본인을 제외한 동료 중에서 도움자를 가중 추첨한다(일부는 솔로골).
-    if (rng() >= SOLO_GOAL_CHANCE) {
-      const assister = weightedPick(
-        lineup.filter((card) => card.id !== scorer.id),
-        assistWeight,
-        rng,
-      )
-      if (assister !== undefined) {
-        assistCounts.set(assister.id, (assistCounts.get(assister.id) ?? 0) + 1)
-      }
-    }
+    const assister =
+      rng() >= SOLO_GOAL_CHANCE
+        ? weightedPick(
+            lineup.filter((card) => card.id !== scorer.id),
+            assistWeight,
+            rng,
+          )
+        : undefined
+    result.push({
+      side,
+      cardId: scorer.id,
+      label: scorer.label,
+      assistLabel: assister?.label,
+    })
   }
-  return {
-    scorers: toTally(scorerCounts, lineup),
-    assists: toTally(assistCounts, lineup),
-  }
+  return result
 }
 
-function toTally(
-  counts: ReadonlyMap<string, number>,
-  lineup: readonly PlayerCard[],
+/** 양 팀 골에 1~90분을 결정적으로 배정하고 분 순서대로 정렬한다. */
+function assignMinutes(raw: readonly RawGoal[], rng: Rng): readonly MatchEvent[] {
+  if (raw.length === 0) {
+    return []
+  }
+  const minutes = uniqueMinutes(raw.length, rng)
+  const shuffled = shuffle(raw, rng)
+  return shuffled
+    .map((goal, index) => ({ ...goal, minute: minutes[index] ?? 90 }))
+    .sort((left, right) => left.minute - right.minute)
+}
+
+function uniqueMinutes(count: number, rng: Rng): readonly number[] {
+  const picked = new Set<number>()
+  let guard = 0
+  while (picked.size < count && guard < count * 20 + 50) {
+    guard += 1
+    picked.add(1 + Math.floor(rng() * 90))
+  }
+  return Array.from(picked)
+}
+
+function tallyEvents(
+  events: readonly MatchEvent[],
+  side: "home" | "away",
+  keyOf: (event: MatchEvent) => string,
+  labelOf: (event: MatchEvent) => string,
 ): readonly GoalScorer[] {
-  return Array.from(counts.entries()).map(([cardId, count]) => ({
+  const counts = new Map<string, { label: string; count: number }>()
+  for (const event of events) {
+    if (event.side !== side) {
+      continue
+    }
+    const key = keyOf(event)
+    const existing = counts.get(key)
+    counts.set(key, { label: labelOf(event), count: (existing?.count ?? 0) + 1 })
+  }
+  return Array.from(counts.entries()).map(([cardId, value]) => ({
     cardId,
-    label: lineup.find((card) => card.id === cardId)?.label ?? cardId,
-    count,
+    label: value.label,
+    count: value.count,
   }))
+}
+
+function tallyAssists(events: readonly MatchEvent[], side: "home" | "away"): readonly GoalScorer[] {
+  const counts = new Map<string, number>()
+  for (const event of events) {
+    if (event.side === side && event.assistLabel !== undefined) {
+      counts.set(event.assistLabel, (counts.get(event.assistLabel) ?? 0) + 1)
+    }
+  }
+  return Array.from(counts.entries()).map(([label, count]) => ({ cardId: label, label, count }))
 }
 
 const positionGoalFactor: Readonly<Record<string, number>> = {
