@@ -1,7 +1,9 @@
 import { cardsById } from "../app/gameStore"
+import { tacticLabel } from "../components/labels"
 import { type DraftState, getSlotForFormation } from "../domain/draft"
 import { formationRows } from "../domain/formations"
 import type { Club } from "../domain/game"
+import { useI18n } from "../i18n"
 
 type SquadPitchProps = {
   readonly club: Club
@@ -10,6 +12,7 @@ type SquadPitchProps = {
 
 /** 한 구단의 스쿼드를 포메이션 배치(피치)로 보여준다. 빈 자리는 미지명으로 표시. */
 export function SquadPitch({ club, squad }: SquadPitchProps) {
+  const { t } = useI18n()
   const rows = formationRows[squad.formation]
   const pickBySlot = new Map(squad.picks.map((pick) => [pick.slotId, pick.cardId]))
   const filled = squad.picks.length
@@ -22,7 +25,7 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
           {club.name}
         </span>
         <span className="squad-pitch-meta">
-          {club.formation} · {club.tactic} · {filled}/11
+          {club.formation} · {tacticLabel(club.tactic, t)} · {filled}/11
         </span>
       </div>
       <div className="pitch">
@@ -38,7 +41,7 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
                   key={slotId}
                 >
                   <span className="pitch-slot-pos">{slot.label}</span>
-                  <span className="pitch-slot-name">{card?.label ?? "미지명"}</span>
+                  <span className="pitch-slot-name">{card?.label ?? t("pitch.unnamed")}</span>
                   {card !== undefined ? <span className="pitch-slot-cost">{card.cost}</span> : null}
                 </div>
               )

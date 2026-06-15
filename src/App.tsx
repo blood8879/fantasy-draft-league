@@ -16,14 +16,24 @@ import { MatchReport } from "./components/MatchReport"
 import { SeasonScreen } from "./components/SeasonScreen"
 import { getCurrentClubId } from "./domain/fantasyDraft"
 import { USER_CLUB_ID } from "./domain/game"
+import { I18nProvider } from "./i18n"
+import type { Locale } from "./i18n"
 
 const AI_PICK_DELAY_MS = 240
 
-export function App({ adProvider }: { readonly adProvider?: AdProvider }) {
+export function App({
+  adProvider,
+  initialLocale,
+}: {
+  readonly adProvider?: AdProvider
+  readonly initialLocale?: Locale | undefined
+}) {
   return (
-    <AdsProvider provider={adProvider}>
-      <GameApp />
-    </AdsProvider>
+    <I18nProvider initialLocale={initialLocale}>
+      <AdsProvider provider={adProvider}>
+        <GameApp />
+      </AdsProvider>
+    </I18nProvider>
   )
 }
 

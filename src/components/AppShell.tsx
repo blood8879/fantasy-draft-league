@@ -1,6 +1,7 @@
 import { ClipboardList, Play, Swords, Trophy } from "lucide-react"
 import type { ReactNode } from "react"
 import type { GamePhase } from "../app/gameStore"
+import { useI18n } from "../i18n"
 
 type AppShellProps = {
   readonly phase: GamePhase
@@ -9,35 +10,41 @@ type AppShellProps = {
 
 const steps: readonly {
   id: string
-  label: string
+  labelKey: string
   icon: ReactNode
   phases: readonly GamePhase[]
 }[] = [
-  { id: "home", label: "준비", icon: <Play aria-hidden="true" size={18} />, phases: ["home"] },
+  {
+    id: "home",
+    labelKey: "nav.prep",
+    icon: <Play aria-hidden="true" size={18} />,
+    phases: ["home"],
+  },
   {
     id: "draft",
-    label: "드래프트",
+    labelKey: "nav.draft",
     icon: <ClipboardList aria-hidden="true" size={18} />,
     phases: ["draft"],
   },
   {
     id: "season",
-    label: "대회",
+    labelKey: "nav.season",
     icon: <Swords aria-hidden="true" size={18} />,
     phases: ["season", "report"],
   },
   {
     id: "champion",
-    label: "시상",
+    labelKey: "nav.awards",
     icon: <Trophy aria-hidden="true" size={18} />,
     phases: ["champion"],
   },
 ]
 
 export function AppShell({ phase, children }: AppShellProps) {
+  const { t } = useI18n()
   return (
     <div className="app-frame">
-      <aside className="side-rail" aria-label="진행 단계">
+      <aside className="side-rail" aria-label="Progress">
         <div className="brand-mark">XI</div>
         <nav className="rail-nav">
           {steps.map((step) => (
@@ -47,7 +54,7 @@ export function AppShell({ phase, children }: AppShellProps) {
               key={step.id}
             >
               {step.icon}
-              <span>{step.label}</span>
+              <span>{t(step.labelKey)}</span>
             </div>
           ))}
         </nav>

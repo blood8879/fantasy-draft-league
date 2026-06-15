@@ -1,6 +1,7 @@
 import { type Fixture, computeStandings } from "../domain/competition"
 import type { Club } from "../domain/game"
 import { USER_CLUB_ID } from "../domain/game"
+import { useI18n } from "../i18n"
 
 type StandingsTableProps = {
   readonly clubs: readonly Club[]
@@ -9,6 +10,7 @@ type StandingsTableProps = {
 
 /** 승점·승/무/패·득점·실점·득실차를 모두 보여주는 리그 순위표 */
 export function StandingsTable({ clubs, fixtures }: StandingsTableProps) {
+  const { t } = useI18n()
   const clubsById = new Map(clubs.map((club) => [club.id, club]))
   const standings = computeStandings(
     clubs.map((club) => club.id),
@@ -19,34 +21,18 @@ export function StandingsTable({ clubs, fixtures }: StandingsTableProps) {
     <table className="league-table">
       <thead>
         <tr>
-          <th scope="col">#</th>
+          <th scope="col">{t("st.pos")}</th>
           <th className="club-col" scope="col">
-            구단
+            {t("st.club")}
           </th>
-          <th scope="col" title="경기">
-            경기
-          </th>
-          <th scope="col" title="승">
-            승
-          </th>
-          <th scope="col" title="무">
-            무
-          </th>
-          <th scope="col" title="패">
-            패
-          </th>
-          <th scope="col" title="득점">
-            득
-          </th>
-          <th scope="col" title="실점">
-            실
-          </th>
-          <th scope="col" title="득실차">
-            +/-
-          </th>
-          <th scope="col" title="승점">
-            승점
-          </th>
+          <th scope="col">{t("st.played")}</th>
+          <th scope="col">{t("st.won")}</th>
+          <th scope="col">{t("st.drawn")}</th>
+          <th scope="col">{t("st.lost")}</th>
+          <th scope="col">{t("st.gf")}</th>
+          <th scope="col">{t("st.ga")}</th>
+          <th scope="col">{t("st.diff")}</th>
+          <th scope="col">{t("st.points")}</th>
         </tr>
       </thead>
       <tbody>

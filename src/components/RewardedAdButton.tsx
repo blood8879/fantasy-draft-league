@@ -2,6 +2,7 @@ import { Film } from "lucide-react"
 import type { ReactNode } from "react"
 import type { RewardedAction } from "../ads"
 import { useAds } from "../ads/useAds"
+import { useI18n } from "../i18n"
 
 type RewardedAdButtonProps = {
   readonly action: RewardedAction
@@ -23,6 +24,7 @@ export function RewardedAdButton({
   disabled,
 }: RewardedAdButtonProps) {
   const { showRewarded, pendingAction } = useAds()
+  const { t } = useI18n()
   const busy = pendingAction !== undefined
   const isPlaying = pendingAction === action
 
@@ -41,7 +43,7 @@ export function RewardedAdButton({
       type="button"
     >
       <Film aria-hidden="true" size={15} />
-      <span>{isPlaying ? "광고 재생 중…" : children}</span>
+      <span>{isPlaying ? t("ad.playing") : children}</span>
     </button>
   )
 }

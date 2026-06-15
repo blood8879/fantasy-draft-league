@@ -7,6 +7,7 @@ import {
   computeTopScorers,
 } from "../domain/competition"
 import type { Club } from "../domain/game"
+import { useI18n } from "../i18n"
 
 type StatLeadersProps = {
   readonly clubs: readonly Club[]
@@ -17,13 +18,19 @@ type StatLeadersProps = {
 
 type Tab = "scorers" | "assists" | "cleansheets"
 
-const tabs: readonly { id: Tab; label: string; unit: string; crown: string }[] = [
-  { id: "scorers", label: "득점왕", unit: "골", crown: "👑" },
-  { id: "assists", label: "도움왕", unit: "도움", crown: "🅰️" },
-  { id: "cleansheets", label: "클린시트", unit: "회", crown: "🧤" },
+const tabs: readonly { id: Tab; labelKey: string; unitKey: string; crown: string }[] = [
+  { id: "scorers", labelKey: "stat.scorers", unitKey: "stat.unit.goals", crown: "👑" },
+  { id: "assists", labelKey: "stat.assists", unitKey: "stat.unit.assists", crown: "🅰️" },
+  {
+    id: "cleansheets",
+    labelKey: "stat.cleansheets",
+    unitKey: "stat.unit.cleansheets",
+    crown: "🧤",
+  },
 ]
 
 export function StatLeaders({ clubs, fixtures, goalkeepers, limit = 10 }: StatLeadersProps) {
+  const { t } = useI18n()
   const [tab, setTab] = useState<Tab>("scorers")
   const clubsById = new Map(clubs.map((club) => [club.id, club]))
 
@@ -34,7 +41,7 @@ export function StatLeaders({ clubs, fixtures, goalkeepers, limit = 10 }: StatLe
         ? computeTopAssisters(fixtures, limit)
         : computeCleanSheets(fixtures, goalkeepers, limit)
   const active = tabs.find((candidate) => candidate.id === tab)
-  const unit = active?.unit ?? ""
+  const unit = active === undefined ? "" : t(active.unitKey)
   const crown = active?.crown ?? "👑"
 
   return (
@@ -49,7 +56,7 @@ export function StatLeaders({ clubs, fixtures, goalkeepers, limit = 10 }: StatLe
             role="tab"
             type="button"
           >
-            {candidate.label}
+            {t(candidate.labelKey)}
           </button>
         ))}
       </div>
@@ -65,7 +72,7 @@ export function StatLeaders({ clubs, fixtures, goalkeepers, limit = 10 }: StatLe
             </span>
           </li>
         ))}
-        {rows.length === 0 ? <li className="pick-log-empty">아직 기록이 없습니다</li> : null}
+        {rows.length === 0 ? <li className="pick-log-empty">{t("stat.empty")}</li> : null}
       </ol>
     </div>
   )

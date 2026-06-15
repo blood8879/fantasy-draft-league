@@ -4,8 +4,8 @@ import { App } from "./App"
 import { createMockAdProvider } from "./ads/mockAdProvider"
 
 function renderApp() {
-  // 광고 지연 0ms를 주입해 보상/전면 흐름이 즉시 진행되도록 한다
-  render(<App adProvider={createMockAdProvider({ delayMs: 0 })} />)
+  // 광고 지연 0ms 주입 + 한국어 로케일 고정(검증 문구가 한국어 기준)
+  render(<App adProvider={createMockAdProvider({ delayMs: 0 })} initialLocale="ko" />)
 }
 
 function clickIfPresent(name: RegExp): boolean {

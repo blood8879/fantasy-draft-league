@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useAds } from "../ads/useAds"
 import type { GameAction, GameState } from "../app/gameStore"
-import { type Fixture, getCupRoundName, isCompetitionFinished } from "../domain/competition"
+import { roundLabel } from "../components/labels"
+import { type Fixture, isCompetitionFinished } from "../domain/competition"
 import { type Club, USER_CLUB_ID } from "../domain/game"
+import { type I18nValue, useI18n } from "../i18n"
 import { getFixtureWinnerId } from "../simulation/fixture"
 
 type MatchReportProps = {
@@ -17,6 +19,7 @@ const MATCH_DURATION_MS = 9000
 const FULL_TIME = 90
 
 export function MatchReport({ state, dispatch }: MatchReportProps) {
+  const { t } = useI18n()
   const { showInterstitial } = useAds()
   const competition = state.competition
   const userFixture = state.lastPlayedFixtures.find(
@@ -28,8 +31,7 @@ export function MatchReport({ state, dispatch }: MatchReportProps) {
   }
   const clubsById = new Map(state.clubs.map((club) => [club.id, club]))
   const playedRound = state.lastPlayedFixtures[0]?.round ?? 1
-  const roundLabel =
-    competition.kind === "리그" ? `${playedRound}라운드` : getCupRoundName(competition, playedRound)
+  const roundText = roundLabel(competition, playedRound, t)
   const otherFixtures = state.lastPlayedFixtures.filter((fixture) => fixture !== userFixture)
   const finished = isCompetitionFinished(competition)
 
@@ -45,16 +47,20 @@ export function MatchReport({ state, dispatch }: MatchReportProps) {
     return (
       <section className="match-report">
         <header>
-          <p className="eyebrow">{roundLabel} 결과</p>
-          <h2>이번 라운드 결과</h2>
+          <p className="eyebrow">{t("match.result", { round: roundText })}</p>
+          <h2>{t("match.thisRound")}</h2>
         </header>
-        <OtherResults clubsById={clubsById} fixtures={state.lastPlayedFixtures} title="경기 결과" />
+        <OtherResults
+          clubsById={clubsById}
+          fixtures={state.lastPlayedFixtures}
+          title={t("match.matchResults")}
+        />
         <button
           className="primary-action primary-action--bright"
           onClick={handleContinue}
           type="button"
         >
-          {finished ? "시즌 결산 보기" : "계속 진행"}
+          {finished ? t("match.seasonReview") : t("common.continue")}
         </button>
       </section>
     )
@@ -70,7 +76,7 @@ export function MatchReport({ state, dispatch }: MatchReportProps) {
         state.replayCheckpoint !== undefined ? () => dispatch({ type: "REPLAY_ROUND" }) : undefined
       }
       otherFixtures={otherFixtures}
-      roundLabel={roundLabel}
+      roundText={roundText}
     />
   )
 }
@@ -79,7 +85,7 @@ function LiveMatch({
   fixture,
   clubsById,
   otherFixtures,
-  roundLabel,
+  roundText,
   finished,
   onContinue,
   onReplay,
@@ -87,11 +93,12 @@ function LiveMatch({
   readonly fixture: Fixture
   readonly clubsById: Map<string, Club>
   readonly otherFixtures: readonly Fixture[]
-  readonly roundLabel: string
+  readonly roundText: string
   readonly finished: boolean
   readonly onContinue: () => void
   readonly onReplay: (() => void) | undefined
 }) {
+  const { t } = useI18n()
   const result = fixture.result
   const [minute, setMinute] = useState(0)
   const [flash, setFlash] = useState<"home" | "away" | undefined>(undefined)
@@ -153,7 +160,7 @@ function LiveMatch({
   return (
     <section className="live-match">
       <header className="live-head">
-        <p className="eyebrow">{roundLabel} · 라이브</p>
+        <p className="eyebrow">{t("match.live", { round: roundText })}</p>
       </header>
 
       <div className={`live-board${flash !== undefined ? ` live-board--flash-${flash}` : ""}`}>
@@ -186,7 +193,7 @@ function LiveMatch({
       <div className="live-timeline">
         {shownEvents.length === 0 ? (
           <p className="live-timeline-empty">
-            {isComplete ? "골 없이 끝난 경기" : "킥오프! 경기가 진행 중입니다…"}
+            {isComplete ? t("match.noGoals") : t("match.kickoff")}
           </p>
         ) : (
           <ul>
@@ -204,7 +211,10 @@ function LiveMatch({
                 <span className="live-event-text">
                   {event.label}
                   {event.assistLabel !== undefined ? (
-                    <span className="live-event-assist"> (도움 {event.assistLabel})</span>
+                    <span className="live-event-assist">
+                      {" "}
+                      ({t("match.assist", { name: event.assistLabel })})
+                    </span>
                   ) : null}
                 </span>
               </li>
@@ -215,27 +225,36 @@ function LiveMatch({
 
       {isComplete && result.shootout !== undefined ? (
         <p className="live-shootout">
-          승부차기 {result.shootout.home} - {result.shootout.away} ·{" "}
           {getFixtureWinnerId(result, fixture.homeId, fixture.awayId) === USER_CLUB_ID
-            ? "승리"
-            : "패배"}
+            ? t("match.shootoutWinLine", {
+                home: result.shootout.home,
+                away: result.shootout.away,
+              })
+            : t("match.shootoutLossLine", {
+                home: result.shootout.home,
+                away: result.shootout.away,
+              })}
         </p>
       ) : null}
 
       {!isComplete ? (
         <button className="ghost-action" onClick={skip} type="button">
-          건너뛰기 ⏭
+          {t("common.skip")}
         </button>
       ) : (
         <div className="live-fulltime">
-          <p className="live-result-line">{resultHeadline(result, userIsHome)}</p>
+          <p className="live-result-line">{resultHeadline(result, userIsHome, t)}</p>
           {otherFixtures.length > 0 ? (
-            <OtherResults clubsById={clubsById} fixtures={otherFixtures} title="다른 경기" />
+            <OtherResults
+              clubsById={clubsById}
+              fixtures={otherFixtures}
+              title={t("match.otherMatches")}
+            />
           ) : null}
           <div className="report-actions">
             {onReplay !== undefined && !didUserWin(result, userIsHome) ? (
               <button className="rewarded-ad-button" onClick={onReplay} type="button">
-                재경기 도전
+                {t("match.replay")}
               </button>
             ) : null}
             <button
@@ -243,7 +262,7 @@ function LiveMatch({
               onClick={onContinue}
               type="button"
             >
-              {finished ? "시즌 결산 보기" : "계속 진행"}
+              {finished ? t("match.seasonReview") : t("common.continue")}
             </button>
           </div>
         </div>
@@ -291,17 +310,23 @@ function didUserWin(result: NonNullable<Fixture["result"]>, userIsHome: boolean)
   return myGoals > theirGoals
 }
 
-function resultHeadline(result: NonNullable<Fixture["result"]>, userIsHome: boolean): string {
+function resultHeadline(
+  result: NonNullable<Fixture["result"]>,
+  userIsHome: boolean,
+  t: I18nValue["t"],
+): string {
   const myGoals = userIsHome ? result.homeGoals : result.awayGoals
   const theirGoals = userIsHome ? result.awayGoals : result.homeGoals
   if (result.shootout !== undefined) {
-    return result.shootout.winnerClubId === USER_CLUB_ID ? "승부차기 끝에 승리!" : "승부차기 패배…"
+    return result.shootout.winnerClubId === USER_CLUB_ID
+      ? t("match.shootoutWin")
+      : t("match.shootoutLoss")
   }
   if (myGoals > theirGoals) {
-    return "승리!"
+    return t("match.win")
   }
   if (myGoals < theirGoals) {
-    return "패배…"
+    return t("match.loss")
   }
-  return "무승부"
+  return t("match.draw")
 }

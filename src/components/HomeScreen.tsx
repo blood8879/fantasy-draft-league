@@ -1,7 +1,9 @@
 import { useState } from "react"
 import { type GameMode, gameModes } from "../domain/game"
 import { type FormationType, type TacticType, formationTypes, tacticTypes } from "../domain/types"
+import { type Locale, localeNames, locales, useI18n } from "../i18n"
 import { FormationSelector } from "./FormationSelector"
+import { tacticLabel } from "./labels"
 
 type HomeScreenProps = {
   readonly hasSave: boolean
@@ -14,12 +16,18 @@ type HomeScreenProps = {
   ) => void
 }
 
-const modeDescriptions: Readonly<Record<GameMode, string>> = {
-  리그: "20개 구단 풀리그 38라운드(홈&원정). 승점으로 우승을 가립니다.",
-  컵: "16강 토너먼트. 지면 끝, 무승부는 승부차기.",
+const modeDescriptionKey: Readonly<Record<GameMode, string>> = {
+  리그: "home.modeLeagueDesc",
+  컵: "home.modeCupDesc",
+}
+
+const modeNameKey: Readonly<Record<GameMode, string>> = {
+  리그: "home.modeLeague",
+  컵: "home.modeCup",
 }
 
 export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
+  const { t, locale, setLocale } = useI18n()
   const [mode, setMode] = useState<GameMode>("리그")
   const [clubName, setClubName] = useState("")
   const [formation, setFormation] = useState<FormationType>("4-3-3")
@@ -28,35 +36,44 @@ export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
   return (
     <section className="home-screen">
       <header className="home-hero">
-        <p className="eyebrow">Legend Draft League</p>
-        <h1>
-          레전드
-          <br />
-          드래프트 리그
-        </h1>
-        <p className="home-pitch">
-          역대 최고의 선수 1,100명이 한 풀에 모였습니다. 나와 AI 감독들이 한 명씩 번갈아, 매 차례
-          제시되는 후보 카드 중에서 원하는 포지션의 선수를 골라 베스트 XI를 완성합니다. 그 팀으로 한
-          시즌을 치러 우승에 도전하세요. 내가 지명한 선수는 다른 구단이 영입할 수 없습니다.
-        </p>
+        <p className="eyebrow">{t("home.eyebrow")}</p>
+        <h1>{t("home.title")}</h1>
+        <p className="home-pitch">{t("home.pitch")}</p>
         <ol className="home-steps">
           <li>
-            <strong>1. 드래프트</strong> 모든 구단이 11라운드 동안 후보 카드 중 골라 베스트 XI 구성
+            <strong>{t("home.step1.title")}</strong> {t("home.step1.body")}
           </li>
           <li>
-            <strong>2. 대회</strong> 리그(20팀·38R 홈/원정) 또는 컵(16강 토너먼트)을 라운드별로 진행
+            <strong>{t("home.step2.title")}</strong> {t("home.step2.body")}
           </li>
           <li>
-            <strong>3. 시상</strong> 우승 트로피와 득점왕까지, 시즌 기록 정산
+            <strong>{t("home.step3.title")}</strong> {t("home.step3.body")}
           </li>
         </ol>
       </header>
 
       <div className="home-setup draft-aside">
-        <h2 className="home-setup-title">새 시즌 설정</h2>
+        <h2 className="home-setup-title">{t("home.setupTitle")}</h2>
 
-        <fieldset className="setup-field" aria-label="대회 방식">
-          <span className="setup-label">대회 방식</span>
+        <fieldset className="setup-field" aria-label={t("common.language")}>
+          <span className="setup-label">{t("common.language")}</span>
+          <div className="tactic-row">
+            {locales.map((candidate: Locale) => (
+              <button
+                aria-pressed={locale === candidate}
+                className="tactic-chip"
+                key={candidate}
+                onClick={() => setLocale(candidate)}
+                type="button"
+              >
+                {localeNames[candidate]}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="setup-field" aria-label={t("home.mode")}>
+          <span className="setup-label">{t("home.mode")}</span>
           <div className="mode-grid">
             {gameModes.map((candidate) => (
               <button
@@ -66,29 +83,27 @@ export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
                 onClick={() => setMode(candidate)}
                 type="button"
               >
-                <span className="mode-name">
-                  {candidate === "리그" ? "리그 시즌" : "녹아웃 컵"}
-                </span>
-                <span className="mode-desc">{modeDescriptions[candidate]}</span>
+                <span className="mode-name">{t(modeNameKey[candidate])}</span>
+                <span className="mode-desc">{t(modeDescriptionKey[candidate])}</span>
               </button>
             ))}
           </div>
         </fieldset>
 
         <label className="setup-field" htmlFor="club-name">
-          <span className="setup-label">내 구단 이름</span>
+          <span className="setup-label">{t("home.clubName")}</span>
           <input
             className="club-name-input"
             id="club-name"
             maxLength={18}
             onChange={(event) => setClubName(event.target.value)}
-            placeholder="마이 일레븐"
+            placeholder={t("home.clubNamePlaceholder")}
             value={clubName}
           />
         </label>
 
         <div className="setup-field">
-          <span className="setup-label">포메이션</span>
+          <span className="setup-label">{t("home.formation")}</span>
           <FormationSelector
             formations={formationTypes}
             onSelectFormation={setFormation}
@@ -96,8 +111,8 @@ export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
           />
         </div>
 
-        <fieldset className="setup-field" aria-label="기본 전술">
-          <span className="setup-label">기본 전술 (라운드마다 변경 가능)</span>
+        <fieldset className="setup-field" aria-label={t("home.tactic")}>
+          <span className="setup-label">{t("home.tactic")}</span>
           <div className="tactic-row">
             {tacticTypes.map((candidate) => (
               <button
@@ -107,7 +122,7 @@ export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
                 onClick={() => setTactic(candidate)}
                 type="button"
               >
-                {candidate}
+                {tacticLabel(candidate, t)}
               </button>
             ))}
           </div>
@@ -119,11 +134,11 @@ export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
             onClick={() => onStart(mode, clubName, formation, tactic)}
             type="button"
           >
-            드래프트 시작
+            {t("home.start")}
           </button>
           {hasSave ? (
             <button className="ghost-action" onClick={onResume} type="button">
-              진행 중인 시즌 이어하기
+              {t("home.resume")}
             </button>
           ) : null}
         </div>

@@ -1,0 +1,171 @@
+export const en: Readonly<Record<string, string>> = {
+  // common
+  "common.continue": "Continue",
+  "common.close": "Close ✕",
+  "common.skip": "Skip ⏭",
+  "common.language": "Language",
+
+  // nav
+  "nav.prep": "Setup",
+  "nav.draft": "Draft",
+  "nav.season": "Competition",
+  "nav.awards": "Awards",
+
+  // tactics
+  "tactic.점유율": "Possession",
+  "tactic.강한 압박": "High Press",
+  "tactic.역습": "Counter",
+  "tactic.로우블록": "Low Block",
+
+  // modes
+  "mode.리그": "League",
+  "mode.컵": "Cup",
+
+  // home
+  "home.eyebrow": "Legend Draft League",
+  "home.title": "Legend Draft League",
+  "home.pitch":
+    "1,100 of the greatest footballers of all time are in one pool. You and the AI managers take turns picking — choose the player you want from a hand of candidate cards and build your best XI. Then play out a full season for the title. Players you draft are off-limits to rival clubs.",
+  "home.step1.title": "1. Draft",
+  "home.step1.body": "Every club builds its XI over 11 rounds, picking from candidate cards",
+  "home.step2.title": "2. Compete",
+  "home.step2.body": "Play a League (20 clubs · 38 rounds, home & away) or Cup (16-team knockout)",
+  "home.step3.title": "3. Awards",
+  "home.step3.body": "Trophy, top scorer and more — the season fully tallied",
+  "home.setupTitle": "New Season",
+  "home.mode": "Competition",
+  "home.modeLeague": "League Season",
+  "home.modeCup": "Knockout Cup",
+  "home.modeLeagueDesc": "20-club round robin, 38 rounds (home & away). Won on points.",
+  "home.modeCupDesc": "16-team knockout. Lose and you're out; draws go to penalties.",
+  "home.clubName": "Your club name",
+  "home.clubNamePlaceholder": "My Eleven",
+  "home.formation": "Formation",
+  "home.tactic": "Default tactic (changeable each round)",
+  "home.start": "Start Draft",
+  "home.resume": "Resume season in progress",
+
+  // draft
+  "draft.eyebrow": "Candidate Draft",
+  "draft.round": "Round {round}/{size} · Pick {pick}/{total}",
+  "draft.complete": "Draft complete!",
+  "draft.yourTurn": "Pick a player for your XI",
+  "draft.aiPicking": "{club} is picking…",
+  "draft.undoPick": "Undo last pick",
+  "draft.fastForward": "Skip to my turn",
+  "draft.openLeague": "Open League",
+  "draft.openCup": "Open Cup",
+  "draft.candidates": "Candidates",
+  "draft.cards": "{count} cards",
+  "draft.reroll": "See other candidates",
+  "draft.rerollFree": "Reroll (free)",
+  "draft.candidatesEmpty": "No player for the remaining slots is in this hand. Reroll for free.",
+  "draft.poolView": "View player pool",
+  "draft.pickTo": "Draft to {slot}",
+  "draft.pick": "Draft",
+  "draft.squadComplete": "Squad complete!",
+  "draft.squadCompleteBody": "All 11 picked. Start the {mode}.",
+  "draft.roundPicks": "Round {round} picks",
+  "draft.waitingPicks": "Waiting for this round's picks",
+  "draft.emptySlot": "Empty",
+  "draft.scoutStrip": "View squads",
+
+  // squad pitch
+  "pitch.unnamed": "Unpicked",
+
+  // pool browser
+  "pool.title": "Remaining pool",
+  "pool.count": "{count} players",
+  "pool.hint":
+    "Positions that can fill your open slots. If a player you want is here, reroll your candidates to chase them.",
+  "pool.search": "Search name / country",
+  "pool.empty": "No matching player",
+
+  // season
+  "season.league": "League Season",
+  "season.cup": "Knockout Cup",
+  "season.ended": "Season over",
+  "season.next": "Next match: {round}",
+  "season.tactic": "Tactic",
+  "season.kickoff": "{round} Kick-off",
+  "season.spectate": "{round} Watch",
+  "season.fast5": "Fast-forward 5 rounds",
+  "season.simEnd": "Simulate to season end",
+  "season.standings": "League Table",
+  "season.bracket": "Bracket",
+  "season.tbd": "TBD",
+  "season.scoutNext": "Next opponent · {club}",
+  "season.scoutReveal": "View scouting report",
+  "season.records": "Player records",
+  "season.fixtures": "{round} fixtures",
+  "season.roundN": "Round {n}",
+
+  // cup rounds
+  "cup.final": "Final",
+  "cup.semi": "Semi-finals",
+  "cup.roundOf": "Round of {n}",
+
+  // scout axes
+  "axis.attack": "Attack",
+  "axis.chanceCreation": "Creativity",
+  "axis.midfieldControl": "Midfield",
+  "axis.pressResistance": "Press Resist",
+  "axis.defensiveStability": "Defense",
+
+  // match
+  "match.result": "{round} result",
+  "match.live": "{round} · LIVE",
+  "match.thisRound": "This round's results",
+  "match.kickoff": "Kick-off! Match in progress…",
+  "match.noGoals": "Goalless match",
+  "match.assist": "assist {name}",
+  "match.shootoutWinLine": "Penalties {home} - {away} · Win",
+  "match.shootoutLossLine": "Penalties {home} - {away} · Loss",
+  "match.win": "Win!",
+  "match.loss": "Loss…",
+  "match.draw": "Draw",
+  "match.shootoutWin": "Won on penalties!",
+  "match.shootoutLoss": "Lost on penalties…",
+  "match.replay": "Replay match",
+  "match.otherMatches": "Other matches",
+  "match.matchResults": "Match results",
+  "match.seasonReview": "View season review",
+
+  // standings
+  "st.pos": "#",
+  "st.club": "Club",
+  "st.played": "P",
+  "st.won": "W",
+  "st.drawn": "D",
+  "st.lost": "L",
+  "st.gf": "GF",
+  "st.ga": "GA",
+  "st.diff": "+/-",
+  "st.points": "Pts",
+
+  // stat leaders
+  "stat.scorers": "Top Scorer",
+  "stat.assists": "Top Assists",
+  "stat.cleansheets": "Clean Sheets",
+  "stat.unit.goals": "",
+  "stat.unit.assists": "",
+  "stat.unit.cleansheets": "",
+  "stat.empty": "No records yet",
+
+  // champion
+  "champion.leagueWin": "League Champions",
+  "champion.cupWin": "Cup Winners",
+  "champion.youWin": "Your draft dominated the season. Congratulations!",
+  "champion.otherWin": "{manager}'s {club} lifted the trophy. {summary}",
+  "champion.finalStandings": "Final Standings",
+  "champion.tournamentResult": "Tournament Results",
+  "champion.records": "Season Records",
+  "champion.newSeason": "Start New Season",
+  "champion.userRankLeague": "Your club finished {rank}th.",
+  "champion.userRankCup": "Your club went out in the {round}.",
+
+  // ranks/units
+  "unit.goals": "{n} goals",
+  "draft.aiPickingBody": "The AI manager is choosing from candidate cards.",
+  "ad.playing": "Playing ad…",
+}

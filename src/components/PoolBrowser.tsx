@@ -3,6 +3,7 @@ import { cardsById } from "../app/gameStore"
 import type { PlayerCard } from "../data/schema"
 import { type DraftState, getOpenSlots } from "../domain/draft"
 import type { FantasyDraftState } from "../domain/fantasyDraft"
+import { useI18n } from "../i18n"
 
 type PoolBrowserProps = {
   readonly draft: FantasyDraftState
@@ -15,6 +16,7 @@ type PoolBrowserProps = {
  * 보여준다. 유저가 "이 풀에 원하는 선수가 있는지" 확인하고 리롤 여부를 판단하게 한다.
  */
 export function PoolBrowser({ draft, userSquad, onClose }: PoolBrowserProps) {
+  const { t } = useI18n()
   const openPositions = useMemo(() => {
     const positions = getOpenSlots(userSquad).flatMap((slot) => slot.acceptedPositions)
     return Array.from(new Set(positions))
@@ -65,15 +67,13 @@ export function PoolBrowser({ draft, userSquad, onClose }: PoolBrowserProps) {
     >
       <div className="pitch-modal pool-modal">
         <button className="pitch-modal-close" onClick={onClose} type="button">
-          닫기 ✕
+          {t("common.close")}
         </button>
         <h3 className="pool-modal-title">
-          남은 선수 풀 <span className="candidate-count">{available.length}명</span>
+          {t("pool.title")}{" "}
+          <span className="candidate-count">{t("pool.count", { count: available.length })}</span>
         </h3>
-        <p className="pool-modal-hint">
-          내 빈 자리에 들어갈 수 있는 포지션입니다. 원하는 선수가 있으면 후보를 다시 뽑아
-          노려보세요.
-        </p>
+        <p className="pool-modal-hint">{t("pool.hint")}</p>
 
         <div className="pool-tabs">
           {openPositions.map((pos) => (
@@ -90,10 +90,10 @@ export function PoolBrowser({ draft, userSquad, onClose }: PoolBrowserProps) {
         </div>
 
         <input
-          aria-label="선수 검색"
+          aria-label={t("pool.search")}
           className="pool-search"
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="이름·국가 검색"
+          placeholder={t("pool.search")}
           value={search}
         />
 
@@ -101,9 +101,7 @@ export function PoolBrowser({ draft, userSquad, onClose }: PoolBrowserProps) {
           {list.map((card) => (
             <PoolRow card={card} key={card.id} />
           ))}
-          {list.length === 0 ? (
-            <li className="pick-log-empty">조건에 맞는 선수가 없습니다</li>
-          ) : null}
+          {list.length === 0 ? <li className="pick-log-empty">{t("pool.empty")}</li> : null}
         </ul>
       </div>
     </div>

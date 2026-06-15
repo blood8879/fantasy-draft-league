@@ -1,4 +1,5 @@
 import type { FormationType } from "../domain/types"
+import { useI18n } from "../i18n"
 
 type FormationSelectorProps = {
   readonly formations: readonly FormationType[]
@@ -27,8 +28,9 @@ export function FormationSelector({
   selectedFormation,
   onSelectFormation,
 }: FormationSelectorProps) {
+  const { t } = useI18n()
   return (
-    <fieldset className="formation-selector" aria-label="포메이션 선택">
+    <fieldset className="formation-selector" aria-label={t("home.formation")}>
       {formations.map((formation) => (
         <button
           aria-pressed={selectedFormation === formation}

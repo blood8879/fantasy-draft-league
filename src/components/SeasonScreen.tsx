@@ -1,34 +1,32 @@
 import { useState } from "react"
 import { type GameAction, type GameState, cardsById, draftPool } from "../app/gameStore"
-import {
-  buildGoalkeepers,
-  getCupRoundName,
-  getRoundFixtures,
-  isCompetitionFinished,
-} from "../domain/competition"
+import { buildGoalkeepers, getRoundFixtures, isCompetitionFinished } from "../domain/competition"
 import { USER_CLUB_ID } from "../domain/game"
 import { tacticTypes } from "../domain/types"
+import { useI18n } from "../i18n"
 import { getFixtureWinnerId } from "../simulation/fixture"
 import { createTeamProfile } from "../simulation/teamProfile"
 import type { TeamProfile } from "../simulation/types"
 import { RewardedAdButton } from "./RewardedAdButton"
 import { StandingsTable } from "./StandingsTable"
 import { StatLeaders } from "./StatLeaders"
+import { cupRoundLabel, roundLabel, tacticLabel } from "./labels"
 
 type SeasonScreenProps = {
   readonly state: GameState
   readonly dispatch: (action: GameAction) => void
 }
 
-const scoutAxes: readonly { readonly key: keyof TeamProfile; readonly label: string }[] = [
-  { key: "attack", label: "공격력" },
-  { key: "chanceCreation", label: "기회 창출" },
-  { key: "midfieldControl", label: "중원 장악" },
-  { key: "pressResistance", label: "압박 저항" },
-  { key: "defensiveStability", label: "수비 안정" },
+const scoutAxes: readonly { readonly key: keyof TeamProfile; readonly labelKey: string }[] = [
+  { key: "attack", labelKey: "axis.attack" },
+  { key: "chanceCreation", labelKey: "axis.chanceCreation" },
+  { key: "midfieldControl", labelKey: "axis.midfieldControl" },
+  { key: "pressResistance", labelKey: "axis.pressResistance" },
+  { key: "defensiveStability", labelKey: "axis.defensiveStability" },
 ]
 
 export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
+  const { t } = useI18n()
   const [scoutedRound, setScoutedRound] = useState<number | undefined>(undefined)
   const competition = state.competition
   if (competition === undefined) {
@@ -67,24 +65,23 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
       (fixture) => fixture.homeId === USER_CLUB_ID || fixture.awayId === USER_CLUB_ID,
     )
 
-  const roundLabel =
-    competition.kind === "리그"
-      ? `${competition.currentRound}라운드`
-      : getCupRoundName(competition, competition.currentRound)
+  const currentRoundLabel = roundLabel(competition, competition.currentRound, t)
   const remainingRounds = competition.totalRounds - competition.currentRound + 1
 
   return (
     <section className="season-screen">
       <header className="season-header">
         <div>
-          <p className="eyebrow">{competition.kind === "리그" ? "리그 시즌" : "녹아웃 컵"}</p>
-          <h2>{finished ? "시즌 종료" : `다음 경기: ${roundLabel}`}</h2>
+          <p className="eyebrow">
+            {competition.kind === "리그" ? t("season.league") : t("season.cup")}
+          </p>
+          <h2>{finished ? t("season.ended") : t("season.next", { round: currentRoundLabel })}</h2>
         </div>
         <div className="season-header-actions">
           {!finished ? (
             <>
-              <fieldset className="tactic-inline" aria-label="이번 라운드 전술">
-                <span className="setup-label">전술</span>
+              <fieldset className="tactic-inline" aria-label={t("season.tactic")}>
+                <span className="setup-label">{t("season.tactic")}</span>
                 {tacticTypes.map((tactic) => (
                   <button
                     aria-pressed={userClub?.tactic === tactic}
@@ -93,7 +90,7 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
                     onClick={() => dispatch({ type: "SET_TACTIC", tactic })}
                     type="button"
                   >
-                    {tactic}
+                    {tacticLabel(tactic, t)}
                   </button>
                 ))}
               </fieldset>
@@ -102,7 +99,9 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
                 onClick={() => dispatch({ type: "PLAY_ROUND" })}
                 type="button"
               >
-                {userAlive ? `${roundLabel} 킥오프` : `${roundLabel} 관전`}
+                {userAlive
+                  ? t("season.kickoff", { round: currentRoundLabel })
+                  : t("season.spectate", { round: currentRoundLabel })}
               </button>
               {remainingRounds > 1 ? (
                 <div className="fast-forward-actions">
@@ -112,7 +111,7 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
                       onClick={() => dispatch({ type: "SIMULATE_ROUNDS", count: 5 })}
                       type="button"
                     >
-                      5라운드 빠르게
+                      {t("season.fast5")}
                     </button>
                   ) : null}
                   <button
@@ -120,7 +119,7 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
                     onClick={() => dispatch({ type: "SIMULATE_ROUNDS", count: remainingRounds })}
                     type="button"
                   >
-                    시즌 끝까지 시뮬
+                    {t("season.simEnd")}
                   </button>
                 </div>
               ) : null}
@@ -133,7 +132,7 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
         <div className="draft-aside season-main-panel">
           {competition.kind === "리그" ? (
             <>
-              <h3>리그 순위표</h3>
+              <h3>{t("season.standings")}</h3>
               <StandingsTable clubs={state.clubs} fixtures={competition.fixtures} />
             </>
           ) : (
@@ -144,7 +143,7 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
         <aside className="draft-aside season-side-panel">
           {opponentClub !== undefined ? (
             <div className="scout-report">
-              <h3>다음 상대 · {opponentClub.name}</h3>
+              <h3>{t("season.scoutNext", { club: opponentClub.name })}</h3>
               <p className="scout-philosophy">“{opponentClub.philosophy}”</p>
               {opponentProfile !== undefined ? (
                 <ul className="scout-bars">
@@ -152,7 +151,7 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
                     const value = opponentProfile[axis.key] as number
                     return (
                       <li key={axis.key}>
-                        <span className="scout-axis-label">{axis.label}</span>
+                        <span className="scout-axis-label">{t(axis.labelKey)}</span>
                         <span className="scout-bar-track">
                           <span
                             className="scout-bar-fill"
@@ -169,13 +168,13 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
                   action="scout_report"
                   onReward={() => setScoutedRound(competition.currentRound)}
                 >
-                  전력 분석 보기
+                  {t("season.scoutReveal")}
                 </RewardedAdButton>
               )}
             </div>
           ) : null}
 
-          <h3>개인 기록</h3>
+          <h3>{t("season.records")}</h3>
           <StatLeaders
             clubs={state.clubs}
             fixtures={competition.fixtures}
@@ -185,7 +184,7 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
 
           {competition.kind === "리그" ? (
             <>
-              <h3>{roundLabel} 대진</h3>
+              <h3>{t("season.fixtures", { round: currentRoundLabel })}</h3>
               <ul className="fixture-list">
                 {getRoundFixtures(
                   competition,
@@ -212,6 +211,7 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
 }
 
 function CupBracket({ state }: { readonly state: GameState }) {
+  const { t } = useI18n()
   const competition = state.competition
   if (competition === undefined) {
     return null
@@ -220,15 +220,15 @@ function CupBracket({ state }: { readonly state: GameState }) {
   const rounds = Array.from({ length: competition.totalRounds }, (_, index) => index + 1)
   return (
     <>
-      <h3>대진표</h3>
+      <h3>{t("season.bracket")}</h3>
       <div className="cup-bracket">
         {rounds.map((round) => {
           const fixtures = getRoundFixtures(competition, round)
           return (
             <div className="cup-round" key={round}>
-              <h4>{getCupRoundName(competition, round)}</h4>
+              <h4>{cupRoundLabel(competition, round, t)}</h4>
               <ul>
-                {fixtures.length === 0 ? <li className="cup-tbd">대진 미정</li> : null}
+                {fixtures.length === 0 ? <li className="cup-tbd">{t("season.tbd")}</li> : null}
                 {fixtures.map((fixture) => {
                   const winnerId =
                     fixture.result === undefined

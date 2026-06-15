@@ -1,14 +1,11 @@
 import { Trophy } from "lucide-react"
 import { type GameAction, type GameState, cardsById } from "../app/gameStore"
-import {
-  buildGoalkeepers,
-  computeStandings,
-  getChampionId,
-  getCupRoundName,
-} from "../domain/competition"
+import { buildGoalkeepers, computeStandings, getChampionId } from "../domain/competition"
 import { USER_CLUB_ID } from "../domain/game"
+import { useI18n } from "../i18n"
 import { StandingsTable } from "./StandingsTable"
 import { StatLeaders } from "./StatLeaders"
+import { cupRoundLabel, ordinal } from "./labels"
 
 type ChampionScreenProps = {
   readonly state: GameState
@@ -16,6 +13,7 @@ type ChampionScreenProps = {
 }
 
 export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
+  const { t, locale } = useI18n()
   const competition = state.competition
   if (competition === undefined) {
     return null
@@ -39,18 +37,28 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
     <section className="champion-screen">
       <header className="champion-hero" data-user-champion={userIsChampion ? "true" : undefined}>
         <Trophy aria-hidden="true" size={44} />
-        <p className="eyebrow">{competition.kind === "리그" ? "리그 우승" : "컵 우승"}</p>
+        <p className="eyebrow">
+          {competition.kind === "리그" ? t("champion.leagueWin") : t("champion.cupWin")}
+        </p>
         <h1>{champion?.name ?? "?"}</h1>
         <p className="champion-sub">
           {userIsChampion
-            ? "당신의 드래프트가 시즌을 지배했습니다. 우승을 축하합니다!"
-            : `${champion?.managerName ?? ""} 감독의 ${champion?.name ?? ""}이(가) 트로피를 들어 올렸습니다. ${userSummary}`}
+            ? t("champion.youWin")
+            : t("champion.otherWin", {
+                manager: champion?.managerName ?? "",
+                club: champion?.name ?? "",
+                summary: userSummary,
+              })}
         </p>
       </header>
 
       <div className="champion-grid">
         <div className="draft-aside">
-          <h3>{competition.kind === "리그" ? "최종 순위" : "토너먼트 결과"}</h3>
+          <h3>
+            {competition.kind === "리그"
+              ? t("champion.finalStandings")
+              : t("champion.tournamentResult")}
+          </h3>
           {competition.kind === "리그" ? (
             <StandingsTable clubs={state.clubs} fixtures={competition.fixtures} />
           ) : (
@@ -58,7 +66,7 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
               {competition.fixtures.map((fixture) => (
                 <li key={fixture.id}>
                   <span>
-                    [{getCupRoundName(competition, fixture.round)}]{" "}
+                    [{cupRoundLabel(competition, fixture.round, t)}]{" "}
                     {clubsById.get(fixture.homeId)?.name}
                   </span>
                   <strong>
@@ -72,7 +80,7 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
         </div>
 
         <div className="draft-aside">
-          <h3>시즌 개인 기록</h3>
+          <h3>{t("champion.records")}</h3>
           <StatLeaders
             clubs={state.clubs}
             fixtures={competition.fixtures}
@@ -87,7 +95,7 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
         onClick={() => dispatch({ type: "NEW_GAME" })}
         type="button"
       >
-        새 시즌 시작하기
+        {t("champion.newSeason")}
       </button>
     </section>
   )
@@ -98,7 +106,7 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
     }
     if (competition.kind === "리그") {
       const rank = standings.findIndex((row) => row.clubId === USER_CLUB_ID) + 1
-      return rank > 0 ? `내 구단은 최종 ${rank}위로 마쳤습니다.` : ""
+      return rank > 0 ? t("champion.userRankLeague", { rank: ordinal(rank, locale) }) : ""
     }
     const lastUserFixture = [...competition.fixtures]
       .reverse()
@@ -106,6 +114,8 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
     if (lastUserFixture === undefined) {
       return ""
     }
-    return `내 구단은 ${getCupRoundName(competition, lastUserFixture.round)}에서 멈췄습니다.`
+    return t("champion.userRankCup", {
+      round: cupRoundLabel(competition, lastUserFixture.round, t),
+    })
   }
 }

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { type GameAction, type GameState, cardsById } from "../app/gameStore"
+import { modeLabel } from "../components/labels"
 import type { PlayerCard } from "../data/schema"
 import { getSlotsForFormation } from "../domain/draft"
 import {
@@ -14,6 +15,7 @@ import {
   placeCardInBestSlot,
 } from "../domain/fantasyDraft"
 import { USER_CLUB_ID } from "../domain/game"
+import { type I18nValue, useI18n } from "../i18n"
 import { PoolBrowser } from "./PoolBrowser"
 import { RewardedAdButton } from "./RewardedAdButton"
 import { SquadPitch } from "./SquadPitch"
@@ -24,6 +26,7 @@ type DraftRoomProps = {
 }
 
 export function DraftRoom({ state, dispatch }: DraftRoomProps) {
+  const { t } = useI18n()
   const [scoutClubId, setScoutClubId] = useState<string | undefined>(undefined)
   const [poolOpen, setPoolOpen] = useState(false)
   const draft = state.draft
@@ -67,18 +70,22 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
     <section className="draft-room">
       <header className="draft-room-header">
         <div>
-          <p className="eyebrow">랜덤 후보 드래프트</p>
+          <p className="eyebrow">{t("draft.eyebrow")}</p>
           <h2>
-            라운드 {Math.min(getCurrentRound(draft), SQUAD_SIZE)}/{SQUAD_SIZE} · 픽{" "}
-            {Math.min(draft.log.length + 1, getTotalPicks(draft))}/{getTotalPicks(draft)}
+            {t("draft.round", {
+              round: Math.min(getCurrentRound(draft), SQUAD_SIZE),
+              size: SQUAD_SIZE,
+              pick: Math.min(draft.log.length + 1, getTotalPicks(draft)),
+              total: getTotalPicks(draft),
+            })}
           </h2>
         </div>
         <div className={isUserTurn ? "turn-banner turn-banner--user" : "turn-banner"}>
           {complete
-            ? "드래프트 완료!"
+            ? t("draft.complete")
             : isUserTurn
-              ? "원하는 포지션의 선수를 지명하세요"
-              : `${currentClub?.name ?? ""} 지명 중…`}
+              ? t("draft.yourTurn")
+              : t("draft.aiPicking", { club: currentClub?.name ?? "" })}
         </div>
         <div className="draft-header-actions">
           {!complete && hasPickFrom(draft, USER_CLUB_ID) && isUserTurn ? (
@@ -86,7 +93,7 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
               action="undo_pick"
               onReward={() => dispatch({ type: "UNDO_LAST_USER_PICK" })}
             >
-              직전 지명 되돌리기
+              {t("draft.undoPick")}
             </RewardedAdButton>
           ) : null}
           {!complete && !isUserTurn ? (
@@ -95,7 +102,7 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
               onClick={() => dispatch({ type: "FAST_FORWARD_PICKS" })}
               type="button"
             >
-              내 차례까지 빨리 감기
+              {t("draft.fastForward")}
             </button>
           ) : null}
           {complete ? (
@@ -104,14 +111,14 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
               onClick={() => dispatch({ type: "START_SEASON" })}
               type="button"
             >
-              {state.mode === "리그" ? "리그 개막" : "컵 대회 개막"}
+              {state.mode === "리그" ? t("draft.openLeague") : t("draft.openCup")}
             </button>
           ) : null}
         </div>
       </header>
 
       {!complete ? (
-        <ol className="pick-order-strip" aria-label="다음 픽 순서">
+        <ol className="pick-order-strip" aria-label="Pick order">
           {upcoming.map((clubId, index) => {
             const club = clubsById.get(clubId)
             return (
@@ -127,8 +134,8 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
         </ol>
       ) : null}
 
-      <div className="club-scout-strip" aria-label="구단 스쿼드 보기">
-        <span className="scout-strip-label">스쿼드 보기</span>
+      <div className="club-scout-strip" aria-label={t("draft.scoutStrip")}>
+        <span className="scout-strip-label">{t("draft.scoutStrip")}</span>
         {state.clubs.map((club) => {
           const squad = draft.squads[club.id]
           return (
@@ -172,7 +179,7 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
               onClick={() => setScoutClubId(undefined)}
               type="button"
             >
-              닫기 ✕
+              {t("common.close")}
             </button>
             <SquadPitch club={scoutClub} squad={scoutSquad} />
           </div>
@@ -188,17 +195,20 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
           <div className="candidate-panel">
             {complete ? (
               <div className="candidate-empty">
-                <h3>스쿼드 완성!</h3>
-                <p>11명을 모두 지명했습니다. {state.mode} 대회를 시작하세요.</p>
+                <h3>{t("draft.squadComplete")}</h3>
+                <p>{t("draft.squadCompleteBody", { mode: modeLabel(state.mode, t) })}</p>
               </div>
             ) : isUserTurn ? (
               <>
                 <div className="candidate-head">
                   <h3>
-                    지명 후보 <span className="candidate-count">{candidates.length}장</span>
+                    {t("draft.candidates")}{" "}
+                    <span className="candidate-count">
+                      {t("draft.cards", { count: candidates.length })}
+                    </span>
                   </h3>
                   <button className="ghost-action" onClick={() => setPoolOpen(true)} type="button">
-                    선수 풀 보기
+                    {t("draft.poolView")}
                   </button>
                   {candidatesEmpty ? (
                     <button
@@ -206,14 +216,14 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                       onClick={() => dispatch({ type: "REROLL_CANDIDATES" })}
                       type="button"
                     >
-                      후보 다시 뽑기 (무료)
+                      {t("draft.rerollFree")}
                     </button>
                   ) : (
                     <RewardedAdButton
                       action="reroll_candidates"
                       onReward={() => dispatch({ type: "REROLL_CANDIDATES" })}
                     >
-                      다른 후보 보기
+                      {t("draft.reroll")}
                     </RewardedAdButton>
                   )}
                 </div>
@@ -224,7 +234,7 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                 ) : null}
                 {candidatesEmpty ? (
                   <div className="candidate-empty">
-                    <p>남은 빈 자리에 맞는 선수가 후보에 없습니다. 무료로 다시 뽑으세요.</p>
+                    <p>{t("draft.candidatesEmpty")}</p>
                   </div>
                 ) : (
                   <div className="candidate-grid">
@@ -234,6 +244,7 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                         key={card.id}
                         onPick={() => dispatch({ type: "USER_PICK", cardId: card.id })}
                         slotLabel={placeCardInBestSlot(userSquad, card)?.label}
+                        t={t}
                       />
                     ))}
                   </div>
@@ -241,15 +252,15 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
               </>
             ) : (
               <div className="candidate-empty">
-                <h3>{currentClub?.name} 지명 중…</h3>
-                <p>AI 감독이 후보 카드 중에서 선수를 고르고 있습니다.</p>
+                <h3>{t("draft.aiPicking", { club: currentClub?.name ?? "" })}</h3>
+                <p>{t("draft.aiPickingBody")}</p>
               </div>
             )}
           </div>
 
           <aside className="draft-aside pick-log-panel">
             <h3>
-              {shownRound}라운드 지명 현황{" "}
+              {t("draft.roundPicks", { round: shownRound })}{" "}
               <span className="candidate-count">{roundPicks.length}/8</span>
             </h3>
             <ul className="pick-log">
@@ -271,7 +282,7 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                 )
               })}
               {roundPicks.length === 0 ? (
-                <li className="pick-log-empty">이번 라운드 지명을 기다리는 중</li>
+                <li className="pick-log-empty">{t("draft.waitingPicks")}</li>
               ) : null}
             </ul>
           </aside>
@@ -285,10 +296,12 @@ function CandidateCard({
   card,
   onPick,
   slotLabel,
+  t,
 }: {
   readonly card: PlayerCard
   readonly onPick: () => void
   readonly slotLabel: string | undefined
+  readonly t: I18nValue["t"]
 }) {
   return (
     <button
@@ -305,7 +318,7 @@ function CandidateCard({
         {card.positions.join("/")} · {card.country}
       </span>
       <span className="candidate-pick-cta">
-        {slotLabel === undefined ? "지명" : `${slotLabel} 자리에 지명`}
+        {slotLabel === undefined ? t("draft.pick") : t("draft.pickTo", { slot: slotLabel })}
       </span>
     </button>
   )
