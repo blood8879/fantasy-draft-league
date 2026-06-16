@@ -1,4 +1,4 @@
-import { createPlayerCard } from "./cardFactory"
+import { createPlayerCard, createPlayerCardWithScores } from "./cardFactory"
 import playerPoolData from "./curatedPlayerPool.json"
 import {
   type CuratedTier,
@@ -7,6 +7,7 @@ import {
   tierRarity,
   tuneRatingsForTier,
 } from "./curatedPlayerRatings"
+import playerSkillsData from "./curatedPlayerSkills.json"
 import type { Player, PlayerCard, RatingAxis, RatingGrade } from "./schema"
 
 const poolPositions = ["GK", "RB", "CB", "LB", "DM", "CM", "AM", "RW", "ST", "LW"] as const
@@ -28,6 +29,7 @@ type PositionSpec = {
 }
 
 const rawPool: Readonly<Record<PoolPosition, readonly string[]>> = playerPoolData
+const poolSkills = playerSkillsData as Record<string, Record<string, readonly number[]>>
 
 const positionSpecs = [
   spec("GK", "Goalkeeper", "goalkeeper", {
@@ -196,28 +198,46 @@ function createPoolPlayer(position: PoolPosition, entry: PoolEntry): Player {
 }
 
 function createPoolCard(positionSpec: PositionSpec, entry: PoolEntry, index: number): PlayerCard {
-  const ratings = tuneRatingsForTier(positionSpec.ratings, entry.tier)
   const id = playerId(positionSpec.position, entry.displayName)
+  const base = {
+    id: `${id}_pool`,
+    playerId: id,
+    label: entry.displayName,
+    year: null,
+    age: null,
+    country: entry.country,
+    ...(entry.club === undefined ? {} : { club: entry.club }),
+    ...(entry.league === undefined ? {} : { league: entry.league }),
+    eligibleEra: "all-time pool",
+    positions: [positionSpec.position],
+    roles: [positionSpec.role],
+    tags: [positionSpec.tag, index % 4 === 0 ? "left_foot" : "curated_pool"],
+    cost: tierCost(entry.tier, id),
+    rarity: tierRarity(entry.tier),
+    ratingRationale: `Broad all-time player pool tier (${entry.tier}) for ${entry.displayName}; no unverified season-year, age, photo, crest, or official mark is asserted.`,
+    ratingReviewer: "curated-player-pool-v3",
+    ratingStatus: "draft" as const,
+  }
+
+  // 선수별 개별 능력치가 있으면 그대로 사용(선수마다 8축이 달라진다).
+  // 없으면 tier 기반 자동 산출로 폴백한다.
+  const skills = poolSkills[positionSpec.position]?.[entry.displayName]
+  if (skills !== undefined && skills.length === 8) {
+    return createPlayerCardWithScores(base, {
+      scoring: skills[0] ?? 60,
+      creation: skills[1] ?? 60,
+      progression: skills[2] ?? 60,
+      control: skills[3] ?? 60,
+      defense: skills[4] ?? 60,
+      physical: skills[5] ?? 60,
+      mobility: skills[6] ?? 60,
+      mental: skills[7] ?? 60,
+    })
+  }
+
+  const ratings = tuneRatingsForTier(positionSpec.ratings, entry.tier)
   return createPlayerCard(
-    {
-      id: `${id}_pool`,
-      playerId: id,
-      label: entry.displayName,
-      year: null,
-      age: null,
-      country: entry.country,
-      ...(entry.club === undefined ? {} : { club: entry.club }),
-      ...(entry.league === undefined ? {} : { league: entry.league }),
-      eligibleEra: "all-time pool",
-      positions: [positionSpec.position],
-      roles: [positionSpec.role],
-      tags: [positionSpec.tag, index % 4 === 0 ? "left_foot" : "curated_pool"],
-      cost: tierCost(entry.tier, id),
-      rarity: tierRarity(entry.tier),
-      ratingRationale: `Broad all-time player pool tier (${entry.tier}) for ${entry.displayName}; no unverified season-year, age, photo, crest, or official mark is asserted.`,
-      ratingReviewer: "curated-player-pool-v2",
-      ratingStatus: "draft",
-    },
+    base,
     ratings.scoring,
     ratings.creation,
     ratings.progression,
