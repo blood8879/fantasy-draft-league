@@ -1,8 +1,12 @@
 import { Trophy } from "lucide-react"
-import { type GameAction, type GameState, cardsById } from "../app/gameStore"
+import { useState } from "react"
+import { type GameAction, type GameState, cardsById, draftPool } from "../app/gameStore"
 import { buildGoalkeepers, computeStandings, getChampionId } from "../domain/competition"
 import { USER_CLUB_ID } from "../domain/game"
 import { useI18n } from "../i18n"
+import { createTeamProfile } from "../simulation/teamProfile"
+import { ShareResultButton } from "./ShareResultButton"
+import { SquadPitch } from "./SquadPitch"
 import { StandingsTable } from "./StandingsTable"
 import { StatLeaders } from "./StatLeaders"
 import { cupRoundLabel, ordinal } from "./labels"
@@ -14,6 +18,7 @@ type ChampionScreenProps = {
 
 export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
   const { t, locale } = useI18n()
+  const [scoutClubId, setScoutClubId] = useState<string | undefined>(undefined)
   const competition = state.competition
   if (competition === undefined) {
     return null
@@ -32,6 +37,35 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
   const goalkeepers =
     state.draft === undefined ? new Map() : buildGoalkeepers(state.draft.squads, cardsById)
   const userSummary = buildUserSummary()
+
+  // 공유 카드용 데이터(내 구단 베스트 XI + 성적 요약).
+  const userClub = clubsById.get(USER_CLUB_ID)
+  const userSquad = state.draft?.squads[USER_CLUB_ID]
+  const userRank = standings.findIndex((row) => row.clubId === USER_CLUB_ID) + 1
+  const shareBadge = userIsChampion
+    ? t("share.champions")
+    : competition.kind === "리그" && userRank > 0
+      ? ordinal(userRank, locale)
+      : t("share.knockedOut")
+  const shareSubtitle = userIsChampion ? t("share.subWin") : userSummary
+  const userPicks = userSquad?.picks ?? []
+  const shareAvgOvr =
+    userPicks.length > 0
+      ? Math.round(
+          userPicks.reduce((sum, pick) => sum + (cardsById.get(pick.cardId)?.cost ?? 0), 0) /
+            userPicks.length,
+        )
+      : 0
+  const shareChemistry =
+    userSquad !== undefined && userClub !== undefined
+      ? createTeamProfile(userSquad, draftPool, userClub.tactic).chemistry
+      : 75
+
+  const scoutClub = scoutClubId === undefined ? undefined : clubsById.get(scoutClubId)
+  const scoutSquad =
+    scoutClubId === undefined || state.draft === undefined
+      ? undefined
+      : state.draft.squads[scoutClubId]
 
   return (
     <section className="champion-screen">
@@ -60,19 +94,35 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
               : t("champion.tournamentResult")}
           </h3>
           {competition.kind === "리그" ? (
-            <StandingsTable clubs={state.clubs} fixtures={competition.fixtures} />
+            <StandingsTable
+              clubs={state.clubs}
+              fixtures={competition.fixtures}
+              onSelectClub={setScoutClubId}
+            />
           ) : (
             <ul className="result-lines">
               {competition.fixtures.map((fixture) => (
                 <li key={fixture.id}>
                   <span>
                     [{cupRoundLabel(competition, fixture.round, t)}]{" "}
-                    {clubsById.get(fixture.homeId)?.name}
+                    <button
+                      className="club-link"
+                      onClick={() => setScoutClubId(fixture.homeId)}
+                      type="button"
+                    >
+                      {clubsById.get(fixture.homeId)?.name}
+                    </button>
                   </span>
                   <strong>
                     {fixture.result?.homeGoals} : {fixture.result?.awayGoals}
                   </strong>
-                  <span>{clubsById.get(fixture.awayId)?.name}</span>
+                  <button
+                    className="club-link"
+                    onClick={() => setScoutClubId(fixture.awayId)}
+                    type="button"
+                  >
+                    {clubsById.get(fixture.awayId)?.name}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -90,6 +140,18 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
         </div>
       </div>
 
+      {userClub !== undefined && userSquad !== undefined ? (
+        <ShareResultButton
+          avgOvr={shareAvgOvr}
+          badge={shareBadge}
+          cards={cardsById}
+          chemistry={shareChemistry}
+          club={userClub}
+          squad={userSquad}
+          subtitle={shareSubtitle}
+        />
+      ) : null}
+
       <button
         className="primary-action"
         onClick={() => dispatch({ type: "NEW_GAME" })}
@@ -97,6 +159,34 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
       >
         {t("champion.newSeason")}
       </button>
+
+      {scoutClub !== undefined && scoutSquad !== undefined ? (
+        <div
+          className="pitch-modal-overlay"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setScoutClubId(undefined)
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              setScoutClubId(undefined)
+            }
+          }}
+          role="presentation"
+        >
+          <div className="pitch-modal">
+            <button
+              className="pitch-modal-close"
+              onClick={() => setScoutClubId(undefined)}
+              type="button"
+            >
+              {t("common.close")}
+            </button>
+            <SquadPitch club={scoutClub} squad={scoutSquad} />
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 

@@ -1715,6 +1715,216 @@
   box-shadow: 0 0 0 2px rgba(16, 32, 27, 0.22);
 }
 
+/* ---------- 레이더 / 케미스트리 ---------- */
+
+.team-strength {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+  background: #fbfaf2;
+  border: 1px solid rgba(16, 32, 27, 0.12);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.team-strength-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #2c4038;
+}
+
+.radar-chart {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  display: block;
+  overflow: visible;
+}
+
+.radar-grid,
+.radar-spoke {
+  fill: none;
+  stroke: rgba(16, 32, 27, 0.12);
+  stroke-width: 1;
+}
+
+.radar-area--team {
+  fill: rgba(46, 107, 52, 0.2);
+  stroke: #2e6b34;
+  stroke-width: 2;
+}
+
+.radar-area--avg {
+  fill: none;
+  stroke: #b3541e;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+.radar-label {
+  fill: #496054;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.radar-legend {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  font-size: 12px;
+  color: #496054;
+}
+
+.radar-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.radar-legend-item::before {
+  content: "";
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.radar-legend-item--team::before {
+  background: #2e6b34;
+}
+
+.radar-legend-item--avg::before {
+  background: #b3541e;
+}
+
+.chem-panel {
+  border-top: 1px solid rgba(16, 32, 27, 0.1);
+  padding-top: 10px;
+}
+
+.chem-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.chem-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2c4038;
+}
+
+.chem-score {
+  font-size: 18px;
+  font-weight: 800;
+  color: #2e6b34;
+}
+
+.chem-empty {
+  font-size: 12px;
+  color: #6f857a;
+  margin: 4px 0 0;
+}
+
+.chem-badges {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chem-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: rgba(16, 32, 27, 0.04);
+  border: 1px solid rgba(16, 32, 27, 0.16);
+  color: #2c4038;
+}
+
+.chem-badge-bonus {
+  font-weight: 800;
+  color: #10201b;
+  background: #e6ff74;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 10.5px;
+}
+
+.chem-badge[data-kind="nation"] {
+  border-color: rgba(43, 107, 166, 0.5);
+}
+
+.chem-badge[data-kind="club"] {
+  border-color: rgba(46, 107, 52, 0.6);
+}
+
+.chem-badge[data-kind="league"] {
+  border-color: rgba(120, 80, 180, 0.45);
+}
+
+.chem-badge[data-kind="line"] {
+  border-color: rgba(30, 140, 110, 0.5);
+}
+
+.chem-badge[data-kind="tactic"] {
+  border-color: rgba(179, 84, 30, 0.55);
+}
+
+.chem-badge[data-kind="underdog"] {
+  border-color: rgba(190, 60, 60, 0.5);
+}
+
+/* ---------- 구단명 링크(스쿼드 열기) ---------- */
+
+.club-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  border-bottom: 1px dashed transparent;
+  transition: color 0.15s ease;
+}
+
+.club-link:hover {
+  color: #2e6b34;
+  border-bottom-color: currentColor;
+}
+
+/* ---------- 결과 공유 ---------- */
+
+.share-result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.share-result .primary-action--bright {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.share-hint {
+  font-size: 13px;
+  color: #2e6b34;
+  font-weight: 600;
+}
+
+.share-hint--err {
+  color: #b3541e;
+}
+
 /* ---------- 반응형 ---------- */
 
 @media (max-width: 820px) {

@@ -1,5 +1,6 @@
 import type { Competition } from "../domain/competition"
 import type { I18nValue, Locale } from "../i18n"
+import type { ChemistryLink } from "../simulation/chemistry"
 
 /** 컵 라운드 이름을 현재 언어로. (결승/준결승/N강) */
 export function cupRoundLabel(competition: Competition, round: number, t: I18nValue["t"]): string {
@@ -28,6 +29,24 @@ export function tacticLabel(tactic: string, t: I18nValue["t"]): string {
 /** 대회 모드 표시 라벨 (리그/컵) */
 export function modeLabel(mode: string, t: I18nValue["t"]): string {
   return t(`mode.${mode}`)
+}
+
+/** 케미 배지 표시 텍스트. 국가·클럽·리그명은 고유명사라 그대로, 라인·전술·언더독은 번역. */
+export function chemistryLinkText(link: ChemistryLink, t: I18nValue["t"]): string {
+  switch (link.kind) {
+    case "nation":
+    case "club":
+    case "league":
+      return `${link.label} ×${link.count}`
+    case "line":
+      return `${t(`chem.line.${link.label}`)} ×${link.count}`
+    case "tactic":
+      return `${tacticLabel(link.label, t)} ×${link.count}`
+    case "underdog":
+      return t("chem.underdog")
+    default:
+      return link.label
+  }
 }
 
 /** 현재 로케일 기준 순위 서수(1st, 1위, 1位, 1º) */

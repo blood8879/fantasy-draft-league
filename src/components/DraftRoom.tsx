@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { type GameAction, type GameState, cardsById } from "../app/gameStore"
+import { useMemo, useState } from "react"
+import { type GameAction, type GameState, cardsById, draftPool } from "../app/gameStore"
 import { modeLabel } from "../components/labels"
 import type { PlayerCard } from "../data/schema"
 import { getSlotsForFormation } from "../domain/draft"
@@ -16,9 +16,41 @@ import {
 } from "../domain/fantasyDraft"
 import { USER_CLUB_ID } from "../domain/game"
 import { type I18nValue, useI18n } from "../i18n"
+import { createTeamProfile } from "../simulation/teamProfile"
+import type { TeamProfile } from "../simulation/types"
+import { ChemistryBadges } from "./ChemistryBadges"
 import { PoolBrowser } from "./PoolBrowser"
+import { RadarChart } from "./RadarChart"
 import { RewardedAdButton } from "./RewardedAdButton"
 import { SquadPitch } from "./SquadPitch"
+
+const PROFILE_KEYS = [
+  "attack",
+  "chanceCreation",
+  "midfieldControl",
+  "pressResistance",
+  "transition",
+  "defensiveStability",
+  "aerialSetPiece",
+  "stamina",
+  "chemistry",
+  "roleBalance",
+] as const
+
+/** 픽이 있는 모든 구단의 능력치를 축별로 평균내 리그 평균선을 만든다(레이더 비교용). */
+function averageProfiles(profiles: readonly TeamProfile[]): TeamProfile | undefined {
+  const first = profiles[0]
+  if (first === undefined) {
+    return undefined
+  }
+  const acc: Record<string, number> = {}
+  for (const key of PROFILE_KEYS) {
+    acc[key] = Math.round(
+      profiles.reduce((sum, profile) => sum + (profile[key] as number), 0) / profiles.length,
+    )
+  }
+  return { ...(acc as unknown as TeamProfile), chemistryLinks: [], tactic: first.tactic }
+}
 
 type DraftRoomProps = {
   readonly state: GameState
@@ -29,6 +61,26 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
   const { t } = useI18n()
   const [scoutClubId, setScoutClubId] = useState<string | undefined>(undefined)
   const [poolOpen, setPoolOpen] = useState(false)
+
+  // 우리 팀 능력치 + 리그 평균(픽이 있는 전 구단). 픽마다 draft가 갱신되어 자동 재계산된다.
+  const teamView = useMemo(() => {
+    const currentDraft = state.draft
+    const club = state.clubs.find((candidate) => candidate.isUser)
+    const squad = currentDraft?.squads[USER_CLUB_ID]
+    if (currentDraft === undefined || club === undefined || squad === undefined) {
+      return undefined
+    }
+    const myProfile = createTeamProfile(squad, draftPool, club.tactic)
+    const profiles = state.clubs.flatMap((candidate) => {
+      const candidateSquad = currentDraft.squads[candidate.id]
+      if (candidateSquad === undefined || candidateSquad.picks.length === 0) {
+        return []
+      }
+      return [createTeamProfile(candidateSquad, draftPool, candidate.tactic)]
+    })
+    return { myProfile, leagueAvg: averageProfiles(profiles) }
+  }, [state.draft, state.clubs])
+
   const draft = state.draft
   if (draft === undefined) {
     return null
@@ -189,6 +241,22 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
       <div className="draft-room-grid">
         <aside className="draft-aside my-squad-panel">
           <SquadPitch club={userClub} squad={userSquad} />
+          {teamView !== undefined ? (
+            <div className="team-strength">
+              <h3 className="team-strength-title">{t("radar.title")}</h3>
+              <RadarChart team={teamView.myProfile} average={teamView.leagueAvg} />
+              <div className="radar-legend">
+                <span className="radar-legend-item radar-legend-item--team">{t("radar.you")}</span>
+                <span className="radar-legend-item radar-legend-item--avg">
+                  {t("radar.leagueAvg")}
+                </span>
+              </div>
+              <ChemistryBadges
+                links={teamView.myProfile.chemistryLinks}
+                score={teamView.myProfile.chemistry}
+              />
+            </div>
+          ) : null}
         </aside>
 
         <div className="draft-right-col">

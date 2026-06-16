@@ -1,6 +1,7 @@
 import type { PlayerCard, RatingAxis } from "../data/schema"
 import { type DraftState, getSlotsForFormation } from "../domain/draft"
 import type { TacticType } from "../domain/types"
+import { computeChemistry } from "./chemistry"
 import type { TeamProfile } from "./types"
 
 type PositionedCard = {
@@ -25,20 +26,31 @@ export function createTeamProfile(
     return [{ card, slotLabel: slot.label, fit: getPositionFit(card, slot.acceptedPositions) }]
   })
 
+  const chem = computeChemistry(
+    positionedCards.map((item) => ({ card: item.card, slotLabel: item.slotLabel })),
+    tactic,
+  )
+  const bonus = chem.bonusByCardId
+
   return {
-    attack: tacticBoost(tactic, "attack", averageAxis(positionedCards, ["scoring", "creation"])),
-    chanceCreation: averageAxis(positionedCards, ["creation", "control", "progression"]),
-    midfieldControl: averageAxis(positionedCards, ["control", "mental"]),
-    pressResistance: averageAxis(positionedCards, ["control", "mobility"]),
+    attack: tacticBoost(
+      tactic,
+      "attack",
+      averageAxis(positionedCards, ["scoring", "creation"], bonus),
+    ),
+    chanceCreation: averageAxis(positionedCards, ["creation", "control", "progression"], bonus),
+    midfieldControl: averageAxis(positionedCards, ["control", "mental"], bonus),
+    pressResistance: averageAxis(positionedCards, ["control", "mobility"], bonus),
     transition: tacticBoost(
       tactic,
       "transition",
-      averageAxis(positionedCards, ["mobility", "progression"]),
+      averageAxis(positionedCards, ["mobility", "progression"], bonus),
     ),
-    defensiveStability: averageAxis(positionedCards, ["defense", "physical", "mental"]),
-    aerialSetPiece: averageAxis(positionedCards, ["physical", "scoring"]),
-    stamina: averageAxis(positionedCards, ["mobility", "mental"]),
-    chemistry: calculateChemistry(positionedCards),
+    defensiveStability: averageAxis(positionedCards, ["defense", "physical", "mental"], bonus),
+    aerialSetPiece: averageAxis(positionedCards, ["physical", "scoring"], bonus),
+    stamina: averageAxis(positionedCards, ["mobility", "mental"], bonus),
+    chemistry: chem.score,
+    chemistryLinks: chem.links,
     roleBalance: calculateRoleBalance(positionedCards),
     tactic,
   }
@@ -48,27 +60,23 @@ function getPositionFit(card: PlayerCard, acceptedPositions: readonly string[]):
   return card.positions.some((position) => acceptedPositions.includes(position)) ? 1 : 0.62
 }
 
-function averageAxis(cards: readonly PositionedCard[], axes: readonly RatingAxis[]): number {
+function averageAxis(
+  cards: readonly PositionedCard[],
+  axes: readonly RatingAxis[],
+  bonusByCardId: ReadonlyMap<string, number>,
+): number {
   if (cards.length === 0) {
     return 0
   }
   const total = cards.reduce((sum, positionedCard) => {
+    const cardBonus = bonusByCardId.get(positionedCard.card.id) ?? 0
     const axisScore = axes.reduce(
-      (axisTotal, axis) => axisTotal + positionedCard.card.internalScores[axis],
+      (axisTotal, axis) => axisTotal + positionedCard.card.internalScores[axis] + cardBonus,
       0,
     )
     return sum + (axisScore / axes.length) * positionedCard.fit
   }, 0)
   return Math.round(total / cards.length)
-}
-
-function calculateChemistry(cards: readonly PositionedCard[]): number {
-  const eras = new Map<string, number>()
-  for (const item of cards) {
-    eras.set(item.card.eligibleEra, (eras.get(item.card.eligibleEra) ?? 0) + 1)
-  }
-  const bestEraCount = Math.max(...Array.from(eras.values()), 0)
-  return Math.min(100, 68 + bestEraCount * 4)
 }
 
 function calculateRoleBalance(cards: readonly PositionedCard[]): number {

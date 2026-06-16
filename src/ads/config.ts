@@ -53,6 +53,18 @@ export function getGameMonetizeId(): string | undefined {
   return env("VITE_GAMEMONETIZE_ID")
 }
 
+/** 결과 공유 시 붙일 게임 링크. 출시 후 Play 스토어 URL로 교체하려면 VITE_SHARE_URL을 넣는다. */
+export function getShareUrl(): string {
+  return env("VITE_SHARE_URL") ?? "https://football-draft-sim.vercel.app"
+}
+
+/** 공유 카드에 표시할 짧은 링크(프로토콜 제거). */
+export function getShareUrlLabel(): string {
+  return getShareUrl()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "")
+}
+
 /** 실제 광고 ID가 하나라도 주입됐는지 — 프로덕션 빌드 점검용 */
 export function isUsingTestAds(): boolean {
   return (

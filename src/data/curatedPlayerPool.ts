@@ -15,6 +15,8 @@ type PoolPosition = (typeof poolPositions)[number]
 type PoolEntry = {
   readonly displayName: string
   readonly country: string
+  readonly club: string | undefined
+  readonly league: string | undefined
   readonly tier: CuratedTier
 }
 type RatingShape = Readonly<Record<RatingAxis, RatingGrade>>
@@ -152,13 +154,26 @@ function spec(
 }
 
 function parseEntry(entry: string): PoolEntry {
-  const [displayName, country, tier] = entry.split("|")
+  const parts = entry.split("|")
+  const [displayName, country] = parts
   if (displayName === undefined || country === undefined) {
     throw new Error(`Invalid curated player entry: ${entry}`)
   }
+  // "이름|국가|클럽|리그|tier"(5필드)와 구형 "이름|국가|tier"(3필드)를 모두 지원한다.
+  let club: string | undefined
+  let league: string | undefined
+  let tierRaw: string | undefined
+  if (parts.length >= 5) {
+    club = parts[2]
+    league = parts[3]
+    tierRaw = parts[4]
+  } else {
+    tierRaw = parts[2]
+  }
   // tier가 누락되거나 알 수 없는 값이면 평범한 1군(regular)으로 안전하게 처리한다.
-  const resolvedTier: CuratedTier = tier !== undefined && isCuratedTier(tier) ? tier : "regular"
-  return { displayName, country, tier: resolvedTier }
+  const resolvedTier: CuratedTier =
+    tierRaw !== undefined && isCuratedTier(tierRaw) ? tierRaw : "regular"
+  return { displayName, country, club, league, tier: resolvedTier }
 }
 
 function createPoolPlayer(position: PoolPosition, entry: PoolEntry): Player {
@@ -191,6 +206,8 @@ function createPoolCard(positionSpec: PositionSpec, entry: PoolEntry, index: num
       year: null,
       age: null,
       country: entry.country,
+      ...(entry.club === undefined ? {} : { club: entry.club }),
+      ...(entry.league === undefined ? {} : { league: entry.league }),
       eligibleEra: "all-time pool",
       positions: [positionSpec.position],
       roles: [positionSpec.role],

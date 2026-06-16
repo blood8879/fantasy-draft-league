@@ -44,6 +44,8 @@ export type PlayerCard = {
   readonly year: number | null
   readonly age: number | null
   readonly country: string
+  readonly club?: string
+  readonly league?: string
   readonly eligibleEra: string
   readonly positions: readonly string[]
   readonly roles: readonly string[]
@@ -84,6 +86,8 @@ export const PlayerCardSchema = z.object({
   year: z.number().int().min(1950).max(2026).nullable(),
   age: z.number().int().min(16).max(45).nullable(),
   country: z.string().min(1),
+  club: z.string().min(1).optional(),
+  league: z.string().min(1).optional(),
   eligibleEra: z.string().min(1),
   positions: z.array(z.string().min(1)).min(1),
   roles: z.array(z.string().min(1)).min(1),

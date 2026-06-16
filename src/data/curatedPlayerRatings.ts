@@ -5,7 +5,15 @@ import type { Rarity, RatingAxis, RatingGrade } from "./schema"
  * 전부 tier에서 자동 산출한다. 덕분에 수백~수천 명 규모로 풀을 늘려도 선수마다
  * tier 한 글자만 붙이면 일관된 능력치 곡선이 나온다.
  */
-export const curatedTiers = ["icon", "legend", "elite", "strong", "regular", "squad"] as const
+export const curatedTiers = [
+  "goat",
+  "icon",
+  "legend",
+  "elite",
+  "strong",
+  "regular",
+  "squad",
+] as const
 export type CuratedTier = (typeof curatedTiers)[number]
 
 type TierConfig = {
@@ -19,6 +27,8 @@ type TierConfig = {
 }
 
 const tierConfig: Readonly<Record<CuratedTier, TierConfig>> = {
+  // 역대 최고(펠레·마라도나·메시·호날두급)만. cost 99 고정으로 다른 아이콘과 격을 둔다.
+  goat: { costBase: 99, costSpread: 1, rarity: "Legend", boost: 3 },
   icon: { costBase: 93, costSpread: 6, rarity: "Legend", boost: 3 },
   legend: { costBase: 88, costSpread: 5, rarity: "Legend", boost: 2 },
   elite: { costBase: 83, costSpread: 5, rarity: "Epic", boost: 1 },

@@ -6,10 +6,12 @@ import { useI18n } from "../i18n"
 type StandingsTableProps = {
   readonly clubs: readonly Club[]
   readonly fixtures: readonly Fixture[]
+  /** 주어지면 구단명을 클릭해 스쿼드를 열 수 있다. */
+  readonly onSelectClub?: (clubId: string) => void
 }
 
 /** 승점·승/무/패·득점·실점·득실차를 모두 보여주는 리그 순위표 */
-export function StandingsTable({ clubs, fixtures }: StandingsTableProps) {
+export function StandingsTable({ clubs, fixtures, onSelectClub }: StandingsTableProps) {
   const { t } = useI18n()
   const clubsById = new Map(clubs.map((club) => [club.id, club]))
   const standings = computeStandings(
@@ -44,7 +46,17 @@ export function StandingsTable({ clubs, fixtures }: StandingsTableProps) {
               <td>{index + 1}</td>
               <td className="club-col">
                 <span className="club-swatch" style={{ background: club?.color }} />
-                {club?.name ?? row.clubId}
+                {onSelectClub === undefined ? (
+                  (club?.name ?? row.clubId)
+                ) : (
+                  <button
+                    className="club-link"
+                    onClick={() => onSelectClub(row.clubId)}
+                    type="button"
+                  >
+                    {club?.name ?? row.clubId}
+                  </button>
+                )}
               </td>
               <td>{row.played}</td>
               <td>{row.won}</td>

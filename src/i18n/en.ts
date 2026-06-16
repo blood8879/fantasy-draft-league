@@ -111,6 +111,18 @@ export const en: Readonly<Record<string, string>> = {
   "axis.midfieldControl": "Midfield",
   "axis.pressResistance": "Press Resist",
   "axis.defensiveStability": "Defense",
+  "axis.transition": "Speed",
+
+  // radar / chemistry
+  "radar.title": "Squad ratings",
+  "radar.you": "Your XI",
+  "radar.leagueAvg": "League avg",
+  "chem.title": "Chemistry",
+  "chem.none": "No chemistry active yet",
+  "chem.underdog": "Underdog spirit",
+  "chem.line.def": "Defense",
+  "chem.line.mid": "Midfield",
+  "chem.line.att": "Attack",
 
   // match
   "match.result": "{round} result",
@@ -168,4 +180,19 @@ export const en: Readonly<Record<string, string>> = {
   "unit.goals": "{n} goals",
   "draft.aiPickingBody": "The AI manager is choosing from candidate cards.",
   "ad.playing": "Playing ad…",
+
+  // share
+  "share.button": "Share my result",
+  "share.working": "Preparing…",
+  "share.done": "Shared!",
+  "share.copied": "Link copied & image saved",
+  "share.failed": "Couldn't share",
+  "share.champions": "CHAMPIONS",
+  "share.knockedOut": "MY SEASON",
+  "share.subWin": "Won the title in Legend Draft League!",
+  "share.text": "I drafted this XI in Legend Draft League — can you beat it?",
+  "share.brand": "LEGEND DRAFT LEAGUE",
+  "share.ovr": "Avg OVR",
+  "share.chem": "Chemistry",
+  "share.cta": "Play free →",
 }
