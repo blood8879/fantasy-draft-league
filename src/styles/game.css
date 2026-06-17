@@ -1935,6 +1935,56 @@
   border-color: rgba(190, 60, 60, 0.5);
 }
 
+/* ---------- 업적 ---------- */
+
+.achievements-strip {
+  margin: 4px 0 8px;
+}
+
+.achievements-strip h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #2c4038;
+}
+
+.achievement-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.achievement-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+.achievement-badge[data-tier="gold"] {
+  background: rgba(230, 255, 116, 0.18);
+  border-color: #c8d94a;
+  color: #4a5a14;
+}
+
+.achievement-badge[data-tier="silver"] {
+  background: rgba(150, 170, 180, 0.18);
+  border-color: #9fb0bb;
+  color: #3a4a52;
+}
+
+.achievement-badge[data-tier="bronze"] {
+  background: rgba(179, 84, 30, 0.14);
+  border-color: #c07a45;
+  color: #7a3d11;
+}
+
 /* ---------- 구단명 링크(스쿼드 열기) ---------- */
 
 .club-link {

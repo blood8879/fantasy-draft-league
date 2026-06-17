@@ -1,6 +1,7 @@
 import { Trophy } from "lucide-react"
 import { useState } from "react"
 import { type GameAction, type GameState, cardsById, draftPool } from "../app/gameStore"
+import { computeUserAchievements } from "../domain/achievements"
 import { buildGoalkeepers, computeStandings, getChampionId } from "../domain/competition"
 import { USER_CLUB_ID } from "../domain/game"
 import { useI18n } from "../i18n"
@@ -56,10 +57,27 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
             userPicks.length,
         )
       : 0
-  const shareChemistry =
+  const userProfile =
     userSquad !== undefined && userClub !== undefined
-      ? createTeamProfile(userSquad, draftPool, userClub.tactic).chemistry
-      : 75
+      ? createTeamProfile(userSquad, draftPool, userClub.tactic)
+      : undefined
+  const userRow = standings.find((row) => row.clubId === USER_CLUB_ID)
+  const statsLine =
+    competition.kind === "리그" && userRow !== undefined && userRank > 0
+      ? t("share.recordLeague", {
+          rank: ordinal(userRank, locale),
+          w: userRow.won,
+          d: userRow.drawn,
+          l: userRow.lost,
+          gf: userRow.goalsFor,
+          ga: userRow.goalsAgainst,
+        })
+      : undefined
+  const achievements = computeUserAchievements(
+    competition,
+    state.clubs.map((club) => club.id),
+    USER_CLUB_ID,
+  )
 
   const scoutClub = scoutClubId === undefined ? undefined : clubsById.get(scoutClubId)
   const scoutSquad =
@@ -85,6 +103,19 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
               })}
         </p>
       </header>
+
+      {achievements.length > 0 ? (
+        <div className="achievements-strip">
+          <h3>{t("ach.title")}</h3>
+          <ul className="achievement-list">
+            {achievements.map((achievement) => (
+              <li className="achievement-badge" data-tier={achievement.tier} key={achievement.id}>
+                {t(achievement.nameKey)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="champion-grid">
         <div className="draft-aside">
@@ -140,14 +171,16 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
         </div>
       </div>
 
-      {userClub !== undefined && userSquad !== undefined ? (
+      {userClub !== undefined && userSquad !== undefined && userProfile !== undefined ? (
         <ShareResultButton
+          achievements={achievements.map((achievement) => t(achievement.nameKey))}
           avgOvr={shareAvgOvr}
           badge={shareBadge}
           cards={cardsById}
-          chemistry={shareChemistry}
           club={userClub}
+          profile={userProfile}
           squad={userSquad}
+          statsLine={statsLine}
           subtitle={shareSubtitle}
         />
       ) : null}

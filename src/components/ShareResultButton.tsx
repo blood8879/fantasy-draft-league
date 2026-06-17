@@ -7,15 +7,18 @@ import type { Club } from "../domain/game"
 import { useI18n } from "../i18n"
 import { buildShareCardBlob } from "../share/shareCard"
 import { shareResult } from "../share/shareResult"
+import type { TeamProfile } from "../simulation/types"
 
 type ShareResultButtonProps = {
   readonly club: Club
   readonly squad: DraftState
   readonly cards: ReadonlyMap<string, PlayerCard>
+  readonly profile: TeamProfile
   readonly badge: string
   readonly subtitle: string
+  readonly statsLine: string | undefined
+  readonly achievements: readonly string[]
   readonly avgOvr: number
-  readonly chemistry: number
 }
 
 type Status = "idle" | "working" | "shared" | "copied" | "failed"
@@ -31,16 +34,27 @@ export function ShareResultButton(props: ShareResultButtonProps) {
         club: props.club,
         squad: props.squad,
         cards: props.cards,
+        profile: props.profile,
         badge: props.badge,
         subtitle: props.subtitle,
+        statsLine: props.statsLine,
+        achievements: props.achievements,
         avgOvr: props.avgOvr,
-        chemistry: props.chemistry,
         labels: {
           brand: t("share.brand"),
           ovr: t("share.ovr"),
           chem: t("share.chem"),
           cta: t("share.cta"),
           url: getShareUrlLabel(),
+          axes: {
+            attack: t("axis.attack"),
+            chanceCreation: t("axis.chanceCreation"),
+            midfieldControl: t("axis.midfieldControl"),
+            pressResistance: t("axis.pressResistance"),
+            transition: t("axis.transition"),
+            defensiveStability: t("axis.defensiveStability"),
+            chemistry: t("chem.title"),
+          },
         },
       })
       const outcome = await shareResult(

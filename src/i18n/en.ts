@@ -195,4 +195,20 @@ export const en: Readonly<Record<string, string>> = {
   "share.ovr": "Avg OVR",
   "share.chem": "Chemistry",
   "share.cta": "Play free →",
+  "share.recordLeague": "{rank} · {w}W {d}D {l}L · {gf} scored / {ga} conceded",
+
+  // achievements
+  "ach.title": "Achievements",
+  "ach.leagueChampion": "League Conquerors",
+  "ach.runnerUp": "Runners-up",
+  "ach.top4": "Top-4 Finish",
+  "ach.mostGoals": "Top Scorers",
+  "ach.fewestConceded": "Iron Wall",
+  "ach.century": "Century Club",
+  "ach.invincible": "Invincibles",
+  "ach.dominant": "Dominant Force",
+  "ach.streak10": "10-Win Streak",
+  "ach.streak5": "5-Win Streak",
+  "ach.cupChampion": "Cup Conquerors",
+  "ach.cupRunnerUp": "Cup Finalists",
 }
