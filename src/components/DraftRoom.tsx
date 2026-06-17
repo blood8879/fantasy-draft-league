@@ -23,6 +23,7 @@ import { PoolBrowser } from "./PoolBrowser"
 import { RadarChart } from "./RadarChart"
 import { RewardedAdButton } from "./RewardedAdButton"
 import { SquadPitch } from "./SquadPitch"
+import { TeamStatBars } from "./TeamStatBars"
 
 const PROFILE_KEYS = [
   "attack",
@@ -251,6 +252,7 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                   {t("radar.leagueAvg")}
                 </span>
               </div>
+              <TeamStatBars team={teamView.myProfile} average={teamView.leagueAvg} />
               <ChemistryBadges
                 links={teamView.myProfile.chemistryLinks}
                 score={teamView.myProfile.chemistry}
