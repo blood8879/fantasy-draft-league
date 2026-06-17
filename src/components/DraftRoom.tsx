@@ -16,42 +16,13 @@ import {
 } from "../domain/fantasyDraft"
 import { USER_CLUB_ID } from "../domain/game"
 import { type I18nValue, useI18n } from "../i18n"
-import { createTeamProfile } from "../simulation/teamProfile"
-import type { TeamProfile } from "../simulation/types"
+import { averageProfiles, createTeamProfile } from "../simulation/teamProfile"
 import { ChemistryBadges } from "./ChemistryBadges"
 import { PoolBrowser } from "./PoolBrowser"
 import { RadarChart } from "./RadarChart"
 import { RewardedAdButton } from "./RewardedAdButton"
 import { SquadPitch } from "./SquadPitch"
 import { TeamStatBars } from "./TeamStatBars"
-
-const PROFILE_KEYS = [
-  "attack",
-  "chanceCreation",
-  "midfieldControl",
-  "pressResistance",
-  "transition",
-  "defensiveStability",
-  "aerialSetPiece",
-  "stamina",
-  "chemistry",
-  "roleBalance",
-] as const
-
-/** 픽이 있는 모든 구단의 능력치를 축별로 평균내 리그 평균선을 만든다(레이더 비교용). */
-function averageProfiles(profiles: readonly TeamProfile[]): TeamProfile | undefined {
-  const first = profiles[0]
-  if (first === undefined) {
-    return undefined
-  }
-  const acc: Record<string, number> = {}
-  for (const key of PROFILE_KEYS) {
-    acc[key] = Math.round(
-      profiles.reduce((sum, profile) => sum + (profile[key] as number), 0) / profiles.length,
-    )
-  }
-  return { ...(acc as unknown as TeamProfile), chemistryLinks: [], tactic: first.tactic }
-}
 
 type DraftRoomProps = {
   readonly state: GameState

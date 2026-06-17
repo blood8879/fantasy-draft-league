@@ -60,6 +60,34 @@ function getPositionFit(card: PlayerCard, acceptedPositions: readonly string[]):
   return card.positions.some((position) => acceptedPositions.includes(position)) ? 1 : 0.62
 }
 
+const PROFILE_KEYS = [
+  "attack",
+  "chanceCreation",
+  "midfieldControl",
+  "pressResistance",
+  "transition",
+  "defensiveStability",
+  "aerialSetPiece",
+  "stamina",
+  "chemistry",
+  "roleBalance",
+] as const
+
+/** 여러 팀 프로필을 축별로 평균낸다(리그 평균선 비교용). 빈 배열이면 undefined. */
+export function averageProfiles(profiles: readonly TeamProfile[]): TeamProfile | undefined {
+  const first = profiles[0]
+  if (first === undefined) {
+    return undefined
+  }
+  const acc: Record<string, number> = {}
+  for (const key of PROFILE_KEYS) {
+    acc[key] = Math.round(
+      profiles.reduce((sum, profile) => sum + (profile[key] as number), 0) / profiles.length,
+    )
+  }
+  return { ...(acc as unknown as TeamProfile), chemistryLinks: [], tactic: first.tactic }
+}
+
 function averageAxis(
   cards: readonly PositionedCard[],
   axes: readonly RatingAxis[],

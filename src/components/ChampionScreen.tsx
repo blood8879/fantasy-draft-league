@@ -5,9 +5,9 @@ import { computeUserAchievements } from "../domain/achievements"
 import { buildGoalkeepers, computeStandings, getChampionId } from "../domain/competition"
 import { USER_CLUB_ID } from "../domain/game"
 import { useI18n } from "../i18n"
-import { createTeamProfile } from "../simulation/teamProfile"
+import { averageProfiles, createTeamProfile } from "../simulation/teamProfile"
 import { ShareResultButton } from "./ShareResultButton"
-import { SquadPitch } from "./SquadPitch"
+import { SquadDetailModal } from "./SquadDetailModal"
 import { StandingsTable } from "./StandingsTable"
 import { StatLeaders } from "./StatLeaders"
 import { cupRoundLabel, ordinal } from "./labels"
@@ -84,6 +84,19 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
     scoutClubId === undefined || state.draft === undefined
       ? undefined
       : state.draft.squads[scoutClubId]
+  const draft = state.draft
+  const leagueAvg =
+    draft === undefined
+      ? undefined
+      : averageProfiles(
+          state.clubs.flatMap((club) => {
+            const squad = draft.squads[club.id]
+            if (squad === undefined || squad.picks.length === 0) {
+              return []
+            }
+            return [createTeamProfile(squad, draftPool, club.tactic)]
+          }),
+        )
 
   return (
     <section className="champion-screen">
@@ -194,31 +207,13 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
       </button>
 
       {scoutClub !== undefined && scoutSquad !== undefined ? (
-        <div
-          className="pitch-modal-overlay"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) {
-              setScoutClubId(undefined)
-            }
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              setScoutClubId(undefined)
-            }
-          }}
-          role="presentation"
-        >
-          <div className="pitch-modal">
-            <button
-              className="pitch-modal-close"
-              onClick={() => setScoutClubId(undefined)}
-              type="button"
-            >
-              {t("common.close")}
-            </button>
-            <SquadPitch club={scoutClub} squad={scoutSquad} />
-          </div>
-        </div>
+        <SquadDetailModal
+          club={scoutClub}
+          leagueAvg={leagueAvg}
+          onClose={() => setScoutClubId(undefined)}
+          profile={createTeamProfile(scoutSquad, draftPool, scoutClub.tactic)}
+          squad={scoutSquad}
+        />
       ) : null}
     </section>
   )

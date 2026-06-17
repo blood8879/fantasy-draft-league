@@ -1,13 +1,14 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { type GameAction, type GameState, cardsById, draftPool } from "../app/gameStore"
 import { buildGoalkeepers, getRoundFixtures, isCompetitionFinished } from "../domain/competition"
 import { USER_CLUB_ID } from "../domain/game"
 import { tacticTypes } from "../domain/types"
 import { useI18n } from "../i18n"
 import { getFixtureWinnerId } from "../simulation/fixture"
-import { createTeamProfile } from "../simulation/teamProfile"
+import { averageProfiles, createTeamProfile } from "../simulation/teamProfile"
 import type { TeamProfile } from "../simulation/types"
 import { RewardedAdButton } from "./RewardedAdButton"
+import { SquadDetailModal } from "./SquadDetailModal"
 import { StandingsTable } from "./StandingsTable"
 import { StatLeaders } from "./StatLeaders"
 import { cupRoundLabel, roundLabel, tacticLabel } from "./labels"
@@ -28,6 +29,22 @@ const scoutAxes: readonly { readonly key: keyof TeamProfile; readonly labelKey: 
 export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
   const { t } = useI18n()
   const [scoutedRound, setScoutedRound] = useState<number | undefined>(undefined)
+  const [lineupClubId, setLineupClubId] = useState<string | undefined>(undefined)
+  // 리그 평균선(픽이 있는 전 구단) — 모달에서 해당 팀과 비교용.
+  const leagueAvg = useMemo(() => {
+    const draft = state.draft
+    if (draft === undefined) {
+      return undefined
+    }
+    const profiles = state.clubs.flatMap((club) => {
+      const squad = draft.squads[club.id]
+      if (squad === undefined || squad.picks.length === 0) {
+        return []
+      }
+      return [createTeamProfile(squad, draftPool, club.tactic)]
+    })
+    return averageProfiles(profiles)
+  }, [state.draft, state.clubs])
   const competition = state.competition
   if (competition === undefined) {
     return null
@@ -133,7 +150,11 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
           {competition.kind === "리그" ? (
             <>
               <h3>{t("season.standings")}</h3>
-              <StandingsTable clubs={state.clubs} fixtures={competition.fixtures} />
+              <StandingsTable
+                clubs={state.clubs}
+                fixtures={competition.fixtures}
+                onSelectClub={setLineupClubId}
+              />
             </>
           ) : (
             <CupBracket state={state} />
@@ -206,6 +227,26 @@ export function SeasonScreen({ state, dispatch }: SeasonScreenProps) {
           ) : null}
         </aside>
       </div>
+
+      {(() => {
+        const club = lineupClubId === undefined ? undefined : clubsById.get(lineupClubId)
+        const squad =
+          lineupClubId === undefined || state.draft === undefined
+            ? undefined
+            : state.draft.squads[lineupClubId]
+        if (club === undefined || squad === undefined) {
+          return null
+        }
+        return (
+          <SquadDetailModal
+            club={club}
+            leagueAvg={leagueAvg}
+            onClose={() => setLineupClubId(undefined)}
+            profile={createTeamProfile(squad, draftPool, club.tactic)}
+            squad={squad}
+          />
+        )
+      })()}
     </section>
   )
 }
