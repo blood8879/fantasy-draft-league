@@ -606,6 +606,26 @@
   vertical-align: super;
 }
 
+/* 케미 종류별 색 (ChemistryBadges 칩 테두리 색과 같은 계열) */
+.pitch-slot-bonus[data-kind="nation"] {
+  color: #2b6ba6;
+}
+.pitch-slot-bonus[data-kind="club"] {
+  color: #2e8b3f;
+}
+.pitch-slot-bonus[data-kind="league"] {
+  color: #7850b4;
+}
+.pitch-slot-bonus[data-kind="line"] {
+  color: #1e8c6e;
+}
+.pitch-slot-bonus[data-kind="tactic"] {
+  color: #b3541e;
+}
+.pitch-slot-bonus[data-kind="underdog"] {
+  color: #be3c3c;
+}
+
 /* ---------- 선수 풀 보기 모달 ---------- */
 
 .pool-modal {
@@ -1921,26 +1941,32 @@
 
 .chem-badge[data-kind="nation"] {
   border-color: rgba(43, 107, 166, 0.5);
+  color: #2b6ba6;
 }
 
 .chem-badge[data-kind="club"] {
   border-color: rgba(46, 107, 52, 0.6);
+  color: #2e8b3f;
 }
 
 .chem-badge[data-kind="league"] {
   border-color: rgba(120, 80, 180, 0.45);
+  color: #7850b4;
 }
 
 .chem-badge[data-kind="line"] {
   border-color: rgba(30, 140, 110, 0.5);
+  color: #1e8c6e;
 }
 
 .chem-badge[data-kind="tactic"] {
   border-color: rgba(179, 84, 30, 0.55);
+  color: #b3541e;
 }
 
 .chem-badge[data-kind="underdog"] {
   border-color: rgba(190, 60, 60, 0.5);
+  color: #be3c3c;
 }
 
 /* ---------- 업적 ---------- */

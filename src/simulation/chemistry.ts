@@ -23,13 +23,20 @@ export type ChemistryInput = {
 export type ChemistryResult = {
   readonly score: number
   readonly bonusByCardId: ReadonlyMap<string, number>
+  /** 카드별로 가장 큰 보너스를 준 케미 종류(피치 색 구분용). */
+  readonly dominantKindByCardId: ReadonlyMap<string, ChemistryKind>
   readonly links: readonly ChemistryLink[]
 }
 
 /** 카드 한 장이 받을 수 있는 케미 보너스 총합 상한(능력치 점수 가산). 밸런스 안전장치. */
 const MAX_CARD_BONUS = 12
 
-const EMPTY: ChemistryResult = { score: 75, bonusByCardId: new Map(), links: [] }
+const EMPTY: ChemistryResult = {
+  score: 75,
+  bonusByCardId: new Map(),
+  dominantKindByCardId: new Map(),
+  links: [],
+}
 
 type Line = "def" | "mid" | "att"
 
@@ -62,8 +69,19 @@ const TACTIC_AXES: Readonly<Record<TacticType, readonly RatingAxis[]>> = {
   로우블록: ["defense", "mental"],
 }
 
-function addBonus(map: Map<string, number>, cardId: string, amount: number): void {
-  map.set(cardId, Math.min(MAX_CARD_BONUS, (map.get(cardId) ?? 0) + amount))
+type KindBonusMap = Map<string, Map<ChemistryKind, number>>
+
+function addBonus(
+  totals: Map<string, number>,
+  kindBonus: KindBonusMap,
+  cardId: string,
+  amount: number,
+  kind: ChemistryKind,
+): void {
+  totals.set(cardId, Math.min(MAX_CARD_BONUS, (totals.get(cardId) ?? 0) + amount))
+  const byKind = kindBonus.get(cardId) ?? new Map<ChemistryKind, number>()
+  byKind.set(kind, (byKind.get(kind) ?? 0) + amount)
+  kindBonus.set(cardId, byKind)
 }
 
 /**
@@ -79,6 +97,7 @@ export function computeChemistry(
     return EMPTY
   }
   const bonusByCardId = new Map<string, number>()
+  const kindBonus: KindBonusMap = new Map()
   const links: ChemistryLink[] = []
 
   // 1) 국적 케미: 같은 나라 4명↑.
@@ -94,7 +113,7 @@ export function computeChemistry(
     }
     const bonus = cards.length >= 8 ? 7 : cards.length >= 6 ? 5 : 3
     for (const card of cards) {
-      addBonus(bonusByCardId, card.id, bonus)
+      addBonus(bonusByCardId, kindBonus, card.id, bonus, "nation")
     }
     links.push({ kind: "nation", label: nation, count: cards.length, bonus })
   }
@@ -115,7 +134,7 @@ export function computeChemistry(
     }
     const bonus = cards.length >= 4 ? 4 : cards.length >= 3 ? 3 : 2
     for (const card of cards) {
-      addBonus(bonusByCardId, card.id, bonus)
+      addBonus(bonusByCardId, kindBonus, card.id, bonus, "club")
     }
     links.push({ kind: "club", label: club, count: cards.length, bonus })
   }
@@ -136,7 +155,7 @@ export function computeChemistry(
     }
     const bonus = cards.length >= 9 ? 3 : 2
     for (const card of cards) {
-      addBonus(bonusByCardId, card.id, bonus)
+      addBonus(bonusByCardId, kindBonus, card.id, bonus, "league")
     }
     links.push({ kind: "league", label: league, count: cards.length, bonus })
   }
@@ -162,7 +181,7 @@ export function computeChemistry(
     }
     const bonus = 3
     for (const card of cards) {
-      addBonus(bonusByCardId, card.id, bonus)
+      addBonus(bonusByCardId, kindBonus, card.id, bonus, "line")
     }
     links.push({ kind: "line", label: line, count: cards.length, bonus })
   }
@@ -172,9 +191,10 @@ export function computeChemistry(
   let tacticFitCount = 0
   for (const { card } of inputs) {
     const avg = axes.reduce((sum, axis) => sum + card.internalScores[axis], 0) / axes.length
-    const bonus = avg >= 80 ? 3 : avg >= 72 ? 2 : 0
+    // 임계를 높여 전술 케미를 더 특별하게 — 정말 그 전술에 특화된 선수만 받는다.
+    const bonus = avg >= 88 ? 3 : avg >= 82 ? 2 : 0
     if (bonus > 0) {
-      addBonus(bonusByCardId, card.id, bonus)
+      addBonus(bonusByCardId, kindBonus, card.id, bonus, "tactic")
       tacticFitCount += 1
     }
   }
@@ -187,7 +207,7 @@ export function computeChemistry(
   if (avgCost < 70) {
     const bonus = avgCost < 62 ? 4 : 3
     for (const { card } of inputs) {
-      addBonus(bonusByCardId, card.id, bonus)
+      addBonus(bonusByCardId, kindBonus, card.id, bonus, "underdog")
     }
     links.push({ kind: "underdog", label: "", count: inputs.length, bonus })
   }
@@ -200,6 +220,22 @@ export function computeChemistry(
   const avgBonus = total / inputs.length
   const score = Math.max(70, Math.min(100, Math.round(75 + avgBonus * 3)))
 
+  // 카드별로 가장 큰 보너스를 준 케미 종류를 골라 둔다(피치 색 구분용).
+  const dominantKindByCardId = new Map<string, ChemistryKind>()
+  for (const [cardId, byKind] of kindBonus) {
+    let bestKind: ChemistryKind | undefined
+    let bestValue = -1
+    for (const [kind, value] of byKind) {
+      if (value > bestValue) {
+        bestValue = value
+        bestKind = kind
+      }
+    }
+    if (bestKind !== undefined) {
+      dominantKindByCardId.set(cardId, bestKind)
+    }
+  }
+
   links.sort((a, b) => b.bonus - a.bonus || b.count - a.count)
-  return { score, bonusByCardId, links }
+  return { score, bonusByCardId, dominantKindByCardId, links }
 }

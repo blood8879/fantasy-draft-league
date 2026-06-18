@@ -18,8 +18,8 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
   const pickBySlot = new Map(squad.picks.map((pick) => [pick.slotId, pick.cardId]))
   const filled = squad.picks.length
 
-  // 케미로 능력치가 오른 선수를 슬롯에 +N으로 표시하기 위한 보너스 맵.
-  const chemBonus = computeChemistry(
+  // 케미로 능력치가 오른 선수를 슬롯에 +N으로 표시하기 위한 보너스/종류 맵.
+  const chem = computeChemistry(
     squad.picks.flatMap((pick) => {
       const card = cardsById.get(pick.cardId)
       if (card === undefined) {
@@ -28,7 +28,9 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
       return [{ card, slotLabel: getSlotForFormation(squad.formation, pick.slotId).label }]
     }),
     club.tactic,
-  ).bonusByCardId
+  )
+  const chemBonus = chem.bonusByCardId
+  const chemKind = chem.dominantKindByCardId
 
   return (
     <div className="squad-pitch-wrap">
@@ -59,7 +61,9 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
                     <span className="pitch-slot-cost">
                       {card.cost}
                       {cardId !== undefined && (chemBonus.get(cardId) ?? 0) > 0 ? (
-                        <span className="pitch-slot-bonus">+{chemBonus.get(cardId)}</span>
+                        <span className="pitch-slot-bonus" data-kind={chemKind.get(cardId)}>
+                          +{chemBonus.get(cardId)}
+                        </span>
                       ) : null}
                     </span>
                   ) : null}
