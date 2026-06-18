@@ -109,7 +109,7 @@ describe("computeChemistry", () => {
     expect(result.links.some((link) => link.kind === "underdog")).toBe(true)
   })
 
-  it("카드 보너스는 +8을 넘지 않는다", () => {
+  it("카드 보너스는 상한(+12)을 넘지 않는다", () => {
     // 같은 국적 8명 + 같은 클럽 4명 + 언더독을 한 선수에 겹쳐도 상한이 적용된다
     const stacked = Array.from({ length: 8 }, () =>
       card({ country: "Italy", club: "Juventus", cost: 55 }),
@@ -119,7 +119,7 @@ describe("computeChemistry", () => {
       "점유율",
     )
     for (const c of stacked) {
-      expect(result.bonusByCardId.get(c.id) ?? 0).toBeLessThanOrEqual(8)
+      expect(result.bonusByCardId.get(c.id) ?? 0).toBeLessThanOrEqual(12)
     }
     expect(result.score).toBeLessThanOrEqual(100)
   })

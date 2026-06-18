@@ -120,8 +120,9 @@ function sideXg(attacking: TeamProfile, defending: TeamProfile, homeBonus: numbe
   const advantage =
     (attacking.attack - defending.defensiveStability) * 0.35 +
     (attacking.midfieldControl - defending.midfieldControl) * 0.3 +
-    (attacking.transition - defending.pressResistance) * 0.2 +
-    (attacking.chemistry - 75) * 0.15
+    (attacking.transition - defending.pressResistance) * 0.2
+  // 케미는 상대 팀 케미와의 차이로 직접 xG에 반영한다(잘 짜인 스쿼드가 확실히 유리하도록).
+  const chemistryEdge = (attacking.chemistry - defending.chemistry) / 55
   return clamp(
     0.25,
     4.2,
@@ -129,7 +130,8 @@ function sideXg(attacking: TeamProfile, defending: TeamProfile, homeBonus: numbe
       homeBonus +
       (attacking.attack - defending.defensiveStability) / 48 +
       (attacking.chanceCreation - defending.midfieldControl) / 72 +
-      advantage / 90,
+      advantage / 90 +
+      chemistryEdge,
   )
 }
 

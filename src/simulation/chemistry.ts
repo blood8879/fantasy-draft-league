@@ -27,7 +27,7 @@ export type ChemistryResult = {
 }
 
 /** 카드 한 장이 받을 수 있는 케미 보너스 총합 상한(능력치 점수 가산). 밸런스 안전장치. */
-const MAX_CARD_BONUS = 8
+const MAX_CARD_BONUS = 12
 
 const EMPTY: ChemistryResult = { score: 75, bonusByCardId: new Map(), links: [] }
 
@@ -92,7 +92,7 @@ export function computeChemistry(
     if (cards.length < 4) {
       continue
     }
-    const bonus = cards.length >= 8 ? 6 : cards.length >= 6 ? 4 : 2
+    const bonus = cards.length >= 8 ? 7 : cards.length >= 6 ? 5 : 3
     for (const card of cards) {
       addBonus(bonusByCardId, card.id, bonus)
     }
@@ -113,7 +113,7 @@ export function computeChemistry(
     if (cards.length < 2) {
       continue
     }
-    const bonus = cards.length >= 4 ? 3 : cards.length >= 3 ? 2 : 1
+    const bonus = cards.length >= 4 ? 4 : cards.length >= 3 ? 3 : 2
     for (const card of cards) {
       addBonus(bonusByCardId, card.id, bonus)
     }
@@ -134,7 +134,7 @@ export function computeChemistry(
     if (cards.length < 6) {
       continue
     }
-    const bonus = cards.length >= 9 ? 2 : 1
+    const bonus = cards.length >= 9 ? 3 : 2
     for (const card of cards) {
       addBonus(bonusByCardId, card.id, bonus)
     }
@@ -160,7 +160,7 @@ export function computeChemistry(
     if (!allSameNation) {
       continue
     }
-    const bonus = 2
+    const bonus = 3
     for (const card of cards) {
       addBonus(bonusByCardId, card.id, bonus)
     }
@@ -172,7 +172,7 @@ export function computeChemistry(
   let tacticFitCount = 0
   for (const { card } of inputs) {
     const avg = axes.reduce((sum, axis) => sum + card.internalScores[axis], 0) / axes.length
-    const bonus = avg >= 80 ? 2 : avg >= 72 ? 1 : 0
+    const bonus = avg >= 80 ? 3 : avg >= 72 ? 2 : 0
     if (bonus > 0) {
       addBonus(bonusByCardId, card.id, bonus)
       tacticFitCount += 1
@@ -185,7 +185,7 @@ export function computeChemistry(
   // 6) 언더독 케미: 평균 전력(cost)이 낮은 구성에 소폭 보정.
   const avgCost = inputs.reduce((sum, { card }) => sum + card.cost, 0) / inputs.length
   if (avgCost < 70) {
-    const bonus = avgCost < 62 ? 3 : 2
+    const bonus = avgCost < 62 ? 4 : 3
     for (const { card } of inputs) {
       addBonus(bonusByCardId, card.id, bonus)
     }

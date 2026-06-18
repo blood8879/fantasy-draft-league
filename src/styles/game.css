@@ -598,6 +598,14 @@
   font-weight: 900;
 }
 
+.pitch-slot-bonus {
+  color: #2e8b3f;
+  font-size: 8.5px;
+  font-weight: 800;
+  margin-left: 2px;
+  vertical-align: super;
+}
+
 /* ---------- 선수 풀 보기 모달 ---------- */
 
 .pool-modal {
