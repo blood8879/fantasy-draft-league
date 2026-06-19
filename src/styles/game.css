@@ -619,8 +619,11 @@
 .pitch-slot-bonus[data-kind="line"] {
   color: #1e8c6e;
 }
-.pitch-slot-bonus[data-kind="tactic"] {
-  color: #b3541e;
+.pitch-slot-bonus[data-kind="rivalry"] {
+  color: #d2691e;
+}
+.pitch-slot-bonus[data-kind="region"] {
+  color: #b58a1e;
 }
 .pitch-slot-bonus[data-kind="underdog"] {
   color: #be3c3c;
@@ -1959,9 +1962,14 @@
   color: #1e8c6e;
 }
 
-.chem-badge[data-kind="tactic"] {
-  border-color: rgba(179, 84, 30, 0.55);
-  color: #b3541e;
+.chem-badge[data-kind="rivalry"] {
+  border-color: rgba(210, 105, 30, 0.55);
+  color: #d2691e;
+}
+
+.chem-badge[data-kind="region"] {
+  border-color: rgba(181, 138, 30, 0.55);
+  color: #b58a1e;
 }
 
 .chem-badge[data-kind="underdog"] {

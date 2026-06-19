@@ -123,6 +123,16 @@ export const en: Readonly<Record<string, string>> = {
   "chem.line.def": "Defense",
   "chem.line.mid": "Midfield",
   "chem.line.att": "Attack",
+  "chem.rival.argEng": "Sleeping with the Enemy",
+  "chem.rival.braArg": "Samba vs Tango",
+  "chem.rival.fraEng": "The Channel Clash",
+  "chem.rival.gerNed": "The Orange War",
+  "chem.rival.engGer": "Echoes of '66",
+  "chem.rival.braUru": "The Maracanazo",
+  "chem.region.iberia": "Iberian Brothers",
+  "chem.region.lowlands": "Lowland Alliance",
+  "chem.region.scandinavia": "Viking Brotherhood",
+  "chem.region.balkans": "Balkan Spark",
 
   // match
   "match.result": "{round} result",

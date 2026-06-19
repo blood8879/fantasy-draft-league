@@ -31,7 +31,7 @@ export function modeLabel(mode: string, t: I18nValue["t"]): string {
   return t(`mode.${mode}`)
 }
 
-/** 케미 배지 표시 텍스트. 국가·클럽·리그명은 고유명사라 그대로, 라인·전술·언더독은 번역. */
+/** 케미 배지 표시 텍스트. 국가·클럽·리그명은 고유명사라 그대로, 라인·라이벌·지역·언더독은 번역. */
 export function chemistryLinkText(link: ChemistryLink, t: I18nValue["t"]): string {
   switch (link.kind) {
     case "nation":
@@ -40,8 +40,10 @@ export function chemistryLinkText(link: ChemistryLink, t: I18nValue["t"]): strin
       return `${link.label} ×${link.count}`
     case "line":
       return `${t(`chem.line.${link.label}`)} ×${link.count}`
-    case "tactic":
-      return `${tacticLabel(link.label, t)} ×${link.count}`
+    case "rivalry":
+    case "region":
+      // label은 i18n 키(예: chem.rival.argEng)
+      return `${t(link.label)} ×${link.count}`
     case "underdog":
       return t("chem.underdog")
     default:

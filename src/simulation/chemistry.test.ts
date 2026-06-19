@@ -52,17 +52,14 @@ function input(c: PlayerCard, slotLabel = "CM"): ChemistryInput {
 
 describe("computeChemistry", () => {
   it("빈 스쿼드는 중립 점수 75를 돌려준다", () => {
-    const result = computeChemistry([], "점유율")
+    const result = computeChemistry([])
     expect(result.score).toBe(75)
     expect(result.links).toHaveLength(0)
   })
 
   it("같은 국적 4명이면 국적 케미가 활성화되고 해당 선수에 보너스가 붙는다", () => {
     const dutch = Array.from({ length: 4 }, () => card({ country: "Netherlands" }))
-    const result = computeChemistry(
-      dutch.map((c) => input(c)),
-      "점유율",
-    )
+    const result = computeChemistry(dutch.map((c) => input(c)))
     const nation = result.links.find((link) => link.kind === "nation")
     expect(nation?.label).toBe("Netherlands")
     expect(nation?.count).toBe(4)
@@ -74,10 +71,7 @@ describe("computeChemistry", () => {
 
   it("국적 3명만으로는 국적 케미가 생기지 않는다", () => {
     const three = Array.from({ length: 3 }, () => card({ country: "Brazil" }))
-    const result = computeChemistry(
-      three.map((c) => input(c)),
-      "점유율",
-    )
+    const result = computeChemistry(three.map((c) => input(c)))
     expect(result.links.some((link) => link.kind === "nation")).toBe(false)
   })
 
@@ -86,10 +80,7 @@ describe("computeChemistry", () => {
       card({ country: "Spain", club: "Barcelona" }),
       card({ country: "Argentina", club: "Barcelona" }),
     ]
-    const result = computeChemistry(
-      pair.map((c) => input(c)),
-      "점유율",
-    )
+    const result = computeChemistry(pair.map((c) => input(c)))
     expect(result.links.some((link) => link.kind === "club" && link.label === "Barcelona")).toBe(
       true,
     )
@@ -102,10 +93,7 @@ describe("computeChemistry", () => {
       // @ts-expect-error 테스트 편의상 country 덮어쓰기
       c.country = `Nation${i}`
     })
-    const result = computeChemistry(
-      weak.map((c) => input(c)),
-      "점유율",
-    )
+    const result = computeChemistry(weak.map((c) => input(c)))
     expect(result.links.some((link) => link.kind === "underdog")).toBe(true)
   })
 
@@ -114,13 +102,31 @@ describe("computeChemistry", () => {
     const stacked = Array.from({ length: 8 }, () =>
       card({ country: "Italy", club: "Juventus", cost: 55 }),
     )
-    const result = computeChemistry(
-      stacked.map((c) => input(c)),
-      "점유율",
-    )
+    const result = computeChemistry(stacked.map((c) => input(c)))
     for (const c of stacked) {
       expect(result.bonusByCardId.get(c.id) ?? 0).toBeLessThanOrEqual(12)
     }
     expect(result.score).toBeLessThanOrEqual(100)
+  })
+
+  it("라이벌 두 국가가 함께 있으면 라이벌 케미가 활성화된다", () => {
+    const squad = [card({ country: "Argentina" }), card({ country: "England" })]
+    const result = computeChemistry(squad.map((c) => input(c)))
+    expect(result.links.some((link) => link.kind === "rivalry")).toBe(true)
+    for (const c of squad) {
+      expect(result.bonusByCardId.get(c.id) ?? 0).toBeGreaterThan(0)
+    }
+  })
+
+  it("같은 권역 두 나라가 모이면 지역 케미가 활성화된다", () => {
+    const squad = [card({ country: "Spain" }), card({ country: "Portugal" })]
+    const result = computeChemistry(squad.map((c) => input(c)))
+    expect(result.links.some((link) => link.kind === "region")).toBe(true)
+  })
+
+  it("전술 케미는 더 이상 존재하지 않는다", () => {
+    const squad = Array.from({ length: 5 }, () => card({ country: "Spain" }))
+    const result = computeChemistry(squad.map((c) => input(c)))
+    expect(result.links.some((link) => (link.kind as string) === "tactic")).toBe(false)
   })
 })

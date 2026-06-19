@@ -28,7 +28,6 @@ export function createTeamProfile(
 
   const chem = computeChemistry(
     positionedCards.map((item) => ({ card: item.card, slotLabel: item.slotLabel })),
-    tactic,
   )
   const bonus = chem.bonusByCardId
 

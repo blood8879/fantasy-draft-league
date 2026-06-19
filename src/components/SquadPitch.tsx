@@ -27,7 +27,6 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
       }
       return [{ card, slotLabel: getSlotForFormation(squad.formation, pick.slotId).label }]
     }),
-    club.tactic,
   )
   const chemBonus = chem.bonusByCardId
   const chemKind = chem.dominantKindByCardId
