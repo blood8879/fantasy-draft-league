@@ -42,16 +42,19 @@ const SCALE = 2
 const W = 760
 const H = 1340
 
+const DISP = "'Anton', sans-serif"
+const BODY = "'Archivo', sans-serif"
+
 function rarityColor(rarity: Rarity): string {
   switch (rarity) {
     case "Legend":
-      return "#e6ff74"
+      return "#ffce3a"
     case "Epic":
-      return "#c9a3ff"
+      return "#bb7cff"
     case "Rare":
-      return "#86c5ff"
+      return "#56c7ff"
     default:
-      return "#cfd6c8"
+      return "#9fb2a6"
   }
 }
 
@@ -98,40 +101,62 @@ export async function buildShareCardBlob(input: ShareCardInput): Promise<Blob | 
   }
   ctx.scale(SCALE, SCALE)
 
-  const bg = ctx.createLinearGradient(0, 0, 0, H)
-  bg.addColorStop(0, "#13261d")
-  bg.addColorStop(1, "#0b1611")
+  // Anton/Archivo 웹폰트를 캔버스에서 쓰려면 먼저 로드돼 있어야 한다.
+  if (typeof document.fonts?.load === "function") {
+    try {
+      await Promise.all([
+        document.fonts.load("400 50px Anton"),
+        document.fonts.load("700 16px Archivo"),
+      ])
+    } catch {
+      // 폰트 로드 실패 시 시스템 폰트로 폴백
+    }
+  }
+
+  // 배경(다크 피치) + 피치 라인 텍스처
+  const bg = ctx.createRadialGradient(W / 2, -H * 0.1, 0, W / 2, -H * 0.1, H * 1.1)
+  bg.addColorStop(0, "#0f2618")
+  bg.addColorStop(0.42, "#0b1c14")
+  bg.addColorStop(1, "#081310")
   ctx.fillStyle = bg
   ctx.fillRect(0, 0, W, H)
+  ctx.strokeStyle = "rgba(205,242,74,0.035)"
+  ctx.lineWidth = 1
+  for (let lineY = 46; lineY < H; lineY += 46) {
+    ctx.beginPath()
+    ctx.moveTo(0, lineY)
+    ctx.lineTo(W, lineY)
+    ctx.stroke()
+  }
 
   // 헤더
   ctx.textAlign = "left"
-  ctx.fillStyle = "#e6ff74"
-  ctx.font = "700 21px sans-serif"
-  ctx.fillText(input.labels.brand, 48, 56)
+  ctx.fillStyle = "#cdf24a"
+  ctx.font = `700 20px ${BODY}`
+  ctx.fillText(input.labels.brand, 48, 54)
 
-  ctx.fillStyle = "#f4f0df"
-  ctx.font = "800 50px sans-serif"
-  ctx.fillText(input.badge, 48, 118)
+  ctx.fillStyle = "#ecfff2"
+  ctx.font = `400 52px ${DISP}`
+  ctx.fillText(input.badge, 48, 122)
 
-  ctx.fillStyle = "#e6ff74"
-  ctx.font = "700 28px sans-serif"
-  ctx.fillText(truncate(ctx, input.club.name, W - 96), 48, 158)
+  ctx.fillStyle = "#cdf24a"
+  ctx.font = `400 30px ${DISP}`
+  ctx.fillText(truncate(ctx, input.club.name, W - 96), 48, 160)
 
-  ctx.fillStyle = "rgba(244,240,223,0.75)"
-  ctx.font = "400 17px sans-serif"
-  ctx.fillText(truncate(ctx, input.subtitle, W - 96), 48, 186)
+  ctx.fillStyle = "#7c9d88"
+  ctx.font = `400 17px ${BODY}`
+  ctx.fillText(truncate(ctx, input.subtitle, W - 96), 48, 188)
 
   if (input.statsLine !== undefined) {
     ctx.fillStyle = "#9fb8a6"
-    ctx.font = "600 15px sans-serif"
-    ctx.fillText(truncate(ctx, input.statsLine, W - 96), 48, 212)
+    ctx.font = `600 15px ${BODY}`
+    ctx.fillText(truncate(ctx, input.statsLine, W - 96), 48, 214)
   }
 
   // 업적 칩
   let chipX = 48
-  const chipY = 232
-  ctx.font = "700 14px sans-serif"
+  const chipY = 234
+  ctx.font = `700 14px ${BODY}`
   for (const name of input.achievements.slice(0, 3)) {
     const textW = ctx.measureText(name).width
     const chipW = textW + 26
@@ -139,12 +164,12 @@ export async function buildShareCardBlob(input: ShareCardInput): Promise<Blob | 
       break
     }
     roundRect(ctx, chipX, chipY, chipW, 28, 14)
-    ctx.fillStyle = "rgba(230,255,116,0.16)"
+    ctx.fillStyle = "rgba(205,242,74,0.16)"
     ctx.fill()
-    ctx.strokeStyle = "rgba(230,255,116,0.5)"
+    ctx.strokeStyle = "rgba(205,242,74,0.5)"
     ctx.lineWidth = 1
     ctx.stroke()
-    ctx.fillStyle = "#e6ff74"
+    ctx.fillStyle = "#cdf24a"
     ctx.textAlign = "left"
     ctx.fillText(name, chipX + 13, chipY + 19)
     chipX += chipW + 8
@@ -152,15 +177,16 @@ export async function buildShareCardBlob(input: ShareCardInput): Promise<Blob | 
 
   // 피치
   const px = 48
-  const py = 276
+  const py = 278
   const pw = W - 96
   const ph = 560
-  roundRect(ctx, px, py, pw, ph, 22)
-  ctx.fillStyle = "#16301f"
+  roundRect(ctx, px, py, pw, ph, 18)
+  ctx.fillStyle = "#143324"
   ctx.fill()
-  ctx.strokeStyle = "rgba(255,255,255,0.12)"
-  ctx.lineWidth = 2
+  ctx.strokeStyle = "rgba(205,242,74,0.16)"
+  ctx.lineWidth = 1.5
   ctx.stroke()
+  ctx.strokeStyle = "rgba(205,242,74,0.18)"
   ctx.beginPath()
   ctx.moveTo(px, py + ph / 2)
   ctx.lineTo(px + pw, py + ph / 2)
@@ -180,23 +206,23 @@ export async function buildShareCardBlob(input: ShareCardInput): Promise<Blob | 
       const card = cardId === undefined ? undefined : input.cards.get(cardId)
       ctx.beginPath()
       ctx.arc(x, y, 25, 0, Math.PI * 2)
-      ctx.fillStyle = card === undefined ? "rgba(255,255,255,0.10)" : rarityColor(card.rarity)
+      ctx.fillStyle = card === undefined ? "rgba(255,255,255,0.08)" : rarityColor(card.rarity)
       ctx.fill()
       if (card !== undefined) {
-        ctx.fillStyle = "#10201b"
-        ctx.font = "800 19px sans-serif"
+        ctx.fillStyle = "#0a140d"
+        ctx.font = `400 22px ${DISP}`
         ctx.textAlign = "center"
-        ctx.fillText(String(card.cost), x, y + 6)
+        ctx.fillText(String(card.cost), x, y + 8)
       }
-      ctx.fillStyle = card === undefined ? "rgba(244,240,223,0.4)" : "#f4f0df"
-      ctx.font = "600 13px sans-serif"
+      ctx.fillStyle = card === undefined ? "rgba(236,255,242,0.4)" : "#ecfff2"
+      ctx.font = `600 13px ${BODY}`
       ctx.textAlign = "center"
       ctx.fillText(truncate(ctx, card?.label ?? "—", row.length <= 3 ? 190 : 150), x, y + 44)
     })
   })
 
   // 능력치 막대
-  const barTop = py + ph + 36
+  const barTop = py + ph + 38
   const barLabelW = 124
   const valueW = 34
   const trackX = px + barLabelW
@@ -206,41 +232,44 @@ export async function buildShareCardBlob(input: ShareCardInput): Promise<Blob | 
     const value = input.profile[axis] as number
     const y = barTop + index * rowH
     ctx.textAlign = "left"
-    ctx.fillStyle = "rgba(244,240,223,0.8)"
-    ctx.font = "600 14px sans-serif"
+    ctx.fillStyle = "rgba(236,255,242,0.8)"
+    ctx.font = `600 14px ${BODY}`
     ctx.fillText(input.labels.axes[axis], px, y + 4)
     roundRect(ctx, trackX, y - 8, trackW, 10, 5)
-    ctx.fillStyle = "rgba(255,255,255,0.1)"
+    ctx.fillStyle = "rgba(255,255,255,0.08)"
     ctx.fill()
     const fillW = (trackW * clampPct(value)) / 100
     if (fillW > 0) {
+      const grad = ctx.createLinearGradient(trackX, 0, trackX + fillW, 0)
+      grad.addColorStop(0, "#cdf24a")
+      grad.addColorStop(1, "#e6ff74")
       roundRect(ctx, trackX, y - 8, fillW, 10, 5)
-      ctx.fillStyle = "#7ed957"
+      ctx.fillStyle = grad
       ctx.fill()
     }
     ctx.textAlign = "right"
-    ctx.fillStyle = "#e6ff74"
-    ctx.font = "800 15px sans-serif"
-    ctx.fillText(String(Math.round(value)), W - 48, y + 4)
+    ctx.fillStyle = "#cdf24a"
+    ctx.font = `400 17px ${DISP}`
+    ctx.fillText(String(Math.round(value)), W - 48, y + 5)
   })
 
   // 푸터
-  const fy = barTop + BAR_AXES.length * rowH + 30
+  const fy = barTop + BAR_AXES.length * rowH + 32
   ctx.textAlign = "left"
-  ctx.fillStyle = "#e6ff74"
-  ctx.font = "800 36px sans-serif"
+  ctx.fillStyle = "#cdf24a"
+  ctx.font = `400 38px ${DISP}`
   ctx.fillText(String(input.avgOvr), 48, fy)
-  ctx.fillStyle = "rgba(244,240,223,0.7)"
-  ctx.font = "500 14px sans-serif"
+  ctx.fillStyle = "rgba(124,157,136,1)"
+  ctx.font = `500 14px ${BODY}`
   ctx.fillText(input.labels.ovr, 48, fy + 21)
 
   ctx.textAlign = "right"
-  ctx.fillStyle = "#f4f0df"
-  ctx.font = "700 18px sans-serif"
-  ctx.fillText(input.labels.cta, W - 48, fy - 2)
-  ctx.fillStyle = "#e6ff74"
-  ctx.font = "600 16px sans-serif"
-  ctx.fillText(input.labels.url, W - 48, fy + 22)
+  ctx.fillStyle = "#ecfff2"
+  ctx.font = `700 18px ${BODY}`
+  ctx.fillText(input.labels.cta, W - 48, fy - 4)
+  ctx.fillStyle = "#cdf24a"
+  ctx.font = `600 16px ${BODY}`
+  ctx.fillText(input.labels.url, W - 48, fy + 20)
 
   return await new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/png"))
 }
