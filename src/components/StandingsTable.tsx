@@ -50,6 +50,12 @@ export function StandingsTable({ clubs, fixtures, onSelectClub }: StandingsTable
         <span>{t("st.pos")}</span>
         <span>{t("st.club")}</span>
         <span>{t("st.played")}</span>
+        <span>{t("st.won")}</span>
+        <span>{t("st.drawn")}</span>
+        <span>{t("st.lost")}</span>
+        <span>{t("st.gf")}</span>
+        <span>{t("st.ga")}</span>
+        <span>{t("st.diff")}</span>
         <span>{t("st.points")}</span>
         <span>{t("season.form")}</span>
       </div>
@@ -85,7 +91,17 @@ export function StandingsTable({ clubs, fixtures, onSelectClub }: StandingsTable
                 </button>
               )}
             </span>
-            <span className="standings-played">{row.played}</span>
+            <span className="standings-num">{row.played}</span>
+            <span className="standings-num">{row.won}</span>
+            <span className="standings-num">{row.drawn}</span>
+            <span className="standings-num">{row.lost}</span>
+            <span className="standings-num">{row.goalsFor}</span>
+            <span className="standings-num">{row.goalsAgainst}</span>
+            <span className="standings-num">
+              {row.goalsFor - row.goalsAgainst > 0
+                ? `+${row.goalsFor - row.goalsAgainst}`
+                : row.goalsFor - row.goalsAgainst}
+            </span>
             <span className="standings-pts">{row.points}</span>
             <span className="standings-form">
               {form.map((result, formIndex) => (
