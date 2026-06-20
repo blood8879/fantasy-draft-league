@@ -371,21 +371,47 @@ function CandidateCard({
 }) {
   return (
     <button
-      className={`candidate-card rarity-border-${card.rarity.toLowerCase()}`}
+      className="candidate-card"
+      data-rarity={card.rarity.toLowerCase()}
       onClick={onPick}
       type="button"
     >
-      <div className="candidate-card-top">
-        <span className={`rarity-dot rarity-${card.rarity.toLowerCase()}`} />
-        <span className="candidate-ovr">{card.cost}</span>
+      <span aria-hidden="true" className="cc-overlay" />
+      <span aria-hidden="true" className="cc-shine" />
+      <div className="cc-top">
+        <div className="cc-ovr-box">
+          <div className="cc-ovr">{card.cost}</div>
+          <div className="cc-group">{positionGroup(card.positions)}</div>
+        </div>
+        <div className="cc-top-right">
+          <div className="cc-rarity">{card.rarity}</div>
+          <div className="cc-country">{card.country}</div>
+        </div>
       </div>
-      <span className="candidate-name">{card.label}</span>
-      <span className="candidate-meta">
-        {card.positions.join("/")} · {card.country}
-      </span>
-      <span className="candidate-pick-cta">
-        {slotLabel === undefined ? t("draft.pick") : t("draft.pickTo", { slot: slotLabel })}
-      </span>
+      <div className="cc-foot">
+        <div className="cc-name">{card.label}</div>
+        <div className="cc-pos">
+          {card.positions.join("/")} · {card.country}
+        </div>
+        <div className="cc-cta">
+          {slotLabel === undefined ? t("draft.pick") : t("draft.pickTo", { slot: slotLabel })} →
+        </div>
+      </div>
     </button>
   )
+}
+
+/** 포지션 약어를 피치 그룹(GK/DEF/MID/FWD)으로 묶는다. */
+function positionGroup(positions: readonly string[]): string {
+  const p = positions[0] ?? ""
+  if (p === "GK") {
+    return "GK"
+  }
+  if (["CB", "RB", "LB", "RWB", "LWB"].includes(p)) {
+    return "DEF"
+  }
+  if (["DM", "CM", "AM", "RM", "LM"].includes(p)) {
+    return "MID"
+  }
+  return "FWD"
 }
