@@ -32,7 +32,7 @@ type DraftRoomProps = {
 }
 
 /** 리롤 시 보상 광고가 뜰 확률(나머지는 광고 없이 즉시 리롤). */
-const REROLL_AD_CHANCE = 0.35
+const REROLL_AD_CHANCE = 0.25
 
 export function DraftRoom({ state, dispatch }: DraftRoomProps) {
   const { t } = useI18n()
