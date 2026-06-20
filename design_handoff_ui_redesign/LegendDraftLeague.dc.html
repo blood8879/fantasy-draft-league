@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=Archivo+Narrow:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0}
+  @keyframes scrIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+  @keyframes dealIn{0%{opacity:0;transform:translateY(40px) rotateY(90deg) scale(.8)}60%{opacity:1}100%{opacity:1;transform:none}}
+  @keyframes popIn{0%{opacity:0;transform:scale(.6)}70%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+  @keyframes flashFade{0%{opacity:0}18%{opacity:.92}100%{opacity:0}}
+  @keyframes goalKick{0%{opacity:0;transform:translateY(-50%) scale(.4) rotate(-8deg)}25%{opacity:1;transform:translateY(-50%) scale(1.12) rotate(2deg)}70%{opacity:1;transform:translateY(-50%) scale(1) rotate(0)}100%{opacity:0;transform:translateY(-50%) scale(1.04)}}
+  @keyframes shine{0%{transform:translateX(-130%) skewX(-18deg)}100%{transform:translateX(230%) skewX(-18deg)}}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes spark{0%{opacity:0;transform:translate(0,0) scale(0)}40%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1)}}
+  @keyframes trophyRise{0%{opacity:0;transform:translateY(40px) scale(.7)}55%{transform:translateY(-6px) scale(1.06)}100%{opacity:1;transform:none}}
+  @keyframes ringPulse{0%{opacity:.5;transform:scale(.8)}100%{opacity:0;transform:scale(1.7)}}
+  @keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  @keyframes turnGlow{0%,100%{box-shadow:0 0 0 0 rgba(205,242,74,.0)}50%{box-shadow:0 0 22px 1px rgba(205,242,74,.4)}}
+  .scl::-webkit-scrollbar{width:0;height:0}
+</style>
+</helmet>
+<div class="root" style="--bg:#081310;--bg2:#0b1c14;--surf:#102619;--surf2:#163322;--surfHi:#1c4029;--line:rgba(205,242,74,.16);--lime:#cdf24a;--lime2:#e6ff74;--ink:#ecfff2;--mut:#7c9d88;--gold:#ffce3a;--violet:#bb7cff;--cyan:#56c7ff;--slate:#9fb2a6;--disp:'Anton',system-ui,sans-serif;--body:'Archivo',system-ui,sans-serif;width:390px;height:844px;position:relative;overflow:hidden;font-family:var(--body);color:var(--ink);background:radial-gradient(120% 80% at 50% -10%,#0f2618 0%,var(--bg2) 42%,var(--bg) 100%);box-shadow:0 40px 120px rgba(0,0,0,.55);user-select:none">
+
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(205,242,74,.035) 1px,transparent 1px);background-size:100% 46px;pointer-events:none;opacity:.5"></div>
+
+  <!-- status bar -->
+  <div style="position:relative;z-index:5;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:13px;font-weight:700;letter-spacing:.3px">
+    <span>9:41</span>
+    <span style="font-family:var(--disp);letter-spacing:1px;font-size:13px;color:var(--lime)">LDL</span>
+    <span style="display:flex;gap:5px;align-items:center;opacity:.85">●●● ▮</span>
+  </div>
+
+  <!-- ===================== HOME ===================== -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div class="scl" key="{{ screenKey }}" style="position:absolute;top:44px;left:0;right:0;bottom:0;overflow-y:auto;animation:scrIn .45s cubic-bezier(.2,.8,.2,1)">
+    <div style="padding:18px 22px 40px">
+      <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:100px;background:rgba(205,242,74,.06);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--lime)">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)"></span>Fantasy Draft · Single Player
+      </div>
+      <h1 style="font-family:var(--disp);font-weight:400;font-size:54px;line-height:.92;margin:18px 0 0;letter-spacing:-.5px;text-transform:uppercase">Legend<br><span style="color:var(--lime)">Draft</span> League</h1>
+      <p style="color:var(--mut);font-size:14px;line-height:1.5;margin:14px 0 0;max-width:300px">역대 축구 레전드 1,100인을 한 풀에. 카드 드래프트로 베스트 XI를 짜고 한 시즌을 정복하라.</p>
+
+      <div style="display:flex;gap:10px;margin-top:22px">
+        <div style="flex:1;text-align:center;padding:12px 6px;border:1px solid var(--line);border-radius:14px;background:var(--surf)"><div style="font-family:var(--disp);font-size:26px;color:var(--lime)">11R</div><div style="font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-top:2px">스네이크 드래프트</div></div>
+        <div style="flex:1;text-align:center;padding:12px 6px;border:1px solid var(--line);border-radius:14px;background:var(--surf)"><div style="font-family:var(--disp);font-size:26px;color:var(--lime)">8</div><div style="font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-top:2px">AI 감독</div></div>
+        <div style="flex:1;text-align:center;padding:12px 6px;border:1px solid var(--line);border-radius:14px;background:var(--surf)"><div style="font-family:var(--disp);font-size:26px;color:var(--lime)">xG</div><div style="font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-top:2px">경기 엔진</div></div>
+      </div>
+
+      <div style="margin-top:24px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:10px">대회 모드</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <sc-for list="{{ modeCards }}" as="m" hint-placeholder-count="2">
+            <button type="button" onClick="{{ m.onSelect }}" style="{{ m.style }}" style-active="transform:scale(.97)">
+              <div style="font-family:var(--disp);font-size:22px;letter-spacing:.5px;text-transform:uppercase">{{ m.name }}</div>
+              <div style="font-size:11.5px;line-height:1.45;margin-top:6px;color:var(--mut)">{{ m.desc }}</div>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="margin-top:22px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:10px">구단명</div>
+        <input value="{{ clubName }}" onInput="{{ onClubName }}" placeholder="My Eleven" maxlength="18" style="width:100%;padding:15px 16px;border-radius:14px;border:1px solid var(--line);background:var(--surf);color:var(--ink);font-family:var(--body);font-size:16px;font-weight:600;outline:none" />
+      </div>
+
+      <div style="margin-top:22px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:10px">포메이션</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{ formationChips }}" as="f" hint-placeholder-count="5">
+            <button type="button" onClick="{{ f.onSelect }}" style="{{ f.style }}" style-active="transform:scale(.95)">{{ f.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="margin-top:22px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:10px">전술 철학</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{ tacticChips }}" as="tc" hint-placeholder-count="4">
+            <button type="button" onClick="{{ tc.onSelect }}" style="{{ tc.style }}" style-active="transform:scale(.95)">{{ tc.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <button type="button" onClick="{{ onStart }}" style="margin-top:30px;width:100%;padding:18px;border:none;border-radius:16px;background:linear-gradient(100deg,var(--lime),var(--lime2));color:#06140d;font-family:var(--disp);font-size:21px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 14px 30px -8px rgba(205,242,74,.5);position:relative;overflow:hidden" style-active="transform:scale(.98)">
+        드래프트 시작 →
+        <span style="position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shine 2.6s 1s infinite"></span>
+      </button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===================== DRAFT ===================== -->
+  <sc-if value="{{ isDraft }}" hint-placeholder-val="{{ true }}">
+  <div key="{{ screenKey }}" style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:scrIn .45s cubic-bezier(.2,.8,.2,1)">
+    <!-- draft header -->
+    <div style="padding:8px 18px 12px;border-bottom:1px solid var(--line)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div>
+          <div style="font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--lime)">Round {{ draftRound }} / 11 · Pick {{ draftPickNo }}</div>
+          <div style="font-family:var(--disp);font-size:24px;text-transform:uppercase;line-height:1;margin-top:3px">{{ turnTitle }}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--disp);font-size:30px;color:var(--lime);line-height:1">{{ userPickCount }}<span style="font-size:16px;color:var(--mut)">/11</span></div>
+          <div style="font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)">My Squad</div>
+        </div>
+      </div>
+      <!-- snake order strip -->
+      <div class="scl" style="display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px">
+        <sc-for list="{{ pickOrder }}" as="o" hint-placeholder-count="8">
+          <div style="{{ o.style }}">{{ o.name }}</div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- candidate area -->
+    <div class="scl" style="flex:1;overflow-y:auto;padding:16px 18px 20px">
+      <sc-if value="{{ draftComplete }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:30px 10px">
+          <div style="font-size:46px;animation:floatY 2.6s ease-in-out infinite">🏆</div>
+          <div style="font-family:var(--disp);font-size:30px;text-transform:uppercase;margin-top:10px">스쿼드 완성</div>
+          <p style="color:var(--mut);font-size:13.5px;line-height:1.5;margin:8px auto 0;max-width:260px">베스트 XI가 완성됐다. 이제 한 시즌을 정복할 시간.</p>
+          <button type="button" onClick="{{ onStartSeason }}" style="margin-top:22px;padding:16px 32px;border:none;border-radius:14px;background:linear-gradient(100deg,var(--lime),var(--lime2));color:#06140d;font-family:var(--disp);font-size:19px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 12px 26px -8px rgba(205,242,74,.5)" style-active="transform:scale(.97)">시즌 입장 →</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showCandidates }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut)">후보 카드 <span style="color:var(--lime)">{{ candidateCount }}</span></div>
+          <button type="button" onClick="{{ onReroll }}" style="display:flex;align-items:center;gap:6px;padding:8px 13px;border:1px solid var(--line);border-radius:100px;background:var(--surf);color:var(--ink);font-size:12px;font-weight:700;cursor:pointer" style-active="transform:scale(.95)">↻ 다시 뽑기</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <sc-for list="{{ candidates }}" as="c" hint-placeholder-count="5">
+            <button type="button" onClick="{{ c.onPick }}" onPointerMove="{{ c.onMove }}" onPointerLeave="{{ c.onLeave }}" style="{{ c.style }}" style-active="filter:brightness(1.08)">
+              <div style="position:absolute;inset:0;border-radius:16px;background:linear-gradient(160deg,var(--rar) 0%,transparent 42%);opacity:.16;pointer-events:none"></div>
+              <div style="position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:shine 3.2s linear infinite;pointer-events:none"></div>
+              <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start">
+                <div style="text-align:center;line-height:.9">
+                  <div style="font-family:var(--disp);font-size:34px;color:var(--rar)">{{ c.ovr }}</div>
+                  <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--mut)">{{ c.group }}</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--rar)">{{ c.rarLabel }}</div>
+                  <div style="font-size:11px;color:var(--mut);margin-top:2px">{{ c.country }}</div>
+                </div>
+              </div>
+              <div style="position:relative;margin-top:auto;padding-top:14px">
+                <div style="font-family:var(--disp);font-size:18px;line-height:1;text-transform:uppercase;letter-spacing:.3px">{{ c.name }}</div>
+                <div style="font-size:10.5px;color:var(--mut);margin-top:4px">{{ c.posLine }}</div>
+                <div style="margin-top:9px;padding:7px;border-radius:9px;background:var(--rar);color:#0a140d;font-size:11px;font-weight:800;letter-spacing:.5px;text-align:center;text-transform:uppercase">{{ c.cta }}</div>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showAiPicking }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:26px 10px">
+          <div style="display:inline-flex;gap:6px;margin-bottom:14px">
+            <span style="width:9px;height:9px;border-radius:50%;background:var(--lime);animation:floatY 1s ease-in-out infinite"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:var(--lime);animation:floatY 1s .15s ease-in-out infinite"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:var(--lime);animation:floatY 1s .3s ease-in-out infinite"></span>
+          </div>
+          <div style="font-family:var(--disp);font-size:20px;text-transform:uppercase">{{ aiPickingName }} 지명 중…</div>
+          <p style="color:var(--mut);font-size:12.5px;margin-top:6px">AI 감독들이 차례로 카드를 고르고 있다</p>
+        </div>
+      </sc-if>
+
+      <!-- recent picks ticker -->
+      <div style="margin-top:18px">
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">최근 지명</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <sc-for list="{{ recentPicks }}" as="p" hint-placeholder-count="4">
+            <div style="{{ p.style }}">
+              <span style="width:7px;height:7px;border-radius:50%;background:{{ p.color }};flex:none"></span>
+              <span style="font-size:11px;font-weight:700;color:var(--mut);min-width:64px">{{ p.club }}</span>
+              <span style="font-size:12.5px;font-weight:700;flex:1">{{ p.player }}</span>
+              <span style="font-size:10px;font-weight:800;letter-spacing:1px;color:var(--lime)">{{ p.slot }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- bottom: squad bar -->
+    <div style="border-top:1px solid var(--line);padding:12px 18px;background:var(--bg2)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)">팀 전력 <span style="font-family:var(--disp);font-size:17px;color:var(--lime);margin-left:4px">{{ teamOvr }}</span></div>
+        <button type="button" onClick="{{ onOpenPitch }}" style="font-size:11px;font-weight:700;color:var(--lime);background:none;border:none;cursor:pointer">포메이션 보기 ›</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <sc-for list="{{ strengthBars }}" as="s" hint-placeholder-count="3">
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;font-size:9.5px;font-weight:700;letter-spacing:1px;color:var(--mut);margin-bottom:4px"><span>{{ s.label }}</span><span style="color:var(--ink)">{{ s.val }}</span></div>
+            <div style="height:6px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden"><div style="{{ s.fillStyle }}"></div></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===================== SEASON ===================== -->
+  <sc-if value="{{ isSeason }}" hint-placeholder-val="{{ false }}">
+  <div key="{{ screenKey }}" style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:scrIn .45s cubic-bezier(.2,.8,.2,1)">
+    <div style="padding:10px 18px 14px;border-bottom:1px solid var(--line)">
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--lime)">{{ seasonModeLabel }}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:2px">
+        <div style="font-family:var(--disp);font-size:26px;text-transform:uppercase;line-height:1">매치데이 {{ seasonRound }}<span style="color:var(--mut);font-size:16px"> / {{ seasonTotal }}</span></div>
+      </div>
+      <!-- next fixture card -->
+      <sc-if value="{{ seasonOngoing }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:12px;border:1px solid var(--line);border-radius:16px;padding:14px;background:linear-gradient(120deg,var(--surf),var(--surf2));position:relative;overflow:hidden">
+          <div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:10px">다음 경기</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="flex:1;text-align:center"><div style="font-family:var(--disp);font-size:15px;text-transform:uppercase">{{ fxHome }}</div><div style="font-size:9.5px;color:var(--lime);font-weight:700;margin-top:2px">전력 {{ fxHomeOvr }}</div></div>
+            <div style="font-family:var(--disp);font-size:18px;color:var(--mut);padding:0 12px">VS</div>
+            <div style="flex:1;text-align:center"><div style="font-family:var(--disp);font-size:15px;text-transform:uppercase">{{ fxAway }}</div><div style="font-size:9.5px;color:var(--mut);font-weight:700;margin-top:2px">전력 {{ fxAwayOvr }}</div></div>
+          </div>
+          <button type="button" onClick="{{ onKickOff }}" style="margin-top:14px;width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(100deg,var(--lime),var(--lime2));color:#06140d;font-family:var(--disp);font-size:17px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer" style-active="transform:scale(.98)">⚽ 킥오프</button>
+        </div>
+      </sc-if>
+    </div>
+
+    <div class="scl" style="flex:1;overflow-y:auto;padding:12px 18px 24px">
+      <div style="display:grid;grid-template-columns:26px 1fr 30px 30px 44px;gap:4px;font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mut);padding:0 10px 8px">
+        <span>#</span><span>클럽</span><span style="text-align:center">경기</span><span style="text-align:center">승점</span><span style="text-align:right">폼</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <sc-for list="{{ standings }}" as="row" hint-placeholder-count="8">
+          <div style="{{ row.style }}">
+            <div style="display:grid;grid-template-columns:26px 1fr 30px 30px 44px;gap:4px;align-items:center;position:relative;z-index:1">
+              <div style="display:flex;align-items:center;gap:2px"><span style="font-family:var(--disp);font-size:16px;color:{{ row.rankColor }}">{{ row.rank }}</span><span style="font-size:10px;color:{{ row.moveColor }}">{{ row.move }}</span></div>
+              <div style="display:flex;align-items:center;gap:7px;min-width:0"><span style="width:8px;height:8px;border-radius:50%;background:{{ row.color }};flex:none"></span><span style="font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.name }}</span></div>
+              <div style="text-align:center;font-size:12px;color:var(--mut)">{{ row.played }}</div>
+              <div style="text-align:center;font-family:var(--disp);font-size:16px;color:var(--ink)">{{ row.pts }}</div>
+              <div style="display:flex;gap:2px;justify-content:flex-end">
+                <sc-for list="{{ row.form }}" as="ff" hint-placeholder-count="3">
+                  <span style="{{ ff.style }}">{{ ff.r }}</span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="position:absolute;left:0;top:0;bottom:0;width:{{ row.barW }};background:linear-gradient(90deg,{{ row.color }}28,transparent);z-index:0"></div>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ seasonDone }}" hint-placeholder-val="{{ false }}">
+        <button type="button" onClick="{{ onSeasonFinish }}" style="margin-top:18px;width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(100deg,var(--gold),#ffe07a);color:#2a1c00;font-family:var(--disp);font-size:19px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 12px 26px -8px rgba(255,206,58,.5)" style-active="transform:scale(.98)">🏆 시상식 보기</button>
+      </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===================== MATCH ===================== -->
+  <sc-if value="{{ isMatch }}" hint-placeholder-val="{{ false }}">
+  <div key="{{ screenKey }}" style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:scrIn .4s cubic-bezier(.2,.8,.2,1)">
+    <div style="padding:16px 18px;background:linear-gradient(120deg,var(--surf),var(--bg2))">
+      <div style="text-align:center;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--lime)">{{ matchStageLabel }} · LIVE</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+        <div style="flex:1;text-align:center"><div style="font-family:var(--disp);font-size:16px;text-transform:uppercase">{{ mHome }}</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:0 6px">
+          <span style="font-family:var(--disp);font-size:46px;line-height:1;color:var(--lime)">{{ mHomeGoals }}</span>
+          <span style="font-family:var(--disp);font-size:24px;color:var(--mut)">:</span>
+          <span style="font-family:var(--disp);font-size:46px;line-height:1">{{ mAwayGoals }}</span>
+        </div>
+        <div style="flex:1;text-align:center"><div style="font-family:var(--disp);font-size:16px;text-transform:uppercase">{{ mAway }}</div></div>
+      </div>
+      <div style="margin-top:14px;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden"><div style="height:100%;background:linear-gradient(90deg,var(--lime),var(--lime2));border-radius:3px;width:{{ matchClockW }};transition:width .5s linear"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--mut);margin-top:5px"><span>0'</span><span style="color:var(--lime);font-family:var(--disp);font-size:15px">{{ matchClock }}'</span><span>90'</span></div>
+    </div>
+
+    <div class="scl" style="flex:1;overflow-y:auto;padding:16px 18px">
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ matchEvents }}" as="e" hint-placeholder-count="3">
+          <div style="{{ e.style }}">
+            <span style="font-family:var(--disp);font-size:15px;color:var(--mut);min-width:34px">{{ e.min }}'</span>
+            <span style="font-size:17px">{{ e.icon }}</span>
+            <span style="font-size:13px;font-weight:600;flex:1">{{ e.text }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--line);padding:14px 18px;background:var(--bg2)">
+      <sc-if value="{{ matchFinished }}" hint-placeholder-val="{{ false }}">
+        <button type="button" onClick="{{ onMatchContinue }}" style="width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(100deg,var(--lime),var(--lime2));color:#06140d;font-family:var(--disp);font-size:18px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer" style-active="transform:scale(.98)">{{ matchResultCta }} →</button>
+      </sc-if>
+      <sc-if value="{{ matchPlaying }}" hint-placeholder-val="{{ true }}">
+        <div style="text-align:center;font-size:12px;font-weight:700;color:var(--mut);letter-spacing:1px">경기 진행 중…</div>
+      </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===================== CHAMPION ===================== -->
+  <sc-if value="{{ isChampion }}" hint-placeholder-val="{{ false }}">
+  <div key="{{ screenKey }}" class="scl" style="position:absolute;top:44px;left:0;right:0;bottom:0;overflow-y:auto;animation:scrIn .5s cubic-bezier(.2,.8,.2,1)">
+    <div style="padding:30px 22px 40px;text-align:center;position:relative">
+      <div style="position:absolute;top:60px;left:50%;width:200px;height:200px;border-radius:50%;border:2px solid var(--gold);transform:translateX(-50%);animation:ringPulse 2.4s ease-out infinite;opacity:.3"></div>
+      <div style="position:absolute;top:60px;left:50%;width:200px;height:200px;border-radius:50%;border:2px solid var(--gold);transform:translateX(-50%);animation:ringPulse 2.4s 1.2s ease-out infinite;opacity:.3"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold)">{{ champSubtitle }}</div>
+      <div style="font-size:88px;line-height:1;margin-top:16px;animation:trophyRise 1s cubic-bezier(.2,.9,.2,1) both;filter:drop-shadow(0 10px 30px rgba(255,206,58,.5))">🏆</div>
+      <div style="font-family:var(--disp);font-size:44px;text-transform:uppercase;line-height:.95;margin-top:14px;color:{{ champColor }}">{{ champName }}</div>
+      <div style="display:inline-block;margin-top:8px;padding:6px 16px;border-radius:100px;background:rgba(255,206,58,.12);border:1px solid rgba(255,206,58,.3);font-size:12px;font-weight:700;color:var(--gold)">{{ champRecord }}</div>
+
+      <div style="margin-top:26px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ awards }}" as="a" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surf);text-align:left;animation:popIn .5s both;animation-delay:{{ a.delay }}">
+            <div style="font-size:30px">{{ a.icon }}</div>
+            <div style="flex:1"><div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)">{{ a.label }}</div><div style="font-family:var(--disp);font-size:19px;text-transform:uppercase;margin-top:2px">{{ a.name }}</div></div>
+            <div style="text-align:right"><div style="font-family:var(--disp);font-size:26px;color:var(--lime)">{{ a.value }}</div><div style="font-size:9px;color:var(--mut);letter-spacing:1px;text-transform:uppercase">{{ a.unit }}</div></div>
+          </div>
+        </sc-for>
+      </div>
+
+      <button type="button" onClick="{{ onRestart }}" style="margin-top:26px;width:100%;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surf);color:var(--ink);font-family:var(--disp);font-size:17px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer" style-active="transform:scale(.98)">↻ 새 시즌 시작</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===================== OVERLAYS ===================== -->
+  <sc-if value="{{ pitchOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ onClosePitch }}" style="position:absolute;inset:0;z-index:30;background:rgba(4,10,7,.78);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;animation:scrIn .25s ease">
+    <div style="width:100%;max-width:330px;background:var(--surf);border:1px solid var(--line);border-radius:22px;padding:18px;position:relative">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-family:var(--disp);font-size:20px;text-transform:uppercase">{{ pitchClub }}</div>
+        <button type="button" onClick="{{ onClosePitch }}" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--surf2);color:var(--ink);font-size:15px;cursor:pointer">✕</button>
+      </div>
+      <div style="position:relative;aspect-ratio:.72;border-radius:16px;background:linear-gradient(0deg,#0c2417,#0e2c1b);border:1px solid var(--line);overflow:hidden">
+        <div style="position:absolute;inset:10px;border:1.5px solid rgba(205,242,74,.18);border-radius:10px"></div>
+        <div style="position:absolute;left:10px;right:10px;top:50%;height:1.5px;background:rgba(205,242,74,.18)"></div>
+        <div style="position:absolute;left:50%;top:50%;width:54px;height:54px;border:1.5px solid rgba(205,242,74,.18);border-radius:50%;transform:translate(-50%,-50%)"></div>
+        <sc-for list="{{ pitchSlots }}" as="ps" hint-placeholder-count="11">
+          <div style="{{ ps.style }}">
+            <div style="{{ ps.dotStyle }}">{{ ps.ovr }}</div>
+            <div style="font-size:9px;font-weight:700;margin-top:3px;white-space:nowrap;text-shadow:0 1px 3px #000">{{ ps.name }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- pick flash -->
+  <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;z-index:40;pointer-events:none;background:radial-gradient(circle at 50% 45%,var(--rarFlash),transparent 60%);animation:flashFade .7s ease-out forwards"></div>
+  </sc-if>
+
+  <!-- goal pop -->
+  <sc-if value="{{ goalOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;top:50%;left:0;right:0;z-index:45;pointer-events:none;text-align:center;animation:goalKick 1.6s ease-out forwards">
+    <div style="font-family:var(--disp);font-size:80px;color:var(--lime);text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 40px rgba(205,242,74,.7),0 6px 0 #06140d">GOAL!</div>
+    <div style="font-family:var(--disp);font-size:18px;color:var(--ink);margin-top:-6px">{{ goalText }}</div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.RARITY = {
+      Legend:{label:'LEGEND',color:'#ffce3a',flash:'rgba(255,206,58,.5)'},
+      Epic:{label:'EPIC',color:'#bb7cff',flash:'rgba(187,124,255,.45)'},
+      Rare:{label:'RARE',color:'#56c7ff',flash:'rgba(86,199,255,.4)'},
+      Common:{label:'COMMON',color:'#9fb2a6',flash:'rgba(159,178,166,.35)'},
+    };
+    this.GROUP_COLOR = {GK:'#ffce3a',DEF:'#56c7ff',MID:'#cdf24a',FWD:'#ff7a7a'};
+    this.POOL = this.buildPool();
+    this.AI_BANK = ['Garrincha','Di Stefano','Charlton','Rummenigge','Rivaldo','Figo','Nedved','Totti','Raul','Kaka','Vieira','Cantona','Hagi','Stoichkov','Laudrup','Gullit','Rijkaard','Cole','Owen','Suker','Davids','Seedorf','Veron','Crespo','Inzaghi','Nesta','Thuram','Desailly','Blanc','Cambiasso','Riquelme','Saviola','Aimar','Okocha','Drogba','Eto\'o','Adebayor','Toure','Essien','Lampard','Terry','Ferdinand','Vidic','Giggs','Keane'];
+    this.FORMATIONS = ['4-3-3','4-4-2','4-2-3-1','3-5-2','5-3-2'];
+    this.SLOTS = {
+      '4-3-3':[['GK',50,90],['DEF',16,72],['DEF',38,76],['DEF',62,76],['DEF',84,72],['MID',30,50],['MID',50,54],['MID',70,50],['FWD',20,22],['FWD',50,16],['FWD',80,22]],
+      '4-4-2':[['GK',50,90],['DEF',16,72],['DEF',38,76],['DEF',62,76],['DEF',84,72],['MID',16,48],['MID',38,50],['MID',62,50],['MID',84,48],['FWD',36,20],['FWD',64,20]],
+      '4-2-3-1':[['GK',50,90],['DEF',16,72],['DEF',38,76],['DEF',62,76],['DEF',84,72],['MID',36,58],['MID',64,58],['MID',22,38],['MID',50,40],['MID',78,38],['FWD',50,16]],
+      '3-5-2':[['GK',50,90],['DEF',28,76],['DEF',50,78],['DEF',72,76],['MID',12,52],['MID',34,54],['MID',50,56],['MID',66,54],['MID',88,52],['FWD',36,20],['FWD',64,20]],
+      '5-3-2':[['GK',50,90],['DEF',12,72],['DEF',32,77],['DEF',50,79],['DEF',68,77],['DEF',88,72],['MID',30,50],['MID',50,52],['MID',70,50],['FWD',36,20],['FWD',64,20]],
+    };
+    this.TACTICS = [['possession','점유율'],['press','강한 압박'],['counter','역습'],['lowblock','로우블록']];
+    this.MODES = [['league','리그','20팀 더블 라운드로빈 · 38R 승점제'],['cup','컵','16강 싱글 엘리미네이션 · 승부차기']];
+    this.AI_CLUBS = [
+      {id:'ironwall',name:'FC Ironwall',color:'#3f6ea5',ovr:81},
+      {id:'tiki',name:'Tiki-Taka Utd',color:'#d23a64',ovr:84},
+      {id:'gegen',name:'Gegenpress 09',color:'#e0732a',ovr:82},
+      {id:'counter',name:'Counter FC',color:'#46b15a',ovr:80},
+      {id:'galaxy',name:'Galaxy Stars',color:'#9b5cff',ovr:85},
+      {id:'allround',name:'All-Round City',color:'#2bb3a3',ovr:83},
+      {id:'iron',name:'Iron Gate',color:'#6d7280',ovr:79},
+    ];
+    this.state = {
+      screen:'home', screenKey:0,
+      mode:'league', clubName:'', formation:'4-3-3', tactic:'possession',
+      draft:null, season:null, match:null,
+      pitchOpen:false, pitchClubId:null,
+      flashOn:false, rarFlash:'rgba(205,242,74,.4)',
+      goalOn:false, goalText:'',
+      aiPicking:false, aiPickingName:'',
+    };
+    this.tiltRaf = null;
+  }
+
+  buildPool(){
+    const P=(name,country,group,pos,ovr,rar)=>({id:name.replace(/\W/g,''),name,country,group,pos,ovr,rar});
+    return [
+      P('Yashin','USSR','GK','GK',89,'Legend'),P('Buffon','ITA','GK','GK',90,'Legend'),P('Casillas','ESP','GK','GK',88,'Epic'),P('Neuer','GER','GK','GK',90,'Legend'),P('Schmeichel','DEN','GK','GK',87,'Epic'),P('Zoff','ITA','GK','GK',87,'Rare'),
+      P('Maldini','ITA','DEF','LB',92,'Legend'),P('Beckenbauer','GER','DEF','CB',93,'Legend'),P('Baresi','ITA','DEF','CB',90,'Legend'),P('Cannavaro','ITA','DEF','CB',88,'Epic'),P('Cafu','BRA','DEF','RB',88,'Epic'),P('R. Carlos','BRA','DEF','LB',88,'Epic'),P('Nesta','ITA','DEF','CB',88,'Epic'),P('S. Ramos','ESP','DEF','CB',89,'Epic'),P('Puyol','ESP','DEF','CB',87,'Rare'),P('Maicon','BRA','DEF','RB',85,'Rare'),P('Stam','NED','DEF','CB',85,'Rare'),P('Zanetti','ARG','DEF','RB',86,'Rare'),
+      P('Zidane','FRA','MID','CAM',94,'Legend'),P('Xavi','ESP','MID','CM',90,'Legend'),P('Iniesta','ESP','MID','CM',91,'Legend'),P('Modric','CRO','MID','CM',90,'Legend'),P('Platini','FRA','MID','CAM',91,'Legend'),P('Pirlo','ITA','MID','CM',89,'Epic'),P('Gerrard','ENG','MID','CM',88,'Epic'),P('De Bruyne','BEL','MID','CAM',91,'Legend'),P('Matthaus','GER','MID','CM',89,'Epic'),P('Kroos','GER','MID','CM',89,'Epic'),P('Scholes','ENG','MID','CM',87,'Rare'),P('Gascoigne','ENG','MID','CAM',85,'Rare'),P('Makelele','FRA','MID','CDM',85,'Rare'),
+      P('Pele','BRA','FWD','FWD',95,'Legend'),P('Maradona','ARG','FWD','CAM',95,'Legend'),P('Messi','ARG','FWD','RW',96,'Legend'),P('Ronaldo R9','BRA','FWD','ST',94,'Legend'),P('Cristiano','POR','FWD','LW',93,'Legend'),P('Cruyff','NED','FWD','FWD',94,'Legend'),P('Ronaldinho','BRA','FWD','LW',92,'Legend'),P('Van Basten','NED','FWD','ST',91,'Legend'),P('Henry','FRA','FWD','ST',90,'Legend'),P('Eusebio','POR','FWD','ST',90,'Legend'),P('Romario','BRA','FWD','ST',90,'Epic'),P('Best','NIR','FWD','RW',90,'Epic'),P('Bergkamp','NED','FWD','ST',89,'Epic'),P('Shevchenko','UKR','FWD','ST',88,'Epic'),P('Batistuta','ARG','FWD','ST',88,'Epic'),P('Weah','LBR','FWD','ST',87,'Rare'),P('Raul','ESP','FWD','ST',86,'Rare'),P('Larsson','SWE','FWD','ST',85,'Rare'),
+    ];
+  }
+
+  // ---------- HOME ----------
+  setMode(m){ this.setState({mode:m}); }
+  setFormation(f){ this.setState({formation:f}); }
+  setTactic(t){ this.setState({tactic:t}); }
+  onClubName(e){ this.setState({clubName:e.target.value}); }
+
+  goScreen(s){ this.setState({screen:s, screenKey:this.state.screenKey+1}); }
+
+  startDraft(){
+    const pool=[...this.POOL].sort(()=>Math.random()-0.5);
+    const slots=this.SLOTS[this.state.formation].map((s,i)=>({idx:i,group:s[0],x:s[1],y:s[2],card:null}));
+    const order=['user',...this.AI_CLUBS.map(c=>c.id)];
+    const draft={ round:1, pool, mySlots:slots, log:[], aiCounts:{}, candidates:[], snakeDir:1 };
+    this.AI_CLUBS.forEach(c=>{draft.aiCounts[c.id]=0;});
+    draft.candidates=this.drawCandidates(draft);
+    this.setState({draft});
+    this.goScreen('draft');
+  }
+
+  drawCandidates(draft){
+    // prefer positions still needed
+    const need=new Set(draft.mySlots.filter(s=>!s.card).map(s=>s.group));
+    const avail=draft.pool.filter(c=>!draft.log.some(l=>l.cardId===c.id) && !draft.mySlots.some(s=>s.card&&s.card.id===c.id));
+    const wanted=avail.filter(c=>need.has(c.group));
+    const rest=avail.filter(c=>!need.has(c.group));
+    const pick=[];const wp=[...wanted].sort(()=>Math.random()-0.5);const rp=[...rest].sort(()=>Math.random()-0.5);
+    while(pick.length<5 && (wp.length||rp.length)){ if(wp.length) pick.push(wp.shift()); else pick.push(rp.shift()); }
+    return pick.sort((a,b)=>b.ovr-a.ovr);
+  }
+
+  bestSlot(draft,card){
+    let s=draft.mySlots.find(x=>!x.card && x.group===card.group);
+    if(!s) s=draft.mySlots.find(x=>!x.card);
+    return s;
+  }
+
+  pickCard(cardId){
+    if(this.state.aiPicking) return;
+    const draft={...this.state.draft};
+    const card=draft.candidates.find(c=>c.id===cardId);
+    if(!card) return;
+    const slot=this.bestSlot(draft,card);
+    if(!slot) return;
+    draft.mySlots=draft.mySlots.map(s=>s.idx===slot.idx?{...s,card}:s);
+    draft.log=[{club:this.userClubName(),clubId:'user',color:'#cdf24a',player:card.name,slot:this.slotLabel(slot.group,draft),round:draft.round},...draft.log];
+    draft.candidates=[]; // lock the board immediately so the picked card can't be tapped again
+    const rar=this.RARITY[card.rar];
+    this.setState({draft, flashOn:true, rarFlash:rar.flash, aiPicking:true, aiPickingName:this.userClubName()});
+    setTimeout(()=>this.setState({flashOn:false}),700);
+    // AI flurry
+    setTimeout(()=>this.aiFlurry(draft),360);
+  }
+
+  aiFlurry(draft){
+    const d={...draft};
+    const aiSeq=[...this.AI_CLUBS].sort(()=>Math.random()-0.5).slice(0,3+Math.floor(Math.random()*3));
+    let i=0;
+    const step=()=>{
+      if(i>=aiSeq.length){
+        d.round=d.round+1;
+        if(d.round>11){ d.candidates=[]; this.setState({draft:d,aiPicking:false}); return; }
+        d.candidates=this.drawCandidates(d);
+        this.setState({draft:d,aiPicking:false});
+        return;
+      }
+      const club=aiSeq[i];
+      const name=this.AI_BANK[Math.floor(Math.random()*this.AI_BANK.length)];
+      const grp=['GK','DEF','MID','FWD'][Math.floor(Math.random()*4)];
+      d.aiCounts={...d.aiCounts,[club.id]:Math.min(11,(d.aiCounts[club.id]||0)+1)};
+      d.log=[{club:club.name,clubId:club.id,color:club.color,player:name,slot:this.slotLabel(grp,d),round:d.round},...d.log];
+      this.setState({draft:{...d},aiPicking:true,aiPickingName:club.name});
+      i++;
+      setTimeout(step,520);
+    };
+    step();
+  }
+
+  rerollCandidates(){
+    if(this.state.aiPicking) return;
+    const draft={...this.state.draft};
+    draft.candidates=this.drawCandidates(draft);
+    this.setState({draft});
+  }
+
+  slotLabel(group,draft){
+    const f=this.state.formation;
+    const map={GK:'GK',DEF:'DF',MID:'MF',FWD:'FW'};
+    return map[group]||group;
+  }
+  userClubName(){ return (this.state.clubName||'').trim()||'My Eleven'; }
+
+  // tilt
+  onCardMove(e){
+    const el=e.currentTarget; const r=el.getBoundingClientRect();
+    const px=(e.clientX-r.left)/r.width-0.5; const py=(e.clientY-r.top)/r.height-0.5;
+    el.style.transform=`perspective(600px) rotateY(${px*12}deg) rotateX(${-py*14}deg) translateY(-4px) scale(1.03)`;
+    el.style.zIndex='3';
+  }
+  onCardLeave(e){ const el=e.currentTarget; el.style.transform=''; el.style.zIndex=''; }
+
+  openPitch(clubId){ this.setState({pitchOpen:true,pitchClubId:clubId||'user'}); }
+  closePitch(){ this.setState({pitchOpen:false}); }
+
+  // ---------- SEASON ----------
+  startSeason(){
+    const teams=[{id:'user',name:this.userClubName(),color:'#cdf24a',ovr:this.teamOvrNum(),isUser:true},
+      ...this.AI_CLUBS.map(c=>({id:c.id,name:c.name,color:c.color,ovr:c.ovr,isUser:false}))];
+    const sched=this.roundRobin(teams.map(t=>t.id));
+    const table={};teams.forEach(t=>{table[t.id]={pts:0,gf:0,ga:0,played:0,form:[],prevRank:0};});
+    const season={teams,table,sched,round:1,total:sched.length,pendingResult:null};
+    this.assignRanks(season);
+    this.setState({season});
+    this.goScreen('season');
+  }
+
+  roundRobin(ids){
+    const arr=[...ids]; if(arr.length%2) arr.push('BYE');
+    const n=arr.length; const rounds=[];
+    for(let r=0;r<n-1;r++){
+      const pairs=[];
+      for(let i=0;i<n/2;i++){ const a=arr[i],b=arr[n-1-i]; if(a!=='BYE'&&b!=='BYE') pairs.push(r%2?[b,a]:[a,b]); }
+      rounds.push(pairs);
+      arr.splice(1,0,arr.pop());
+    }
+    return rounds;
+  }
+
+  teamOvrNum(){
+    const d=this.state.draft; if(!d) return 80;
+    const cards=d.mySlots.filter(s=>s.card).map(s=>s.card);
+    if(!cards.length) return 80;
+    return Math.round(cards.reduce((a,c)=>a+c.ovr,0)/cards.length);
+  }
+
+  simResult(homeOvr,awayOvr){
+    const diff=(homeOvr-awayOvr)/8 + 0.35; // home adv
+    const lh=Math.max(0.2,1.45+diff*0.5), la=Math.max(0.2,1.25-diff*0.5);
+    const pois=(l)=>{let L=Math.exp(-l),k=0,p=1;do{k++;p*=Math.random();}while(p>L);return k-1;};
+    return [Math.min(6,pois(lh)),Math.min(6,pois(la))];
+  }
+
+  assignRanks(season){
+    const arr=Object.entries(season.table).map(([id,v])=>({id,...v}));
+    arr.sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf);
+    arr.forEach((r,i)=>{ season.table[r.id].rank=i+1; });
+  }
+
+  kickOff(){
+    const s=this.state.season;
+    const round=s.sched[s.round-1];
+    const userMatch=round.find(p=>p[0]==='user'||p[1]==='user');
+    if(!userMatch){ this.simulateRound(); return; }
+    const home=s.teams.find(t=>t.id===userMatch[0]);
+    const away=s.teams.find(t=>t.id===userMatch[1]);
+    const [hg,ag]=this.simResult(home.ovr,away.ovr);
+    const events=this.buildEvents(home,away,hg,ag);
+    const match={home,away,hg,ag,events,shown:0,clock:0,finished:false,pair:userMatch};
+    this.setState({match});
+    this.goScreen('match');
+    this.runMatchClock();
+  }
+
+  buildEvents(home,away,hg,ag){
+    const ev=[];
+    const scorer=(team)=>{ const d=this.state.draft;
+      if(team.isUser&&d){ const fwds=d.mySlots.filter(s=>s.card).map(s=>s.card).sort((a,b)=>b.ovr-a.ovr); return (fwds[Math.floor(Math.random()*Math.min(4,fwds.length))]||{name:team.name}).name; }
+      return this.AI_BANK[Math.floor(Math.random()*this.AI_BANK.length)]; };
+    const mins=[];const total=hg+ag;
+    for(let i=0;i<total;i++) mins.push(8+Math.floor(Math.random()*82));
+    mins.sort((a,b)=>a-b);
+    let hi=0,ai=0,mi=0;
+    const goalSeq=[];for(let i=0;i<hg;i++)goalSeq.push('h');for(let i=0;i<ag;i++)goalSeq.push('a');goalSeq.sort(()=>Math.random()-0.5);
+    goalSeq.forEach((side,i)=>{ const team=side==='h'?home:away; ev.push({min:mins[mi++],type:'goal',side,icon:'⚽',text:`${scorer(team)} · ${team.name}`}); });
+    ev.push({min:'HT',type:'info',icon:'⏸',text:'하프타임'});
+    ev.push({min:'FT',type:'final',icon:'🏁',text:`경기 종료 · ${home.name} ${hg}-${ag} ${away.name}`});
+    ev.sort((a,b)=>{ const va=a.min==='HT'?45:a.min==='FT'?90:a.min; const vb=b.min==='HT'?45:b.min==='FT'?90:b.min; return va-vb; });
+    return ev;
+  }
+
+  runMatchClock(){
+    const tick=()=>{
+      const m=this.state.match; if(!m||this.state.screen!=='match') return;
+      if(m.shown>=m.events.length){ this.setState({match:{...m,finished:true,clock:90}}); return; }
+      const ev=m.events[m.shown];
+      const nm={...m,shown:m.shown+1};
+      nm.clock=ev.min==='HT'?45:ev.min==='FT'?90:ev.min;
+      this.setState({match:nm});
+      if(ev.type==='goal'){
+        this.setState({goalOn:true,goalText:ev.text});
+        setTimeout(()=>this.setState({goalOn:false}),1500);
+      }
+      setTimeout(tick, ev.type==='goal'?1700:850);
+    };
+    setTimeout(tick,600);
+  }
+
+  matchContinue(){
+    const s={...this.state.season}; const m=this.state.match;
+    this.applyRoundResults(s, m);
+    this.setState({season:s,match:null});
+    if(s.round>s.total){ this.goScreen('season'); }
+    else this.goScreen('season');
+  }
+
+  applyRoundResults(season, userMatch){
+    const round=season.sched[season.round-1];
+    // snapshot prev ranks
+    Object.keys(season.table).forEach(id=>{season.table[id].prevRank=season.table[id].rank;});
+    round.forEach(pair=>{
+      const [hid,aid]=pair;
+      const home=season.teams.find(t=>t.id===hid), away=season.teams.find(t=>t.id===aid);
+      let hg,ag;
+      if(userMatch && userMatch.pair[0]===hid && userMatch.pair[1]===aid){ hg=userMatch.hg; ag=userMatch.ag; }
+      else { [hg,ag]=this.simResult(home.ovr,away.ovr); }
+      const th=season.table[hid], ta=season.table[aid];
+      th.played++;ta.played++;th.gf+=hg;th.ga+=ag;ta.gf+=ag;ta.ga+=hg;
+      if(hg>ag){th.pts+=3;th.form.unshift('W');ta.form.unshift('L');}
+      else if(hg<ag){ta.pts+=3;ta.form.unshift('W');th.form.unshift('L');}
+      else{th.pts++;ta.pts++;th.form.unshift('D');ta.form.unshift('D');}
+    });
+    this.assignRanks(season);
+    season.round++;
+  }
+
+  simulateRound(){ // when user has no match (shouldn't with 8 teams) fallback
+    const s={...this.state.season}; this.applyRoundResults(s,null); this.setState({season:s});
+  }
+
+  seasonFinish(){
+    this.goScreen('champion');
+  }
+
+  restart(){ this.setState({screen:'home',screenKey:this.state.screenKey+1,draft:null,season:null,match:null}); }
+
+  // ---------- RENDER ----------
+  renderVals(){
+    const st=this.state;
+    const RAR=this.RARITY;
+    const v={
+      screenKey:String(st.screenKey),
+      isHome:st.screen==='home', isDraft:st.screen==='draft', isSeason:st.screen==='season', isMatch:st.screen==='match', isChampion:st.screen==='champion',
+      clubName:st.clubName,
+      onClubName:(e)=>this.onClubName(e),
+      onStart:()=>this.startDraft(),
+      pitchOpen:st.pitchOpen,
+      flashOn:st.flashOn, rarFlash:st.rarFlash,
+      goalOn:st.goalOn, goalText:st.goalText,
+      onClosePitch:()=>this.closePitch(),
+    };
+
+    // HOME chips
+    v.modeCards=this.MODES.map(([id,name,desc])=>({name,desc,onSelect:()=>this.setMode(id),
+      style:this.chipBox(st.mode===id, 'left')}));
+    v.formationChips=this.FORMATIONS.map(f=>({label:f,onSelect:()=>this.setFormation(f),style:this.pill(st.formation===f)}));
+    v.tacticChips=this.TACTICS.map(([id,label])=>({label,onSelect:()=>this.setTactic(id),style:this.pill(st.tactic===id)}));
+
+    // DRAFT
+    if(st.draft){
+      const d=st.draft;
+      const filled=d.mySlots.filter(s=>s.card).length;
+      const complete=d.round>11 || filled>=11;
+      v.draftRound=Math.min(d.round,11); v.draftPickNo=Math.min(filled+1,11);
+      v.userPickCount=filled;
+      v.draftComplete=complete;
+      v.showCandidates=!complete && !st.aiPicking && d.candidates.length>0;
+      v.showAiPicking=st.aiPicking;
+      v.aiPickingName=st.aiPickingName;
+      v.turnTitle=complete?'드래프트 완료':st.aiPicking?'AI 지명 중':'당신의 차례';
+      v.candidateCount=d.candidates.length+'장';
+      v.onReroll=()=>this.rerollCandidates();
+      v.onStartSeason=()=>this.startSeason();
+      v.onOpenPitch=()=>this.openPitch('user');
+
+      v.candidates=d.candidates.map(c=>{const r=RAR[c.rar];return {
+        ovr:c.ovr, group:c.group, country:c.country, name:c.name, rarLabel:r.label,
+        posLine:c.pos+' · '+c.country, cta:'영입 →',
+        onPick:()=>this.pickCard(c.id), onMove:(e)=>this.onCardMove(e), onLeave:(e)=>this.onCardLeave(e),
+        style:{'--rar':r.color, position:'relative', display:'flex', flexDirection:'column', minHeight:'168px', padding:'12px', border:'1.5px solid '+r.color, borderRadius:'16px', background:'linear-gradient(165deg,var(--surf2),var(--surf))', color:'var(--ink)', cursor:'pointer', overflow:'hidden', boxShadow:'0 10px 24px -12px '+r.color, transition:'transform .12s ease, filter .12s', animation:'dealIn .5s both', textAlign:'left'},
+      };});
+
+      // pick order (snake)
+      const order=['user',...this.AI_CLUBS.map(c=>c.id)];
+      const seq = d.round%2===0 ? [...order].reverse() : order;
+      v.pickOrder=seq.map((id,i)=>{ const isUser=id==='user'; const club=isUser?{name:this.userClubName(),color:'#cdf24a'}:this.AI_CLUBS.find(c=>c.id===id);
+        const now=i===0;
+        return {name:isUser?'YOU':club.name.split(' ')[0], style:{flex:'none',padding:'6px 11px',borderRadius:'100px',fontSize:'11px',fontWeight:'700',whiteSpace:'nowrap',border:'1px solid '+(now?'var(--lime)':'var(--line)'),background:now?'rgba(205,242,74,.14)':'var(--surf)',color:isUser?'var(--lime)':'var(--ink)',animation:now?'turnGlow 1.8s infinite':'none'}};
+      });
+
+      v.recentPicks=d.log.slice(0,5).map(l=>({club:l.clubId==='user'?'YOU':l.club.split(' ')[0],player:l.player,slot:l.slot,color:l.color,
+        style:{display:'flex',alignItems:'center',gap:'9px',padding:'9px 11px',borderRadius:'11px',border:'1px solid '+(l.clubId==='user'?'rgba(205,242,74,.3)':'var(--line)'),background:l.clubId==='user'?'rgba(205,242,74,.07)':'var(--surf)'}}));
+
+      // strength
+      const cards=d.mySlots.filter(s=>s.card).map(s=>s.card);
+      v.teamOvr=cards.length?this.teamOvrNum():'—';
+      const grpAvg=(g)=>{const cc=cards.filter(c=>c.group===g);return cc.length?Math.round(cc.reduce((a,c)=>a+c.ovr,0)/cc.length):0;};
+      v.strengthBars=[['ATK',grpAvg('FWD')],['MID',grpAvg('MID')],['DEF',(grpAvg('DEF')+grpAvg('GK'))/2|0]].map(([label,val])=>({label,val:val||'—',
+        fillStyle:{height:'100%',width:(val?Math.min(100,(val-40)/0.6):0)+'%',borderRadius:'4px',background:'linear-gradient(90deg,var(--lime),var(--lime2))',transition:'width .6s cubic-bezier(.2,.8,.2,1)'}}));
+
+      // pitch overlay
+      const pc=st.pitchClubId==='user'?{name:this.userClubName(),slots:d.mySlots}:null;
+      v.pitchClub=pc?pc.name:'';
+      v.pitchSlots=(pc?pc.slots:[]).map(s=>{const c=s.card;const gc=this.GROUP_COLOR[s.group];return {
+        ovr:c?c.ovr:'',name:c?c.name:'—',
+        style:{position:'absolute',left:s.x+'%',top:s.y+'%',transform:'translate(-50%,-50%)',textAlign:'center',color:'#fff'},
+        dotStyle:{width:'34px',height:'34px',borderRadius:'50%',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--disp)',fontSize:'14px',color:c?'#0a140d':'var(--mut)',background:c?gc:'rgba(255,255,255,.08)',border:'2px solid '+(c?'#0a140d':'var(--line)'),boxShadow:c?'0 4px 12px -2px '+gc:'none'}};
+      });
+    }
+
+    // SEASON
+    if(st.season){
+      const s=st.season;
+      v.seasonModeLabel=st.mode==='league'?'리그 · 풀 라운드로빈':'컵 · 녹아웃';
+      v.seasonRound=Math.min(s.round,s.total); v.seasonTotal=s.total;
+      v.seasonOngoing=s.round<=s.total;
+      v.seasonDone=s.round>s.total;
+      v.onSeasonFinish=()=>this.seasonFinish();
+      v.onKickOff=()=>this.kickOff();
+      // next fixture (user)
+      if(s.round<=s.total){
+        const round=s.sched[s.round-1];
+        const um=round.find(p=>p[0]==='user'||p[1]==='user')||round[0];
+        const home=s.teams.find(t=>t.id===um[0]),away=s.teams.find(t=>t.id===um[1]);
+        v.fxHome=home.name;v.fxAway=away.name;v.fxHomeOvr=home.ovr;v.fxAwayOvr=away.ovr;
+      } else { v.fxHome='';v.fxAway='';v.fxHomeOvr='';v.fxAwayOvr=''; }
+      // standings
+      const arr=Object.entries(s.table).map(([id,t])=>({id,...t,team:s.teams.find(x=>x.id===id)}));
+      arr.sort((a,b)=>a.rank-b.rank);
+      const maxPts=Math.max(1,...arr.map(a=>a.pts));
+      v.standings=arr.map(a=>{ const move=a.prevRank&&a.prevRank!==a.rank?(a.prevRank>a.rank?'▲':'▼'):'';
+        const moveColor=move==='▲'?'#7fe87f':move==='▼'?'#ff8a8a':'var(--mut)';
+        const isU=a.team.isUser;
+        return {rank:a.rank,move,moveColor,rankColor:a.rank<=(st.mode==='league'?3:4)?'var(--lime)':'var(--ink)',
+          name:a.team.name,color:a.team.color,played:a.played,pts:a.pts,
+          barW:(a.pts/maxPts*100)+'%',
+          style:{position:'relative',padding:'10px',borderRadius:'12px',overflow:'hidden',border:'1px solid '+(isU?'rgba(205,242,74,.4)':'var(--line)'),background:isU?'rgba(205,242,74,.06)':'var(--surf)'},
+          form:(a.form.slice(0,3)).map(r=>({r,style:{width:'16px',height:'16px',borderRadius:'4px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',fontWeight:'800',color:'#0a140d',background:r==='W'?'#7fe87f':r==='D'?'#e8d77f':'#ff8a8a'}}))
+        };
+      });
+    }
+
+    // MATCH
+    if(st.match){
+      const m=st.match;
+      v.matchStageLabel=st.mode==='league'?('매치데이 '+st.season.round):'녹아웃';
+      v.mHome=m.home.name;v.mAway=m.away.name;
+      const shownEv=m.events.slice(0,m.shown);
+      const goalsH=shownEv.filter(e=>e.type==='goal'&&e.side==='h').length;
+      const goalsA=shownEv.filter(e=>e.type==='goal'&&e.side==='a').length;
+      v.mHomeGoals=goalsH;v.mAwayGoals=goalsA;
+      v.matchClock=m.clock;v.matchClockW=Math.min(100,m.clock/90*100)+'%';
+      v.matchFinished=m.finished;v.matchPlaying=!m.finished;
+      v.onMatchContinue=()=>this.matchContinue();
+      const win=m.hg>m.ag?m.home.isUser:m.hg<m.ag?m.away.isUser:null;
+      v.matchResultCta=m.hg===m.ag?'무승부 · 계속':((m.home.isUser&&m.hg>m.ag)||(m.away.isUser&&m.ag>m.hg))?'승리! 계속':'다음 경기';
+      v.matchEvents=[...shownEv].reverse().map(e=>({min:e.min,icon:e.icon,text:e.text,
+        style:{display:'flex',alignItems:'center',gap:'11px',padding:'11px 13px',borderRadius:'12px',border:'1px solid '+(e.type==='goal'?'rgba(205,242,74,.35)':'var(--line)'),background:e.type==='goal'?'rgba(205,242,74,.08)':e.type==='final'?'var(--surf2)':'var(--surf)',animation:'popIn .35s both'}}));
+    }
+
+    // CHAMPION
+    if(st.season && st.screen==='champion'){
+      const s=st.season;
+      const arr=Object.entries(s.table).map(([id,t])=>({id,...t,team:s.teams.find(x=>x.id===id)}));
+      arr.sort((a,b)=>a.rank-b.rank);
+      const champ=arr[0];
+      const userRow=arr.find(a=>a.team.isUser);
+      v.champSubtitle=champ.team.isUser?'당신이 우승했습니다':'시즌 챔피언';
+      v.champName=champ.team.name; v.champColor=champ.team.color;
+      v.champRecord=champ.pts+'점 · '+champ.played+'경기 · '+(userRow?userRow.rank+'위':'');
+      v.onRestart=()=>this.restart();
+      // awards
+      const d=st.draft; const myCards=d?d.mySlots.filter(x=>x.card).map(x=>x.card):[];
+      const topFwd=myCards.filter(c=>c.group==='FWD').sort((a,b)=>b.ovr-a.ovr)[0];
+      const topMid=myCards.filter(c=>c.group==='MID').sort((a,b)=>b.ovr-a.ovr)[0];
+      const topGk=myCards.filter(c=>c.group==='GK').sort((a,b)=>b.ovr-a.ovr)[0];
+      v.awards=[
+        {icon:'👑',label:'최종 순위',name:(userRow?userRow.rank+'위':'—'),value:(userRow?userRow.pts:0),unit:'PTS',delay:'.1s'},
+        {icon:'⚽',label:'득점왕 (우리팀)',name:topFwd?topFwd.name:'—',value:8+Math.floor(Math.random()*12),unit:'GOALS',delay:'.25s'},
+        {icon:'🎯',label:'도움왕 (우리팀)',name:topMid?topMid.name:'—',value:5+Math.floor(Math.random()*9),unit:'ASSIST',delay:'.4s'},
+        {icon:'🧤',label:'클린시트',name:topGk?topGk.name:'—',value:3+Math.floor(Math.random()*7),unit:'CS',delay:'.55s'},
+      ];
+    }
+
+    return v;
+  }
+
+  chipBox(active){
+    return {position:'relative',padding:'16px 14px',borderRadius:'16px',cursor:'pointer',textAlign:'left',color:'var(--ink)',transition:'transform .12s ease',
+      border:'1.5px solid '+(active?'var(--lime)':'var(--line)'),
+      background:active?'linear-gradient(135deg,rgba(205,242,74,.16),var(--surf))':'var(--surf)',
+      boxShadow:active?'0 10px 26px -12px rgba(205,242,74,.6)':'none'};
+  }
+  pill(active){
+    return {padding:'11px 16px',borderRadius:'100px',cursor:'pointer',fontSize:'13px',fontWeight:'700',transition:'transform .1s ease',
+      border:'1.5px solid '+(active?'var(--lime)':'var(--line)'),
+      background:active?'var(--lime)':'var(--surf)', color:active?'#0a140d':'var(--ink)'};
+  }
+}
+</script>
+</body>
+</html>

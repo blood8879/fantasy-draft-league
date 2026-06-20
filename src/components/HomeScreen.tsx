@@ -34,27 +34,28 @@ export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
   const [tactic, setTactic] = useState<TacticType>("점유율")
 
   return (
-    <section className="home-screen">
+    <section className="home-screen screen-in">
       <header className="home-hero">
-        <p className="eyebrow">{t("home.eyebrow")}</p>
+        <p className="eyebrow home-eyebrow">{t("home.eyebrow")}</p>
         <h1>{t("home.title")}</h1>
         <p className="home-pitch">{t("home.pitch")}</p>
-        <ol className="home-steps">
-          <li>
-            <strong>{t("home.step1.title")}</strong> {t("home.step1.body")}
-          </li>
-          <li>
-            <strong>{t("home.step2.title")}</strong> {t("home.step2.body")}
-          </li>
-          <li>
-            <strong>{t("home.step3.title")}</strong> {t("home.step3.body")}
-          </li>
-        </ol>
+        <div className="home-stats">
+          <div className="home-stat">
+            <div className="home-stat-value">11R</div>
+            <div className="home-stat-label">{t("home.statDraft")}</div>
+          </div>
+          <div className="home-stat">
+            <div className="home-stat-value">20</div>
+            <div className="home-stat-label">{t("home.statTeams")}</div>
+          </div>
+          <div className="home-stat">
+            <div className="home-stat-value">xG</div>
+            <div className="home-stat-label">{t("home.statEngine")}</div>
+          </div>
+        </div>
       </header>
 
-      <div className="home-setup draft-aside">
-        <h2 className="home-setup-title">{t("home.setupTitle")}</h2>
-
+      <div className="home-setup">
         <fieldset className="setup-field" aria-label={t("common.language")}>
           <span className="setup-label">{t("common.language")}</span>
           <div className="tactic-row">
@@ -130,11 +131,12 @@ export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
 
         <div className="setup-actions">
           <button
-            className="primary-action primary-action--bright"
+            className="primary-action primary-action--bright home-start"
             onClick={() => onStart(mode, clubName, formation, tactic)}
             type="button"
           >
-            {t("home.start")}
+            {t("home.start")} <span aria-hidden="true">→</span>
+            <span className="home-start-shine" />
           </button>
           {hasSave ? (
             <button className="ghost-action" onClick={onResume} type="button">
