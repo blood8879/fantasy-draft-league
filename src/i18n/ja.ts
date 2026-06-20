@@ -67,6 +67,9 @@ export const ja: Readonly<Record<string, string>> = {
   "draft.waitingPicks": "このラウンドの指名を待っています",
   "draft.emptySlot": "空き",
   "draft.scoutStrip": "スカッドを見る",
+  "draft.teamPower": "チーム戦力",
+  "draft.viewFormation": "フォーメーション",
+  "draft.viewStrength": "戦力を見る",
 
   "pitch.unnamed": "未指名",
 

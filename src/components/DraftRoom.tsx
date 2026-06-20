@@ -39,6 +39,8 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
   const { showRewarded, pendingAction } = useAds()
   const [scoutClubId, setScoutClubId] = useState<string | undefined>(undefined)
   const [poolOpen, setPoolOpen] = useState(false)
+  const [pitchOpen, setPitchOpen] = useState(false)
+  const [strengthOpen, setStrengthOpen] = useState(false)
 
   // 리롤은 매번이 아니라 일정 확률로만 보상 광고를 띄운다(나머지는 광고 없이 즉시 리롤).
   async function handleReroll() {
@@ -107,6 +109,13 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
 
   const scoutClub = scoutClubId === undefined ? undefined : clubsById.get(scoutClubId)
   const scoutSquad = scoutClubId === undefined ? undefined : draft.squads[scoutClubId]
+  const teamOvr =
+    userSquad.picks.length > 0
+      ? Math.round(
+          userSquad.picks.reduce((sum, pick) => sum + (cardsById.get(pick.cardId)?.cost ?? 0), 0) /
+            userSquad.picks.length,
+        )
+      : 0
 
   return (
     <section className="draft-room">
@@ -229,27 +238,6 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
       ) : null}
 
       <div className="draft-room-grid">
-        <aside className="draft-aside my-squad-panel">
-          <SquadPitch club={userClub} squad={userSquad} />
-          {teamView !== undefined ? (
-            <div className="team-strength">
-              <h3 className="team-strength-title">{t("radar.title")}</h3>
-              <RadarChart team={teamView.myProfile} average={teamView.leagueAvg} />
-              <div className="radar-legend">
-                <span className="radar-legend-item radar-legend-item--team">{t("radar.you")}</span>
-                <span className="radar-legend-item radar-legend-item--avg">
-                  {t("radar.leagueAvg")}
-                </span>
-              </div>
-              <TeamStatBars team={teamView.myProfile} average={teamView.leagueAvg} />
-              <ChemistryBadges
-                links={teamView.myProfile.chemistryLinks}
-                score={teamView.myProfile.chemistry}
-              />
-            </div>
-          ) : null}
-        </aside>
-
         <div className="draft-right-col">
           <div className="candidate-panel">
             {complete ? (
@@ -354,6 +342,115 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
           </aside>
         </div>
       </div>
+
+      {teamView !== undefined ? (
+        <div className="draft-bottom-bar">
+          <div className="dbb-top">
+            <span className="dbb-power">
+              {t("draft.teamPower")} <strong>{teamOvr}</strong>
+            </span>
+            <div className="dbb-actions">
+              <button className="dbb-link" onClick={() => setPitchOpen(true)} type="button">
+                {t("draft.viewFormation")} ›
+              </button>
+              <button className="dbb-link" onClick={() => setStrengthOpen(true)} type="button">
+                {t("draft.viewStrength")} ›
+              </button>
+            </div>
+          </div>
+          <div className="dbb-bars">
+            {(
+              [
+                ["ATK", "attack"],
+                ["MID", "midfieldControl"],
+                ["DEF", "defensiveStability"],
+              ] as const
+            ).map(([label, key]) => {
+              const val = teamView.myProfile[key] as number
+              return (
+                <div className="dbb-bar" key={key}>
+                  <div className="dbb-bar-head">
+                    <span>{label}</span>
+                    <span>{Math.round(val)}</span>
+                  </div>
+                  <div className="dbb-bar-track">
+                    <div
+                      className="dbb-bar-fill"
+                      style={{ width: `${Math.max(0, Math.min(100, val))}%` }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {pitchOpen ? (
+        <div
+          className="pitch-modal-overlay"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setPitchOpen(false)
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              setPitchOpen(false)
+            }
+          }}
+          role="presentation"
+        >
+          <div className="pitch-modal">
+            <button className="pitch-modal-close" onClick={() => setPitchOpen(false)} type="button">
+              {t("common.close")}
+            </button>
+            <SquadPitch club={userClub} squad={userSquad} />
+          </div>
+        </div>
+      ) : null}
+
+      {strengthOpen && teamView !== undefined ? (
+        <div
+          className="pitch-modal-overlay"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setStrengthOpen(false)
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              setStrengthOpen(false)
+            }
+          }}
+          role="presentation"
+        >
+          <div className="pitch-modal">
+            <button
+              className="pitch-modal-close"
+              onClick={() => setStrengthOpen(false)}
+              type="button"
+            >
+              {t("common.close")}
+            </button>
+            <div className="team-strength">
+              <h3 className="team-strength-title">{t("radar.title")}</h3>
+              <RadarChart average={teamView.leagueAvg} team={teamView.myProfile} />
+              <div className="radar-legend">
+                <span className="radar-legend-item radar-legend-item--team">{t("radar.you")}</span>
+                <span className="radar-legend-item radar-legend-item--avg">
+                  {t("radar.leagueAvg")}
+                </span>
+              </div>
+              <TeamStatBars average={teamView.leagueAvg} team={teamView.myProfile} />
+              <ChemistryBadges
+                links={teamView.myProfile.chemistryLinks}
+                score={teamView.myProfile.chemistry}
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }

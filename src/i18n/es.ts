@@ -67,6 +67,9 @@ export const es: Readonly<Record<string, string>> = {
   "draft.waitingPicks": "Esperando las elecciones de esta ronda",
   "draft.emptySlot": "Vacío",
   "draft.scoutStrip": "Ver plantillas",
+  "draft.teamPower": "Potencia",
+  "draft.viewFormation": "Ver formación",
+  "draft.viewStrength": "Ver fuerza",
 
   "pitch.unnamed": "Sin elegir",
 

@@ -66,6 +66,9 @@ export const ko: Readonly<Record<string, string>> = {
   "draft.waitingPicks": "이번 라운드 지명을 기다리는 중",
   "draft.emptySlot": "비어 있음",
   "draft.scoutStrip": "스쿼드 보기",
+  "draft.teamPower": "팀 전력",
+  "draft.viewFormation": "포메이션 보기",
+  "draft.viewStrength": "팀 전력 보기",
 
   "pitch.unnamed": "미지명",
 

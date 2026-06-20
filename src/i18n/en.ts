@@ -72,6 +72,9 @@ export const en: Readonly<Record<string, string>> = {
   "draft.waitingPicks": "Waiting for this round's picks",
   "draft.emptySlot": "Empty",
   "draft.scoutStrip": "View squads",
+  "draft.teamPower": "Team Power",
+  "draft.viewFormation": "View formation",
+  "draft.viewStrength": "Team strength",
 
   // squad pitch
   "pitch.unnamed": "Unpicked",
