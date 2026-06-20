@@ -127,18 +127,6 @@
   color: #06140d;
 }
 
-.ghost-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(16, 32, 27, 0.4);
-  background: transparent;
-  color: #10201b;
-  cursor: pointer;
-  font-weight: 800;
-  padding: 12px 16px;
-}
-
 .rail-step {
   cursor: default;
 }
