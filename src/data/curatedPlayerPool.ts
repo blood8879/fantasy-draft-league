@@ -1,257 +1,132 @@
-import { createPlayerCard, createPlayerCardWithScores } from "./cardFactory"
-import playerPoolData from "./curatedPlayerPool.json"
-import {
-  type CuratedTier,
-  isCuratedTier,
-  tierCost,
-  tierRarity,
-  tuneRatingsForTier,
-} from "./curatedPlayerRatings"
-import playerSkillsData from "./curatedPlayerSkills.json"
-import type { Player, PlayerCard, RatingAxis, RatingGrade } from "./schema"
+import { createPlayerCardWithScores, positionOvr } from "./cardFactory"
+import { type CuratedTier, isCuratedTier, tierRarity } from "./curatedPlayerRatings"
+import seasonsData from "./curatedPlayerSeasons.json"
+import type { Player, PlayerCard, RatingAxis } from "./schema"
 
-const poolPositions = ["GK", "RB", "CB", "LB", "DM", "CM", "AM", "RW", "ST", "LW"] as const
-
-type PoolPosition = (typeof poolPositions)[number]
-type PoolEntry = {
-  readonly displayName: string
+type SeasonEntry = {
   readonly country: string
-  readonly club: string | undefined
-  readonly league: string | undefined
-  readonly tier: CuratedTier
-}
-type RatingShape = Readonly<Record<RatingAxis, RatingGrade>>
-type PositionSpec = {
-  readonly position: PoolPosition
-  readonly role: string
-  readonly tag: string
-  readonly ratings: RatingShape
-}
-
-const rawPool: Readonly<Record<PoolPosition, readonly string[]>> = playerPoolData
-const poolSkills = playerSkillsData as Record<string, Record<string, readonly number[]>>
-
-const positionSpecs = [
-  spec("GK", "Goalkeeper", "goalkeeper", {
-    scoring: "D",
-    creation: "D",
-    progression: "D",
-    control: "B",
-    defense: "A",
-    physical: "B",
-    mobility: "B",
-    mental: "A",
-  }),
-  spec("RB", "Fullback", "right_side", {
-    scoring: "D",
-    creation: "B",
-    progression: "B",
-    control: "B",
-    defense: "B",
-    physical: "B",
-    mobility: "A",
-    mental: "B",
-  }),
-  spec("CB", "Defender", "defense", {
-    scoring: "D",
-    creation: "C",
-    progression: "C",
-    control: "B",
-    defense: "A",
-    physical: "A",
-    mobility: "B",
-    mental: "A",
-  }),
-  spec("LB", "Fullback", "left_side", {
-    scoring: "D",
-    creation: "B",
-    progression: "B",
-    control: "B",
-    defense: "B",
-    physical: "B",
-    mobility: "A",
-    mental: "B",
-  }),
-  spec("DM", "Anchor", "screening", {
-    scoring: "D",
-    creation: "B",
-    progression: "B",
-    control: "A",
-    defense: "A",
-    physical: "B",
-    mobility: "B",
-    mental: "A",
-  }),
-  spec("CM", "Controller", "tempo", {
-    scoring: "C",
-    creation: "A",
-    progression: "A",
-    control: "A",
-    defense: "B",
-    physical: "B",
-    mobility: "B",
-    mental: "A",
-  }),
-  spec("AM", "Creator", "creation", {
-    scoring: "B",
-    creation: "A",
-    progression: "A",
-    control: "A",
-    defense: "D",
-    physical: "C",
-    mobility: "B",
-    mental: "A",
-  }),
-  spec("RW", "Wide Forward", "right_side", {
-    scoring: "A",
-    creation: "B",
-    progression: "A",
-    control: "B",
-    defense: "C",
-    physical: "B",
-    mobility: "A",
-    mental: "B",
-  }),
-  spec("ST", "Finisher", "box_threat", {
-    scoring: "A",
-    creation: "C",
-    progression: "B",
-    control: "B",
-    defense: "D",
-    physical: "A",
-    mobility: "B",
-    mental: "A",
-  }),
-  spec("LW", "Wide Forward", "left_side", {
-    scoring: "A",
-    creation: "B",
-    progression: "A",
-    control: "B",
-    defense: "C",
-    physical: "B",
-    mobility: "A",
-    mental: "B",
-  }),
-] as const satisfies readonly PositionSpec[]
-
-export const curatedPoolPlayers: readonly Player[] = positionSpecs.flatMap((positionSpec) =>
-  rawPool[positionSpec.position].map((entry) =>
-    createPoolPlayer(positionSpec.position, parseEntry(entry)),
-  ),
-)
-
-export const curatedPoolCards: readonly PlayerCard[] = positionSpecs.flatMap((positionSpec) =>
-  rawPool[positionSpec.position].map((entry, index) =>
-    createPoolCard(positionSpec, parseEntry(entry), index),
-  ),
-)
-
-function spec(
-  position: PoolPosition,
-  role: string,
-  tag: string,
-  ratings: RatingShape,
-): PositionSpec {
-  return { position, role, tag, ratings }
+  readonly mainPos: string
+  readonly positions: readonly string[]
+  readonly legend: boolean
+  readonly seasons: readonly {
+    readonly year: number | null
+    readonly club: string
+    readonly league: string
+    readonly tier: string
+    readonly skills: readonly number[]
+  }[]
 }
 
-function parseEntry(entry: string): PoolEntry {
-  const parts = entry.split("|")
-  const [displayName, country] = parts
-  if (displayName === undefined || country === undefined) {
-    throw new Error(`Invalid curated player entry: ${entry}`)
-  }
-  // "이름|국가|클럽|리그|tier"(5필드)와 구형 "이름|국가|tier"(3필드)를 모두 지원한다.
-  let club: string | undefined
-  let league: string | undefined
-  let tierRaw: string | undefined
-  if (parts.length >= 5) {
-    club = parts[2]
-    league = parts[3]
-    tierRaw = parts[4]
-  } else {
-    tierRaw = parts[2]
-  }
-  // tier가 누락되거나 알 수 없는 값이면 평범한 1군(regular)으로 안전하게 처리한다.
-  const resolvedTier: CuratedTier =
-    tierRaw !== undefined && isCuratedTier(tierRaw) ? tierRaw : "regular"
-  return { displayName, country, club, league, tier: resolvedTier }
+const data = seasonsData as Record<string, SeasonEntry>
+
+const roleByPosition: Readonly<Record<string, string>> = {
+  GK: "Goalkeeper",
+  RB: "Fullback",
+  LB: "Fullback",
+  CB: "Defender",
+  DM: "Anchor",
+  CM: "Midfielder",
+  AM: "Playmaker",
+  RW: "Winger",
+  LW: "Winger",
+  ST: "Forward",
 }
 
-function createPoolPlayer(position: PoolPosition, entry: PoolEntry): Player {
-  return {
-    id: playerId(position, entry.displayName),
-    displayName: entry.displayName,
-    country: entry.country,
-    birthYear: null,
-    primaryPositions: [position],
-    publicSourceNotes: ["Curated public footballer name and broad position only"],
-    sourceRefs: [
-      {
-        type: "biography",
-        label: `${entry.displayName} public career summary`,
-        url: `https://en.wikipedia.org/wiki/${encodeURIComponent(entry.displayName.replaceAll(" ", "_"))}`,
-      },
-    ],
-    rightsRiskNotes: ["Text-only player name; no photo, crest, kit, logo, or official mark"],
-  }
+/** "Lionel Messi", "Giorgio Chiellini (LB)" → 표시용 깨끗한 이름 */
+function cleanName(key: string): string {
+  return key.replace(/\s*\([A-Z]+\)\s*$/, "")
 }
 
-function createPoolCard(positionSpec: PositionSpec, entry: PoolEntry, index: number): PlayerCard {
-  const id = playerId(positionSpec.position, entry.displayName)
-  const base = {
-    id: `${id}_pool`,
-    playerId: id,
-    label: entry.displayName,
-    year: null,
-    age: null,
-    country: entry.country,
-    ...(entry.club === undefined ? {} : { club: entry.club }),
-    ...(entry.league === undefined ? {} : { league: entry.league }),
-    eligibleEra: "all-time pool",
-    positions: [positionSpec.position],
-    roles: [positionSpec.role],
-    tags: [positionSpec.tag, index % 4 === 0 ? "left_foot" : "curated_pool"],
-    cost: tierCost(entry.tier, id),
-    rarity: tierRarity(entry.tier),
-    ratingRationale: `Broad all-time player pool tier (${entry.tier}) for ${entry.displayName}; no unverified season-year, age, photo, crest, or official mark is asserted.`,
-    ratingReviewer: "curated-player-pool-v3",
-    ratingStatus: "draft" as const,
-  }
-
-  // 선수별 개별 능력치가 있으면 그대로 사용(선수마다 8축이 달라진다).
-  // 없으면 tier 기반 자동 산출로 폴백한다.
-  const skills = poolSkills[positionSpec.position]?.[entry.displayName]
-  if (skills !== undefined && skills.length === 8) {
-    return createPlayerCardWithScores(base, {
-      scoring: skills[0] ?? 60,
-      creation: skills[1] ?? 60,
-      progression: skills[2] ?? 60,
-      control: skills[3] ?? 60,
-      defense: skills[4] ?? 60,
-      physical: skills[5] ?? 60,
-      mobility: skills[6] ?? 60,
-      mental: skills[7] ?? 60,
-    })
-  }
-
-  const ratings = tuneRatingsForTier(positionSpec.ratings, entry.tier)
-  return createPlayerCard(
-    base,
-    ratings.scoring,
-    ratings.creation,
-    ratings.progression,
-    ratings.control,
-    ratings.defense,
-    ratings.physical,
-    ratings.mobility,
-    ratings.mental,
-  )
-}
-
-function playerId(position: PoolPosition, displayName: string): string {
-  return `curated_${position.toLowerCase()}_${displayName
+function playerId(name: string, mainPos: string): string {
+  return `curated_${mainPos.toLowerCase()}_${name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_|_$/g, "")}`
 }
+
+function toScores(skills: readonly number[]): Record<RatingAxis, number> {
+  return {
+    scoring: skills[0] ?? 60,
+    creation: skills[1] ?? 60,
+    progression: skills[2] ?? 60,
+    control: skills[3] ?? 60,
+    defense: skills[4] ?? 60,
+    physical: skills[5] ?? 60,
+    mobility: skills[6] ?? 60,
+    mental: skills[7] ?? 60,
+  }
+}
+
+function resolveTier(tier: string): CuratedTier {
+  return isCuratedTier(tier) ? tier : "regular"
+}
+
+function buildCards(): readonly PlayerCard[] {
+  const cards: PlayerCard[] = []
+  for (const [key, entry] of Object.entries(data)) {
+    const name = cleanName(key)
+    const pid = playerId(name, entry.mainPos)
+    const role = roleByPosition[entry.mainPos] ?? "Player"
+    entry.seasons.forEach((season, index) => {
+      const scores = toScores(season.skills)
+      const tier = resolveTier(season.tier)
+      const idSuffix = season.year === null ? `career${index}` : String(season.year)
+      cards.push(
+        createPlayerCardWithScores(
+          {
+            id: `${pid}_${idSuffix}`,
+            playerId: pid,
+            label: name,
+            year: season.year,
+            age: null,
+            country: entry.country,
+            club: season.club,
+            league: season.league,
+            eligibleEra: entry.legend ? "career peak" : String(season.year ?? "season"),
+            positions: entry.positions,
+            roles: [role],
+            tags: ["curated_pool", entry.legend ? "legend_card" : "season_card"],
+            cost: positionOvr(scores, entry.mainPos),
+            rarity: tierRarity(tier),
+            ratingRationale: `Curated ${entry.legend ? "career-peak" : `${season.year} season`} card for ${name} (${entry.mainPos}); attributes are independently estimated from broadly known public reputation, no photo/crest/official mark asserted.`,
+            ratingReviewer: "curated-seasons-v1",
+            ratingStatus: "draft",
+          },
+          scores,
+        ),
+      )
+    })
+  }
+  return cards
+}
+
+function buildPlayers(): readonly Player[] {
+  const seen = new Map<string, Player>()
+  for (const [key, entry] of Object.entries(data)) {
+    const name = cleanName(key)
+    const pid = playerId(name, entry.mainPos)
+    if (seen.has(pid)) {
+      continue
+    }
+    seen.set(pid, {
+      id: pid,
+      displayName: name,
+      country: entry.country,
+      birthYear: null,
+      primaryPositions: [...entry.positions],
+      publicSourceNotes: ["Curated public footballer name and broad positions only"],
+      sourceRefs: [
+        {
+          type: "biography",
+          label: `${name} public career summary`,
+          url: `https://en.wikipedia.org/wiki/${encodeURIComponent(name.replaceAll(" ", "_"))}`,
+        },
+      ],
+      rightsRiskNotes: ["Text-only player name; no photo, crest, kit, logo, or official mark"],
+    })
+  }
+  return Array.from(seen.values())
+}
+
+export const curatedPoolPlayers: readonly Player[] = buildPlayers()
+export const curatedPoolCards: readonly PlayerCard[] = buildCards()

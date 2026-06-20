@@ -64,14 +64,17 @@ function validateCards(playerCards: readonly PlayerCard[]): readonly string[] {
 
 function validateCardYearPolicy(card: PlayerCard): readonly string[] {
   if (card.id.startsWith("curated_")) {
+    // 시즌 카드는 연도(year)를 가질 수 있다. 단 라벨에 연도를 노출하지 않고,
+    // 나이(age)는 추정하지 않으며, 연도는 합리적 범위(1950~2026)여야 한다.
     const labelErrors = /^\d{4}\s/.test(card.label)
-      ? [`${card.id} broad pool card must not expose a season-year label`]
+      ? [`${card.id} card must not expose a season-year label`]
       : []
+    const ageErrors = card.age !== null ? [`${card.id} curated card must not invent age data`] : []
     const yearErrors =
-      card.year !== null || card.age !== null
-        ? [`${card.id} broad pool card must not invent year or age data`]
+      card.year !== null && (card.year < 1950 || card.year > 2026)
+        ? [`${card.id} curated card year must be between 1950 and 2026`]
         : []
-    return [...labelErrors, ...yearErrors]
+    return [...labelErrors, ...ageErrors, ...yearErrors]
   }
 
   if (card.year === null || card.age === null) {

@@ -180,7 +180,10 @@ describe("fantasy draft", () => {
       0,
     )
     expect(squadPicks).toBe(rolledBack.log.length)
-    expect(rolledBack.availableCardIds.length).toBe(draftPool.length - rolledBack.log.length)
+    // 한 픽이 같은 선수의 여러 시즌 카드를 제외하므로(중복 방지) 픽 수보다 더 많이 줄어든다
+    expect(rolledBack.availableCardIds.length).toBeLessThanOrEqual(
+      draftPool.length - rolledBack.log.length,
+    )
     // 롤백으로 풀려난 카드가 다시 가용해졌다
     expect(rolledBack.availableCardIds.length).toBeGreaterThan(availableBefore.size)
   })

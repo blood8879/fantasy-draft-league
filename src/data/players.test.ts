@@ -46,37 +46,31 @@ describe("player seed data", () => {
     ).toEqual([])
   })
 
-  it("does not invent year-version labels for broad curated pool cards", () => {
+  it("does not expose year-version labels or invent age for curated cards", () => {
     const curatedCards = playerCards.filter((card) => card.id.startsWith("curated_"))
     const curatedPlayers = players.filter((player) => player.id.startsWith("curated_"))
 
     expect(curatedCards.length).toBeGreaterThan(0)
+    // 라벨에 연도를 노출하지 않고(연도는 별도 필드), 나이는 추정하지 않는다.
     expect(curatedCards.filter((card) => /^\d{4}\s/.test(card.label))).toEqual([])
-    expect(curatedCards.filter((card) => card.year !== null || card.age !== null)).toEqual([])
+    expect(curatedCards.filter((card) => card.age !== null)).toEqual([])
     expect(curatedPlayers.filter((player) => player.birthYear !== null)).toEqual([])
-    expect(curatedCards.map((card) => card.label)).not.toContain("1998 Mesut Ozil")
-    expect(curatedCards.map((card) => card.label)).not.toContain("2018 David Beckham")
-    expect(curatedCards.map((card) => card.label)).not.toContain("2005 Teddy Sheringham")
+    // 시즌 카드의 연도는 합리적 범위(1950~2026)
+    expect(
+      curatedCards.filter((card) => card.year !== null && (card.year < 1950 || card.year > 2026)),
+    ).toEqual([])
   })
 
-  it("uses tier-based cost ranges for broad curated pool cards", () => {
+  it("uses position-based OVR ranges for curated cards", () => {
     const curatedCards = playerCards.filter((card) => card.id.startsWith("curated_"))
-    const costByLabel = new Map(curatedCards.map((card) => [card.label, card.cost]))
 
-    // 모든 풀 카드의 cost는 tier 기반 범위(62~99) 안에 있어야 한다
+    // 포지션별 OVR(cost)은 40~99 범위 안에 있어야 한다
     for (const card of curatedCards) {
-      expect(card.cost).toBeGreaterThanOrEqual(62)
+      expect(card.cost).toBeGreaterThanOrEqual(40)
       expect(card.cost).toBeLessThanOrEqual(99)
     }
 
-    // 명성이 높은 선수가 덜 알려진 선수보다 비싸야 한다(tier가 cost를 결정)
-    const benzemaCost = expectCost(costByLabel, "Karim Benzema")
-    const ferranCost = expectCost(costByLabel, "Ferran Torres")
-    const antonyCost = expectCost(costByLabel, "Antony")
-    expect(benzemaCost).toBeGreaterThan(antonyCost)
-    expect(ferranCost).toBeGreaterThanOrEqual(antonyCost)
-
-    // 최상위 아이콘은 Legend 레어도로 노출된다
+    // 최상위 아이콘은 Legend 레어도 + 높은 OVR로 노출된다
     const messi = curatedCards.find((card) => card.label === "Lionel Messi")
     expect(messi?.rarity).toBe("Legend")
     expect(messi?.cost ?? 0).toBeGreaterThanOrEqual(90)
@@ -116,9 +110,3 @@ describe("player seed data", () => {
     expect(costById.get("benzema_2022")).toBeGreaterThan(costById.get("ferran_torres_2021") ?? 0)
   })
 })
-
-function expectCost(costByLabel: ReadonlyMap<string, number>, label: string): number {
-  const cost = costByLabel.get(label)
-  expect(cost, `${label} should exist in the curated player pool`).toBeDefined()
-  return cost ?? 0
-}

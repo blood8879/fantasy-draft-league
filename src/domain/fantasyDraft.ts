@@ -209,6 +209,8 @@ export function applyPick(
   if (squad === undefined) {
     throw new Error(`Unknown draft club: ${clubId}`)
   }
+  // 같은 선수의 다른 시즌 카드까지 모두 풀에서 제외한다(한 선수는 한 번만 뽑힐 수 있음).
+  const pickedPlayer = playerIdOfCard(cardId)
   return {
     ...state,
     squads: { ...state.squads, [clubId]: setDraftPick(squad, slotId, cardId) },
@@ -222,8 +224,15 @@ export function applyPick(
         cardId,
       },
     ],
-    availableCardIds: state.availableCardIds.filter((id) => id !== cardId),
+    availableCardIds: state.availableCardIds.filter(
+      (id) => id !== cardId && playerIdOfCard(id) !== pickedPlayer,
+    ),
   }
+}
+
+/** 카드 id(`{playerId}_{연도|careerN}`)에서 선수 식별자(playerId)를 떼어낸다. */
+function playerIdOfCard(cardId: string): string {
+  return cardId.replace(/_(\d{4}|career\d+)$/, "")
 }
 
 export function hasPickFrom(state: FantasyDraftState, clubId: string): boolean {
