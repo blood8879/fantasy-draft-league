@@ -157,8 +157,16 @@ function LiveMatch({
     setMinute(FULL_TIME)
   }
 
+  const lastShown = shownEvents.at(-1)
+
   return (
     <section className="live-match">
+      {flash !== undefined && !isComplete && lastShown !== undefined ? (
+        <div aria-hidden="true" className="goal-pop" key={`${latestMinute}-${flash}`}>
+          <span className="goal-pop-title">GOAL!</span>
+          <span className="goal-pop-name">{lastShown.label}</span>
+        </div>
+      ) : null}
       <header className="live-head">
         <p className="eyebrow">{t("match.live", { round: roundText })}</p>
       </header>
@@ -173,7 +181,9 @@ function LiveMatch({
         </div>
         <div className="live-score-wrap">
           <span className="live-score">
-            {homeScore} : {awayScore}
+            <span className="live-score-home">{homeScore}</span>
+            <span className="live-score-sep">:</span>
+            <span className="live-score-away">{awayScore}</span>
           </span>
           <span className="live-clock">{isComplete ? "FT" : `${minute}'`}</span>
         </div>
