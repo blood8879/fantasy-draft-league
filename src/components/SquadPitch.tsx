@@ -1,5 +1,6 @@
 import { cardsById } from "../app/gameStore"
 import { tacticLabel } from "../components/labels"
+import { positionOvr } from "../data/cardFactory"
 import { type DraftState, getSlotForFormation } from "../domain/draft"
 import { formationRows } from "../domain/formations"
 import type { Club } from "../domain/game"
@@ -83,10 +84,15 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
                   data-empty={card === undefined ? "true" : undefined}
                   data-group={slotGroup(slot.label)}
                 >
-                  {card === undefined ? slot.label : card.cost}
+                  {card === undefined
+                    ? slot.label
+                    : positionOvr(card.internalScores, slot.acceptedPositions[0] ?? slot.label)}
                 </div>
                 <div className="pitch-dot-name">
                   {card?.label ?? t("pitch.unnamed")}
+                  {card?.year != null ? (
+                    <span className="pitch-dot-year"> '{String(card.year).slice(2)}</span>
+                  ) : null}
                   {bonus > 0 && cardId !== undefined ? (
                     <span className="pitch-slot-bonus" data-kind={chemKind.get(cardId)}>
                       +{bonus}

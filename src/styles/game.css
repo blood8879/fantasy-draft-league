@@ -904,6 +904,12 @@
   white-space: nowrap;
 }
 
+.pitch-dot-year {
+  color: var(--mut);
+  font-size: 9px;
+  font-weight: 600;
+}
+
 .pitch-slot-bonus {
   color: #2e8b3f;
   font-size: 8.5px;
