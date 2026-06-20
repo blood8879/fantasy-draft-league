@@ -14,14 +14,14 @@ type StandingsTableProps = {
 
 type FormResult = "W" | "D" | "L"
 
-/** 한 구단의 최근 3경기 폼(최신이 오른쪽). */
+/** 한 구단의 최근 5경기 폼(최신이 오른쪽). */
 function recentForm(fixtures: readonly Fixture[], clubId: string): readonly FormResult[] {
   const played = fixtures
     .filter((fixture) => fixture.result !== undefined)
     .filter((fixture) => fixture.homeId === clubId || fixture.awayId === clubId)
     .slice()
     .sort((left, right) => left.round - right.round)
-    .slice(-3)
+    .slice(-5)
   return played.map((fixture) => {
     if (fixture.result === undefined) {
       return "D"

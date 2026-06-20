@@ -1448,7 +1448,7 @@
 
 .standings-head {
   display: grid;
-  grid-template-columns: 26px 1fr 30px 34px 52px;
+  grid-template-columns: 24px 1fr 26px 32px 92px;
   gap: 4px;
   padding: 0 10px 8px;
   font-size: 9.5px;
@@ -1470,7 +1470,7 @@
 .standings-row {
   position: relative;
   display: grid;
-  grid-template-columns: 26px 1fr 30px 34px 52px;
+  grid-template-columns: 24px 1fr 26px 32px 92px;
   gap: 4px;
   align-items: center;
   padding: 8px 10px;
