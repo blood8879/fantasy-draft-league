@@ -89,6 +89,7 @@ export const ko: Readonly<Record<string, string>> = {
   "season.fast5": "5라운드 빠르게",
   "season.simEnd": "시즌 끝까지 시뮬",
   "season.standings": "리그 순위표",
+  "season.form": "폼",
   "season.bracket": "대진표",
   "season.tbd": "대진 미정",
   "season.scoutNext": "다음 상대 · {club}",

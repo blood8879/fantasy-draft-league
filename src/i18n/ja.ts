@@ -90,6 +90,7 @@ export const ja: Readonly<Record<string, string>> = {
   "season.fast5": "5ラウンド早送り",
   "season.simEnd": "シーズン終了までシミュレート",
   "season.standings": "リーグ順位表",
+  "season.form": "フォーム",
   "season.bracket": "トーナメント表",
   "season.tbd": "対戦未定",
   "season.scoutNext": "次の対戦相手 · {club}",

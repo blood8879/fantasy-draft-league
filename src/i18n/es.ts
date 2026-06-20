@@ -90,6 +90,7 @@ export const es: Readonly<Record<string, string>> = {
   "season.fast5": "Avanzar 5 rondas",
   "season.simEnd": "Simular hasta el final",
   "season.standings": "Tabla de Liga",
+  "season.form": "Forma",
   "season.bracket": "Cuadro",
   "season.tbd": "Por definir",
   "season.scoutNext": "Próximo rival · {club}",

@@ -98,6 +98,7 @@ export const en: Readonly<Record<string, string>> = {
   "season.fast5": "Fast-forward 5 rounds",
   "season.simEnd": "Simulate to season end",
   "season.standings": "League Table",
+  "season.form": "Form",
   "season.bracket": "Bracket",
   "season.tbd": "TBD",
   "season.scoutNext": "Next opponent · {club}",
