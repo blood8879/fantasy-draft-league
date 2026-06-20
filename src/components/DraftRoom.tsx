@@ -1,4 +1,6 @@
+import { Film } from "lucide-react"
 import { useMemo, useState } from "react"
+import { useAds } from "../ads/useAds"
 import { type GameAction, type GameState, cardsById, draftPool } from "../app/gameStore"
 import { modeLabel } from "../components/labels"
 import type { PlayerCard } from "../data/schema"
@@ -29,10 +31,26 @@ type DraftRoomProps = {
   readonly dispatch: (action: GameAction) => void
 }
 
+/** 리롤 시 보상 광고가 뜰 확률(나머지는 광고 없이 즉시 리롤). */
+const REROLL_AD_CHANCE = 0.35
+
 export function DraftRoom({ state, dispatch }: DraftRoomProps) {
   const { t } = useI18n()
+  const { showRewarded, pendingAction } = useAds()
   const [scoutClubId, setScoutClubId] = useState<string | undefined>(undefined)
   const [poolOpen, setPoolOpen] = useState(false)
+
+  // 리롤은 매번이 아니라 일정 확률로만 보상 광고를 띄운다(나머지는 광고 없이 즉시 리롤).
+  async function handleReroll() {
+    if (Math.random() < REROLL_AD_CHANCE) {
+      const outcome = await showRewarded("reroll_candidates")
+      if (outcome.rewarded) {
+        dispatch({ type: "REROLL_CANDIDATES" })
+      }
+      return
+    }
+    dispatch({ type: "REROLL_CANDIDATES" })
+  }
 
   // 우리 팀 능력치 + 리그 평균(픽이 있는 전 구단). 픽마다 draft가 갱신되어 자동 재계산된다.
   const teamView = useMemo(() => {
@@ -260,12 +278,19 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                       {t("draft.rerollFree")}
                     </button>
                   ) : (
-                    <RewardedAdButton
-                      action="reroll_candidates"
-                      onReward={() => dispatch({ type: "REROLL_CANDIDATES" })}
+                    <button
+                      className="rewarded-ad-button"
+                      disabled={pendingAction !== undefined}
+                      onClick={handleReroll}
+                      type="button"
                     >
-                      {t("draft.reroll")}
-                    </RewardedAdButton>
+                      <Film aria-hidden="true" size={15} />
+                      <span>
+                        {pendingAction === "reroll_candidates"
+                          ? t("ad.playing")
+                          : t("draft.reroll")}
+                      </span>
+                    </button>
                   )}
                 </div>
                 {state.pickError !== undefined ? (
