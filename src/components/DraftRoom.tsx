@@ -489,7 +489,7 @@ function CandidateCard({
         <div className="cc-name">{card.label}</div>
         <div className="cc-pos">
           {card.positions.join("/")}
-          {card.year != null ? ` · '${String(card.year).slice(2)}` : ""}
+          {card.year != null ? <span className="cc-year">{card.year}</span> : null}
         </div>
         <div className="cc-cta">
           {slotLabel === undefined ? t("draft.pick") : t("draft.pickTo", { slot: slotLabel })} →

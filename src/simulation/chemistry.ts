@@ -8,6 +8,7 @@ export type ChemistryKind =
   | "underdog"
   | "rivalry"
   | "region"
+  | "era"
 
 /**
  * 활성화된 케미 한 건. label은 표시용 원본 값:
@@ -145,11 +146,33 @@ export function computeChemistry(inputs: readonly ChemistryInput[]): ChemistryRe
     if (cards.length < 2) {
       continue
     }
-    const bonus = cards.length >= 4 ? 4 : cards.length >= 3 ? 3 : 2
+    // 시즌 카드 시스템에서 같은 클럽을 모으긴 더 어려우므로 가중치를 높였다.
+    const bonus = cards.length >= 4 ? 6 : cards.length >= 3 ? 5 : 3
     for (const card of cards) {
       addBonus(bonusByCardId, kindBonus, card.id, bonus, "club")
     }
     links.push({ kind: "club", label: club, count: cards.length, bonus })
+  }
+
+  // 2b) 동일 연도 케미: 같은 시즌(year)의 선수를 모으면 큰 보너스(모으기 매우 어려움).
+  const byYear = new Map<number, PlayerCard[]>()
+  for (const { card } of inputs) {
+    if (card.year === null || card.year === undefined) {
+      continue
+    }
+    const list = byYear.get(card.year) ?? []
+    list.push(card)
+    byYear.set(card.year, list)
+  }
+  for (const [year, cards] of byYear) {
+    if (cards.length < 2) {
+      continue
+    }
+    const bonus = cards.length >= 4 ? 7 : cards.length >= 3 ? 5 : 3
+    for (const card of cards) {
+      addBonus(bonusByCardId, kindBonus, card.id, bonus, "era")
+    }
+    links.push({ kind: "era", label: String(year), count: cards.length, bonus })
   }
 
   // 3) 리그 케미: 같은 리그 6명↑(흔하니 약하게). "Other"는 제외.

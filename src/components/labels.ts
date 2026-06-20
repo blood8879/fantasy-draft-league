@@ -37,6 +37,7 @@ export function chemistryLinkText(link: ChemistryLink, t: I18nValue["t"]): strin
     case "nation":
     case "club":
     case "league":
+    case "era":
       return `${link.label} ×${link.count}`
     case "line":
       return `${t(`chem.line.${link.label}`)} ×${link.count}`

@@ -937,6 +937,9 @@
 .pitch-slot-bonus[data-kind="region"] {
   color: #b58a1e;
 }
+.pitch-slot-bonus[data-kind="era"] {
+  color: #2ec5c5;
+}
 .pitch-slot-bonus[data-kind="underdog"] {
   color: #be3c3c;
 }
@@ -1032,6 +1035,94 @@
   text-align: right;
 }
 
+/* 풀 보기: 선수별 그룹 + 연도 펼치기 */
+.pool-player {
+  border-bottom: 1px solid var(--line);
+}
+
+.pool-player-head {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1.1fr) minmax(0, 1fr) auto 32px 12px;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 4px;
+  border: none;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.pool-player-head:hover .pool-browser-name {
+  color: var(--lime);
+}
+
+.pool-player-seasons {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--mut);
+}
+
+.pool-player-caret {
+  font-size: 15px;
+  color: var(--mut);
+  transition: transform 0.15s ease;
+}
+
+.pool-player-caret[data-open="true"] {
+  transform: rotate(90deg);
+  color: var(--lime);
+}
+
+.pool-seasons {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 2px 0 4px 20px;
+  display: grid;
+  gap: 4px;
+}
+
+.pool-season-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.pool-season-year {
+  font-family: var(--disp);
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.pool-season-club {
+  overflow: hidden;
+  color: var(--mut);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pool-season-cost {
+  font-family: var(--disp);
+  font-size: 16px;
+  color: var(--slate);
+}
+
+.pool-season-cost[data-rarity="legend"] {
+  color: var(--gold);
+}
+.pool-season-cost[data-rarity="epic"] {
+  color: var(--violet);
+}
+.pool-season-cost[data-rarity="rare"] {
+  color: var(--cyan);
+}
+.pool-season-cost[data-rarity="common"] {
+  color: var(--slate);
+}
+
 /* ---------- 랜덤 후보 패널 ---------- */
 
 .candidate-panel {
@@ -1094,6 +1185,42 @@
 }
 .candidate-card[data-rarity="common"] {
   --rar: var(--slate);
+}
+
+/* 등급이 높을수록 더 영롱하게: common은 밋밋, legend는 강한 글로우+샤인 */
+.candidate-card[data-rarity="common"] {
+  box-shadow: 0 6px 16px -12px rgba(0, 0, 0, 0.5);
+}
+.candidate-card[data-rarity="common"] .cc-shine {
+  display: none;
+}
+.candidate-card[data-rarity="common"] .cc-overlay {
+  opacity: 0.06;
+}
+
+.candidate-card[data-rarity="rare"] .cc-shine {
+  opacity: 0.55;
+}
+
+.candidate-card[data-rarity="epic"] {
+  box-shadow: 0 0 0 1px var(--rar) inset, 0 12px 28px -12px var(--rar);
+}
+.candidate-card[data-rarity="epic"] .cc-overlay {
+  opacity: 0.22;
+}
+
+.candidate-card[data-rarity="legend"] {
+  box-shadow:
+    0 0 0 1px var(--rar) inset,
+    0 0 22px -2px var(--rar),
+    0 14px 30px -10px var(--rar);
+}
+.candidate-card[data-rarity="legend"] .cc-overlay {
+  opacity: 0.32;
+}
+.candidate-card[data-rarity="legend"] .cc-shine {
+  width: 45%;
+  animation-duration: 2.2s;
 }
 
 .candidate-card:active {
@@ -1181,6 +1308,18 @@
   margin-top: 4px;
   font-size: 10.5px;
   color: var(--mut);
+}
+
+.cc-year {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(205, 242, 74, 0.14);
+  color: var(--lime);
+  font-family: var(--disp);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  vertical-align: 1px;
 }
 
 .cc-cta {
@@ -2551,6 +2690,11 @@
 .chem-badge[data-kind="region"] {
   border-color: rgba(181, 138, 30, 0.55);
   color: #b58a1e;
+}
+
+.chem-badge[data-kind="era"] {
+  border-color: rgba(46, 197, 197, 0.5);
+  color: #2ec5c5;
 }
 
 .chem-badge[data-kind="underdog"] {

@@ -11,9 +11,15 @@ type PoolBrowserProps = {
   readonly onClose: () => void
 }
 
+type PlayerGroup = {
+  readonly playerId: string
+  readonly best: PlayerCard
+  readonly seasons: readonly PlayerCard[]
+}
+
 /**
- * 현재 남아있는(아직 아무도 지명 안 한) 선수 풀을, 내 빈 자리에 들어갈 수 있는 포지션별로
- * 보여준다. 유저가 "이 풀에 원하는 선수가 있는지" 확인하고 리롤 여부를 판단하게 한다.
+ * 남아있는 선수 풀을 내 빈 자리 포지션별로 보여준다. 같은 선수의 여러 시즌 카드는
+ * 한 줄로 묶고, 이름을 누르면 연도별 카드(능력치/등급)가 펼쳐진다.
  */
 export function PoolBrowser({ draft, userSquad, onClose }: PoolBrowserProps) {
   const { t } = useI18n()
@@ -24,6 +30,7 @@ export function PoolBrowser({ draft, userSquad, onClose }: PoolBrowserProps) {
 
   const [position, setPosition] = useState<string>(openPositions[0] ?? "GK")
   const [search, setSearch] = useState("")
+  const [expanded, setExpanded] = useState<string | undefined>(undefined)
 
   const available = useMemo(
     () =>
@@ -36,19 +43,39 @@ export function PoolBrowser({ draft, userSquad, onClose }: PoolBrowserProps) {
 
   const normalized = search.trim().toLowerCase()
   const searching = normalized !== ""
-  const list = available
-    // 검색 중에는 전체 풀에서 찾고, 평소에는 선택한 포지션 탭만 보여준다
-    .filter((card) => searching || card.positions.includes(position))
-    .filter(
-      (card) =>
+
+  // 카드들을 선수(playerId)별로 묶는다.
+  const groups = useMemo<readonly PlayerGroup[]>(() => {
+    const map = new Map<string, PlayerCard[]>()
+    for (const card of available) {
+      const inPosition = searching || card.positions.includes(position)
+      const matchesSearch =
         !searching ||
         card.label.toLowerCase().includes(normalized) ||
-        card.country.toLowerCase().includes(normalized),
-    )
-    .sort((left, right) => right.cost - left.cost)
+        card.country.toLowerCase().includes(normalized)
+      if (!inPosition || !matchesSearch) {
+        continue
+      }
+      const bucket = map.get(card.playerId) ?? []
+      bucket.push(card)
+      map.set(card.playerId, bucket)
+    }
+    return Array.from(map.values())
+      .map((cards) => {
+        const best = cards.reduce((top, card) => (card.cost > top.cost ? card : top))
+        const seasons = [...cards].sort((left, right) => (left.year ?? 0) - (right.year ?? 0))
+        return { playerId: best.playerId, best, seasons }
+      })
+      .sort((left, right) => right.best.cost - left.best.cost)
+  }, [available, position, searching, normalized])
 
+  const uniqueCount = useMemo(
+    () => new Set(available.map((card) => card.playerId)).size,
+    [available],
+  )
   const countByPosition = (pos: string): number =>
-    available.filter((card) => card.positions.includes(pos)).length
+    new Set(available.filter((card) => card.positions.includes(pos)).map((card) => card.playerId))
+      .size
 
   return (
     <div
@@ -71,7 +98,7 @@ export function PoolBrowser({ draft, userSquad, onClose }: PoolBrowserProps) {
         </button>
         <h3 className="pool-modal-title">
           {t("pool.title")}{" "}
-          <span className="candidate-count">{t("pool.count", { count: available.length })}</span>
+          <span className="candidate-count">{t("pool.count", { count: uniqueCount })}</span>
         </h3>
         <p className="pool-modal-hint">{t("pool.hint")}</p>
 
@@ -98,25 +125,61 @@ export function PoolBrowser({ draft, userSquad, onClose }: PoolBrowserProps) {
         />
 
         <ul className="pool-browser-list">
-          {list.map((card) => (
-            <PoolRow card={card} key={card.id} />
+          {groups.map((group) => (
+            <PoolPlayerRow
+              expanded={expanded === group.playerId}
+              group={group}
+              key={group.playerId}
+              onToggle={() =>
+                setExpanded((current) => (current === group.playerId ? undefined : group.playerId))
+              }
+            />
           ))}
-          {list.length === 0 ? <li className="pick-log-empty">{t("pool.empty")}</li> : null}
+          {groups.length === 0 ? <li className="pick-log-empty">{t("pool.empty")}</li> : null}
         </ul>
       </div>
     </div>
   )
 }
 
-function PoolRow({ card }: { readonly card: PlayerCard }) {
+function PoolPlayerRow({
+  group,
+  expanded,
+  onToggle,
+}: {
+  readonly group: PlayerGroup
+  readonly expanded: boolean
+  readonly onToggle: () => void
+}) {
+  const { best, seasons } = group
+  const multi = seasons.length > 1
   return (
-    <li className="pool-browser-row">
-      <span className={`rarity-dot rarity-${card.rarity.toLowerCase()}`} />
-      <span className="pool-browser-name">{card.label}</span>
-      <span className="pool-browser-meta">
-        {card.positions.join("/")} · {card.country}
-      </span>
-      <span className="pool-browser-cost">{card.cost}</span>
+    <li className="pool-player">
+      <button className="pool-player-head" onClick={onToggle} type="button">
+        <span className={`rarity-dot rarity-${best.rarity.toLowerCase()}`} />
+        <span className="pool-browser-name">{best.label}</span>
+        <span className="pool-browser-meta">
+          {best.positions.join("/")} · {best.country}
+        </span>
+        {multi ? <span className="pool-player-seasons">{seasons.length}시즌</span> : null}
+        <span className="pool-browser-cost">{best.cost}</span>
+        <span className="pool-player-caret" data-open={expanded ? "true" : undefined}>
+          ›
+        </span>
+      </button>
+      {expanded ? (
+        <ul className="pool-seasons">
+          {seasons.map((card) => (
+            <li className="pool-season-row" key={card.id}>
+              <span className="pool-season-year">{card.year ?? "—"}</span>
+              <span className="pool-season-club">{card.club ?? ""}</span>
+              <span className="pool-season-cost" data-rarity={card.rarity.toLowerCase()}>
+                {card.cost}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </li>
   )
 }
