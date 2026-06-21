@@ -1,5 +1,5 @@
 import { createPlayerCardWithScores, positionOvr } from "./cardFactory"
-import { type CuratedTier, isCuratedTier, tierRarity } from "./curatedPlayerRatings"
+import { type CuratedTier, tierRarity } from "./curatedPlayerRatings"
 import seasonsData from "./curatedPlayerSeasons.json"
 import type { Player, PlayerCard, RatingAxis } from "./schema"
 
@@ -57,8 +57,27 @@ function toScores(skills: readonly number[]): Record<RatingAxis, number> {
   }
 }
 
-function resolveTier(tier: string): CuratedTier {
-  return isCuratedTier(tier) ? tier : "regular"
+/** 시즌 OVR로 등급(tier)을 일관되게 산출한다(에이전트가 준 tier 인플레 방지). */
+function ovrToTier(ovr: number): CuratedTier {
+  if (ovr >= 96) {
+    return "goat"
+  }
+  if (ovr >= 92) {
+    return "icon"
+  }
+  if (ovr >= 87) {
+    return "legend"
+  }
+  if (ovr >= 81) {
+    return "elite"
+  }
+  if (ovr >= 74) {
+    return "strong"
+  }
+  if (ovr >= 67) {
+    return "regular"
+  }
+  return "squad"
 }
 
 function buildCards(): readonly PlayerCard[] {
@@ -69,7 +88,8 @@ function buildCards(): readonly PlayerCard[] {
     const role = roleByPosition[entry.mainPos] ?? "Player"
     entry.seasons.forEach((season, index) => {
       const scores = toScores(season.skills)
-      const tier = resolveTier(season.tier)
+      const cost = positionOvr(scores, entry.mainPos)
+      const tier = ovrToTier(cost)
       const idSuffix = season.year === null ? `career${index}` : String(season.year)
       cards.push(
         createPlayerCardWithScores(
@@ -86,7 +106,7 @@ function buildCards(): readonly PlayerCard[] {
             positions: entry.positions,
             roles: [role],
             tags: ["curated_pool", entry.legend ? "legend_card" : "season_card"],
-            cost: positionOvr(scores, entry.mainPos),
+            cost,
             rarity: tierRarity(tier),
             ratingRationale: `Curated ${entry.legend ? "career-peak" : `${season.year} season`} card for ${name} (${entry.mainPos}); attributes are independently estimated from broadly known public reputation, no photo/crest/official mark asserted.`,
             ratingReviewer: "curated-seasons-v1",
