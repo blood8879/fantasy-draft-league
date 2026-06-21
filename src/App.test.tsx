@@ -26,7 +26,8 @@ function completeDraft(): void {
       continue
     }
     // 유저 차례: 제시된 후보 카드 중 첫 장을 지명
-    const candidate = document.querySelector<HTMLButtonElement>(".candidate-card")
+    // 후보 카드의 포지션 지명 버튼(멀티포지션이면 여러 개 중 첫 번째)을 누른다
+    const candidate = document.querySelector<HTMLButtonElement>(".candidate-card .cc-cta")
     if (candidate !== null) {
       fireEvent.click(candidate)
       continue

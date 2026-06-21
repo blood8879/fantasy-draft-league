@@ -3,8 +3,9 @@ import { useMemo, useState } from "react"
 import { useAds } from "../ads/useAds"
 import { type GameAction, type GameState, cardsById, draftPool } from "../app/gameStore"
 import { modeLabel } from "../components/labels"
+import { positionOvr } from "../data/cardFactory"
 import type { PlayerCard } from "../data/schema"
-import { getSlotsForFormation } from "../domain/draft"
+import { getOpenSlots, getSlotsForFormation } from "../domain/draft"
 import {
   SQUAD_SIZE,
   drawCandidates,
@@ -14,7 +15,6 @@ import {
   getUpcomingClubIds,
   hasPickFrom,
   isFantasyDraftComplete,
-  placeCardInBestSlot,
 } from "../domain/fantasyDraft"
 import { USER_CLUB_ID } from "../domain/game"
 import { type I18nValue, useI18n } from "../i18n"
@@ -97,6 +97,10 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
     : []
   // 후보가 하나도 없으면(남은 빈 자리에 맞는 카드가 풀에 소진) 광고 없이 다시 뽑게 한다.
   const candidatesEmpty = isUserTurn && candidates.length === 0
+  // 내 빈 자리가 받을 수 있는 포지션(후보 카드의 멀티포지션 선택지에 쓰임)
+  const openPositions = Array.from(
+    new Set(getOpenSlots(userSquad).flatMap((slot) => slot.acceptedPositions)),
+  )
 
   const currentRound = getCurrentRound(draft)
   const shownRound =
@@ -296,8 +300,10 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                       <CandidateCard
                         card={card}
                         key={card.id}
-                        onPick={() => dispatch({ type: "USER_PICK", cardId: card.id })}
-                        slotLabel={placeCardInBestSlot(userSquad, card)?.label}
+                        onPick={(position) =>
+                          dispatch({ type: "USER_PICK", cardId: card.id, position })
+                        }
+                        positions={card.positions.filter((pos) => openPositions.includes(pos))}
                         t={t}
                       />
                     ))}
@@ -457,22 +463,19 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
 
 function CandidateCard({
   card,
+  positions,
   onPick,
-  slotLabel,
   t,
 }: {
   readonly card: PlayerCard
-  readonly onPick: () => void
-  readonly slotLabel: string | undefined
+  readonly positions: readonly string[]
+  readonly onPick: (position: string) => void
   readonly t: I18nValue["t"]
 }) {
+  // 멀티포지션: 내 빈 자리에 들어갈 수 있는 포지션이 여러 개면 각각 선택할 수 있게 한다.
+  const choices = positions.length > 0 ? positions : card.positions
   return (
-    <button
-      className="candidate-card"
-      data-rarity={card.rarity.toLowerCase()}
-      onClick={onPick}
-      type="button"
-    >
+    <div className="candidate-card" data-rarity={card.rarity.toLowerCase()}>
       <span aria-hidden="true" className="cc-overlay" />
       <span aria-hidden="true" className="cc-shine" />
       <div className="cc-top">
@@ -491,11 +494,16 @@ function CandidateCard({
           {card.positions.join("/")}
           {card.year != null ? <span className="cc-year">{card.year}</span> : null}
         </div>
-        <div className="cc-cta">
-          {slotLabel === undefined ? t("draft.pick") : t("draft.pickTo", { slot: slotLabel })} →
+        <div className="cc-ctas">
+          {choices.map((pos) => (
+            <button className="cc-cta" key={pos} onClick={() => onPick(pos)} type="button">
+              <span className="cc-cta-label">{t("draft.pickTo", { slot: pos })}</span>
+              <span className="cc-cta-ovr">{positionOvr(card.internalScores, pos)}</span>
+            </button>
+          ))}
         </div>
       </div>
-    </button>
+    </div>
   )
 }
 

@@ -69,7 +69,7 @@ export type GameAction =
       readonly seed: string
     }
   | { readonly type: "AI_PICK_STEP" }
-  | { readonly type: "USER_PICK"; readonly cardId: string }
+  | { readonly type: "USER_PICK"; readonly cardId: string; readonly position?: string }
   | { readonly type: "REROLL_CANDIDATES" }
   | { readonly type: "UNDO_LAST_USER_PICK" }
   | { readonly type: "FAST_FORWARD_PICKS" }
@@ -161,7 +161,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const squad = state.draft.squads[USER_CLUB_ID]
       const card = cardsById.get(action.cardId)
       const slot =
-        squad === undefined || card === undefined ? undefined : placeCardInBestSlot(squad, card)
+        squad === undefined || card === undefined
+          ? undefined
+          : placeCardInBestSlot(squad, card, action.position)
       if (slot === undefined) {
         return { ...state, pickError: "이 카드를 배치할 빈 자리가 없습니다" }
       }

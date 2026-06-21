@@ -107,8 +107,19 @@ export function getUpcomingClubIds(state: FantasyDraftState, count: number): rea
 }
 
 /** 카드를 배치할 수 있는 빈 슬롯(포메이션 순서상 첫 자리). 없으면 undefined */
-export function placeCardInBestSlot(squad: DraftState, card: PlayerCard): DraftSlot | undefined {
-  return getOpenSlots(squad).find((slot) => cardFitsSlot(card, slot))
+export function placeCardInBestSlot(
+  squad: DraftState,
+  card: PlayerCard,
+  preferredPosition?: string,
+): DraftSlot | undefined {
+  const fitting = getOpenSlots(squad).filter((slot) => cardFitsSlot(card, slot))
+  if (preferredPosition !== undefined) {
+    const preferred = fitting.find((slot) => slot.acceptedPositions.includes(preferredPosition))
+    if (preferred !== undefined) {
+      return preferred
+    }
+  }
+  return fitting[0]
 }
 
 /**
