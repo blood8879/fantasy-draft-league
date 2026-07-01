@@ -109,6 +109,29 @@ export const ko: Readonly<Record<string, string>> = {
   "axis.defensiveStability": "수비 안정",
   "axis.transition": "속도",
 
+  // attributes (14 derived)
+  "attr.finishing": "결정력",
+  "attr.longShots": "중거리 슛",
+  "attr.passing": "패스",
+  "attr.dribbling": "드리블",
+  "attr.firstTouch": "퍼스트 터치",
+  "attr.tackling": "태클",
+  "attr.marking": "마크",
+  "attr.positioning": "위치 선정",
+  "attr.vision": "시야",
+  "attr.composure": "침착성",
+  "attr.workRate": "활동량",
+  "attr.pace": "스피드",
+  "attr.stamina": "체력",
+  "attr.strength": "몸싸움",
+
+  // position fit grades
+  "fit.natural": "주포지션",
+  "fit.accomplished": "능숙",
+  "fit.competent": "무난",
+  "fit.awkward": "어색",
+  "fit.ineffectual": "부적합",
+
   "radar.title": "스쿼드 능력치",
   "radar.you": "우리 팀",
   "radar.leagueAvg": "리그 평균",
@@ -128,6 +151,26 @@ export const ko: Readonly<Record<string, string>> = {
   "chem.region.lowlands": "저지대 동맹",
   "chem.region.scandinavia": "북유럽 바이킹",
   "chem.region.balkans": "발칸의 불꽃",
+  "chem.grade.bronze": "Bronze",
+  "chem.grade.silver": "Silver",
+  "chem.grade.gold": "Gold",
+  "chem.grade.diamond": "Diamond",
+  "chem.detail.allStats": "묶인 선수 {count}명 전원의 모든 능력치 +{bonus}",
+  "chem.detail.members": "적용 선수",
+  "chem.desc.nation":
+    "같은 국가 선수가 4명 이상 모이면 발동합니다. 인원이 많을수록(6명·8명) 보너스가 커집니다.",
+  "chem.desc.club":
+    "같은 클럽 출신이 2명 이상 모이면 발동합니다. 모으기 어려운 만큼 적은 인원에도 보너스가 큽니다.",
+  "chem.desc.league":
+    "같은 리그 선수가 6명 이상 모이면 발동합니다. 흔한 조합이라 보너스는 작은 편입니다.",
+  "chem.desc.line":
+    "같은 라인(수비·중원·공격) 3명이 모두 같은 국적이면 라인 연계 보너스가 붙습니다.",
+  "chem.desc.era":
+    "같은 시즌(연도) 카드를 2장 이상 모으면 발동합니다. 모으기 가장 어려운 만큼 보너스가 큽니다.",
+  "chem.desc.rivalry": "사이가 안 좋은 두 라이벌 국가가 함께 뛰면 경쟁심으로 시너지를 냅니다.",
+  "chem.desc.region":
+    "역사·문화적으로 가까운 같은 권역 국가가 2개국 이상 모이면 우호 보너스가 붙습니다.",
+  "chem.desc.underdog": "팀 평균 전력이 낮으면(언더독) 투지 보너스로 전원이 소폭 강해집니다.",
 
   "match.result": "{round} 결과",
   "match.live": "{round} · 라이브",
@@ -177,9 +220,23 @@ export const ko: Readonly<Record<string, string>> = {
   "champion.userRankLeague": "내 구단은 최종 {rank}위로 마쳤습니다.",
   "champion.userRankCup": "내 구단은 {round}에서 멈췄습니다.",
 
+  // 데일리 도전
+  "daily.entry": "오늘의 도전",
+  "daily.desc": "매일 같은 시드, 같은 조건으로 컵 스쿼드를 드래프트해 최고 점수에 도전하세요.",
+  "daily.title": "데일리 결과",
+  "daily.score": "종합 점수",
+  "daily.best": "개인 최고",
+  "daily.newRecord": "신기록!",
+  "daily.attempts": "시도 {n}회",
+  "daily.rank": "순위",
+  "daily.points": "승점",
+  "daily.gd": "득실차",
+  "daily.achBonus": "업적 보너스",
+
   "unit.goals": "{n}골",
   "draft.aiPickingBody": "AI 감독이 후보 카드 중에서 선수를 고르고 있습니다.",
   "ad.playing": "광고 재생 중…",
+  "ad.capped": "광고 한도에 도달했어요. 잠시 후 다시 시도해 주세요.",
 
   "share.button": "결과 공유하기",
   "share.working": "이미지 만드는 중…",

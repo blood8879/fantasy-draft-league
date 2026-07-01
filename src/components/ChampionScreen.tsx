@@ -1,6 +1,8 @@
 import { Trophy } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { type CommitResult, commitDailyResult } from "../app/dailyStore"
 import { type GameAction, type GameState, cardsById, draftPool } from "../app/gameStore"
+import { buildPickLog, computeRunScore } from "../app/runScore"
 import { computeUserAchievements } from "../domain/achievements"
 import { buildGoalkeepers, computeStandings, getChampionId } from "../domain/competition"
 import { USER_CLUB_ID } from "../domain/game"
@@ -20,6 +22,25 @@ type ChampionScreenProps = {
 export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
   const { t, locale } = useI18n()
   const [scoutClubId, setScoutClubId] = useState<string | undefined>(undefined)
+  const [dailyCommit, setDailyCommit] = useState<CommitResult | undefined>(undefined)
+  const dailyCommittedRef = useRef(false)
+
+  // 데일리 도전: champion 도달 시 PB에 1회만 반영한다(마운트당 중복 가드).
+  useEffect(() => {
+    if (dailyCommittedRef.current || !state.isDaily) {
+      return
+    }
+    const comp = state.competition
+    const draft = state.draft
+    if (comp === undefined || draft === undefined) {
+      return
+    }
+    dailyCommittedRef.current = true
+    const clubIds = state.clubs.map((club) => club.id)
+    const score = computeRunScore(comp, clubIds, USER_CLUB_ID)
+    const pickLog = buildPickLog(draft, state.seasonSeed, state.mode, USER_CLUB_ID)
+    setDailyCommit(commitDailyResult(state.seasonSeed, state.mode, score, pickLog))
+  }, [state.isDaily, state.seasonSeed, state.mode, state.competition, state.draft, state.clubs])
   const competition = state.competition
   if (competition === undefined) {
     return null
@@ -97,6 +118,13 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
             return [createTeamProfile(squad, draftPool, club.tactic)]
           }),
         )
+  const dailyScore = state.isDaily
+    ? computeRunScore(
+        competition,
+        state.clubs.map((club) => club.id),
+        USER_CLUB_ID,
+      )
+    : undefined
 
   return (
     <section className="champion-screen">
@@ -116,6 +144,50 @@ export function ChampionScreen({ state, dispatch }: ChampionScreenProps) {
               })}
         </p>
       </header>
+
+      {dailyScore !== undefined ? (
+        <div className="daily-result">
+          <div className="daily-result-head">
+            <h3>{t("daily.title")}</h3>
+            {dailyCommit?.isNewRecord ? (
+              <span className="daily-badge">{t("daily.newRecord")}</span>
+            ) : null}
+          </div>
+          <div className="daily-score-row">
+            <div className="daily-score-main">
+              <span className="daily-score-value">{dailyScore.total}</span>
+              <span className="daily-score-label">{t("daily.score")}</span>
+            </div>
+            <div className="daily-score-best">
+              <span className="daily-score-value">
+                {dailyCommit?.bestTotal ?? dailyScore.total}
+              </span>
+              <span className="daily-score-label">{t("daily.best")}</span>
+            </div>
+          </div>
+          <ul className="daily-breakdown">
+            <li>
+              <span>{t("daily.rank")}</span>
+              <strong>{dailyScore.breakdown.rank}</strong>
+            </li>
+            <li>
+              <span>{t("daily.points")}</span>
+              <strong>{dailyScore.breakdown.points}</strong>
+            </li>
+            <li>
+              <span>{t("daily.gd")}</span>
+              <strong>{dailyScore.breakdown.gd}</strong>
+            </li>
+            <li>
+              <span>{t("daily.achBonus")}</span>
+              <strong>{dailyScore.breakdown.achBonus}</strong>
+            </li>
+          </ul>
+          {dailyCommit !== undefined ? (
+            <p className="daily-attempts">{t("daily.attempts", { n: dailyCommit.attempts })}</p>
+          ) : null}
+        </div>
+      ) : null}
 
       {achievements.length > 0 ? (
         <div className="achievements-strip">

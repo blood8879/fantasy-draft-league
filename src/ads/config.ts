@@ -53,16 +53,20 @@ export function getGameMonetizeId(): string | undefined {
   return env("VITE_GAMEMONETIZE_ID")
 }
 
-/** 결과 공유 시 붙일 게임 링크. 출시 후 Play 스토어 URL로 교체하려면 VITE_SHARE_URL을 넣는다. */
+/** 결과 공유 시 붙일 게임 링크. 기본값은 Play 스토어 페이지. 필요하면 VITE_SHARE_URL로 덮어쓴다. */
 export function getShareUrl(): string {
-  return env("VITE_SHARE_URL") ?? "https://football-draft-sim.vercel.app"
+  return (
+    env("VITE_SHARE_URL") ?? "https://play.google.com/store/apps/details?id=com.legenddraft.league"
+  )
 }
 
-/** 공유 카드에 표시할 짧은 링크(프로토콜 제거). */
+/** 공유 카드에 표시할 짧은 링크 라벨. Play 스토어 URL은 길어서 "Google Play"로 줄인다. */
 export function getShareUrlLabel(): string {
-  return getShareUrl()
-    .replace(/^https?:\/\//, "")
-    .replace(/\/$/, "")
+  const url = getShareUrl()
+  if (url.includes("play.google.com")) {
+    return "Google Play"
+  }
+  return url.replace(/^https?:\/\//, "").replace(/\/$/, "")
 }
 
 /** 실제 광고 ID가 하나라도 주입됐는지 — 프로덕션 빌드 점검용 */

@@ -110,6 +110,29 @@ export const es: Readonly<Record<string, string>> = {
   "axis.defensiveStability": "Defensa",
   "axis.transition": "Velocidad",
 
+  // attributes (14 derived)
+  "attr.finishing": "Definición",
+  "attr.longShots": "Tiros lejanos",
+  "attr.passing": "Pase",
+  "attr.dribbling": "Regate",
+  "attr.firstTouch": "Primer toque",
+  "attr.tackling": "Entradas",
+  "attr.marking": "Marcaje",
+  "attr.positioning": "Posicionamiento",
+  "attr.vision": "Visión",
+  "attr.composure": "Temple",
+  "attr.workRate": "Sacrificio",
+  "attr.pace": "Velocidad",
+  "attr.stamina": "Resistencia",
+  "attr.strength": "Fuerza",
+
+  // position fit grades
+  "fit.natural": "Natural",
+  "fit.accomplished": "Competente",
+  "fit.competent": "Aceptable",
+  "fit.awkward": "Forzado",
+  "fit.ineffectual": "Inservible",
+
   "radar.title": "Valoración del equipo",
   "radar.you": "Tu equipo",
   "radar.leagueAvg": "Media de liga",
@@ -129,6 +152,28 @@ export const es: Readonly<Record<string, string>> = {
   "chem.region.lowlands": "Alianza de Países Bajos",
   "chem.region.scandinavia": "Hermandad Vikinga",
   "chem.region.balkans": "Chispa Balcánica",
+  "chem.grade.bronze": "Bronze",
+  "chem.grade.silver": "Silver",
+  "chem.grade.gold": "Gold",
+  "chem.grade.diamond": "Diamond",
+  "chem.detail.allStats": "Todos los atributos +{bonus} para los {count} jugadores vinculados",
+  "chem.detail.members": "Jugadores potenciados",
+  "chem.desc.nation":
+    "Se activa con 4+ jugadores del mismo país. Cuantos más reúnas (6, 8), mayor será la bonificación.",
+  "chem.desc.club":
+    "Se activa con 2+ jugadores del mismo club. Difícil de reunir, así que incluso grupos pequeños reciben una gran bonificación.",
+  "chem.desc.league":
+    "Se activa con 6+ jugadores de la misma liga. Es una combinación común, así que la bonificación es modesta.",
+  "chem.desc.line":
+    "Cuando 3 jugadores de la misma línea (defensa/medio/ataque) comparten nacionalidad, reciben una bonificación de enlace.",
+  "chem.desc.era":
+    "Se activa con 2+ cartas de la misma temporada (año). La más difícil de reunir, por eso la bonificación es grande.",
+  "chem.desc.rivalry":
+    "Dos naciones rivales jugando juntas generan sinergia por su afán competitivo.",
+  "chem.desc.region":
+    "Cuando se reúnen 2+ naciones de la misma región histórica/cultural, obtienen una bonificación amistosa.",
+  "chem.desc.underdog":
+    "Cuando la valoración media del equipo es baja (underdog), la garra da un pequeño impulso a todos.",
 
   "match.result": "Resultado {round}",
   "match.live": "{round} · EN VIVO",
@@ -178,9 +223,24 @@ export const es: Readonly<Record<string, string>> = {
   "champion.userRankLeague": "Tu club terminó {rank}º.",
   "champion.userRankCup": "Tu club cayó en {round}.",
 
+  // reto diario
+  "daily.entry": "Reto Diario",
+  "daily.desc":
+    "Misma semilla y condiciones cada día: arma un equipo de Copa y supera tu mejor puntuación.",
+  "daily.title": "Resultado Diario",
+  "daily.score": "Puntuación",
+  "daily.best": "Mejor Marca",
+  "daily.newRecord": "¡Nuevo Récord!",
+  "daily.attempts": "{n} intentos",
+  "daily.rank": "Puesto",
+  "daily.points": "Puntos",
+  "daily.gd": "Dif. Goles",
+  "daily.achBonus": "Bono de Logros",
+
   "unit.goals": "{n} goles",
   "draft.aiPickingBody": "El entrenador IA está eligiendo entre las cartas candidatas.",
   "ad.playing": "Reproduciendo anuncio…",
+  "ad.capped": "Has alcanzado el límite de anuncios por ahora. Inténtalo de nuevo en un momento.",
 
   "share.button": "Compartir resultado",
   "share.working": "Creando imagen…",

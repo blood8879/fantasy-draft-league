@@ -1,6 +1,6 @@
 import type { Competition } from "../domain/competition"
 import type { I18nValue, Locale } from "../i18n"
-import type { ChemistryLink } from "../simulation/chemistry"
+import type { ChemistryGrade, ChemistryKind, ChemistryLink } from "../simulation/chemistry"
 
 /** 컵 라운드 이름을 현재 언어로. (결승/준결승/N강) */
 export function cupRoundLabel(competition: Competition, round: number, t: I18nValue["t"]): string {
@@ -50,6 +50,16 @@ export function chemistryLinkText(link: ChemistryLink, t: I18nValue["t"]): strin
     default:
       return link.label
   }
+}
+
+/** 케미 등급 표시 라벨(동/은/금/다이아). */
+export function chemistryGradeLabel(grade: ChemistryGrade, t: I18nValue["t"]): string {
+  return t(`chem.grade.${grade}`)
+}
+
+/** 케미 종류별 설명 문구(상세 패널용). */
+export function chemistryDesc(kind: ChemistryKind, t: I18nValue["t"]): string {
+  return t(`chem.desc.${kind}`)
 }
 
 /** 현재 로케일 기준 순위 서수(1st, 1위, 1位, 1º) */

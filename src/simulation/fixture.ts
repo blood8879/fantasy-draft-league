@@ -1,3 +1,4 @@
+import { deriveAttributes } from "../data/attributes"
 import type { PlayerCard } from "../data/schema"
 import type { DraftState } from "../domain/draft"
 import type { Club } from "../domain/game"
@@ -55,7 +56,7 @@ type SimulateFixtureInput = {
 }
 
 /** 홈 어드밴티지: 홈팀 기대득점(xG)에 더해지는 보너스 */
-const HOME_XG_BONUS = 0.32
+export const HOME_XG_BONUS = 0.32
 
 export function simulateFixture(input: SimulateFixtureInput): FixtureResult {
   const homeProfile = createTeamProfile(input.home.squad, input.cards, input.home.club.tactic)
@@ -147,7 +148,7 @@ function sampleGoals(xg: number, rng: Rng): number {
 }
 
 /** 한 골이 도움 없이 터질(개인 돌파·세트피스 등) 확률 */
-const SOLO_GOAL_CHANCE = 0.28
+export const SOLO_GOAL_CHANCE = 0.28
 
 type RawGoal = Omit<MatchEvent, "minute">
 
@@ -245,7 +246,7 @@ function tallyAssists(events: readonly MatchEvent[], side: "home" | "away"): rea
   return Array.from(counts.entries()).map(([label, count]) => ({ cardId: label, label, count }))
 }
 
-const positionGoalFactor: Readonly<Record<string, number>> = {
+export const positionGoalFactor: Readonly<Record<string, number>> = {
   GK: 0.01,
   CB: 0.16,
   RB: 0.26,
@@ -258,13 +259,22 @@ const positionGoalFactor: Readonly<Record<string, number>> = {
   ST: 1.1,
 }
 
+/** 득점 기여 속성 가중(시뮬 소비). 변경 시 SIM_VERSION 범프 대상. */
+export const SCORER_ATTR_WEIGHTS = { finishing: 0.85, positioning: 0.15 } as const
+/** 도움 기여 속성 가중(시뮬 소비). 변경 시 SIM_VERSION 범프 대상. */
+export const ASSIST_ATTR_WEIGHTS = { vision: 0.5, passing: 0.5 } as const
+
 function scorerWeight(card: PlayerCard): number {
   const factor = Math.max(...card.positions.map((position) => positionGoalFactor[position] ?? 0.4))
-  return Math.max(1, card.internalScores.scoring - 42) * factor
+  const attrs = deriveAttributes(card)
+  const shooting =
+    attrs.finishing * SCORER_ATTR_WEIGHTS.finishing +
+    attrs.positioning * SCORER_ATTR_WEIGHTS.positioning
+  return Math.max(1, shooting - 42) * factor
 }
 
 /** 도움 빈도: 창의성·전진·측면 가담이 높은 선수일수록 어시스트를 많이 만든다 */
-const positionAssistFactor: Readonly<Record<string, number>> = {
+export const positionAssistFactor: Readonly<Record<string, number>> = {
   GK: 0.02,
   CB: 0.2,
   RB: 0.7,
@@ -281,7 +291,9 @@ function assistWeight(card: PlayerCard): number {
   const factor = Math.max(
     ...card.positions.map((position) => positionAssistFactor[position] ?? 0.5),
   )
-  const playmaking = (card.internalScores.creation + card.internalScores.progression) / 2
+  const attrs = deriveAttributes(card)
+  const playmaking =
+    attrs.vision * ASSIST_ATTR_WEIGHTS.vision + attrs.passing * ASSIST_ATTR_WEIGHTS.passing
   return Math.max(1, playmaking - 42) * factor
 }
 

@@ -14,6 +14,7 @@ type HomeScreenProps = {
     formation: FormationType,
     tactic: TacticType,
   ) => void
+  readonly onStartDaily: (clubName: string, formation: FormationType, tactic: TacticType) => void
 }
 
 const modeDescriptionKey: Readonly<Record<GameMode, string>> = {
@@ -26,7 +27,7 @@ const modeNameKey: Readonly<Record<GameMode, string>> = {
   컵: "home.modeCup",
 }
 
-export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
+export function HomeScreen({ hasSave, onResume, onStart, onStartDaily }: HomeScreenProps) {
   const { t, locale, setLocale } = useI18n()
   const [mode, setMode] = useState<GameMode>("리그")
   const [clubName, setClubName] = useState("")
@@ -143,7 +144,15 @@ export function HomeScreen({ hasSave, onResume, onStart }: HomeScreenProps) {
               {t("home.resume")}
             </button>
           ) : null}
+          <button
+            className="ghost-action home-daily"
+            onClick={() => onStartDaily(clubName, formation, tactic)}
+            type="button"
+          >
+            {t("daily.entry")} <span aria-hidden="true">★</span>
+          </button>
         </div>
+        <p className="home-daily-desc">{t("daily.desc")}</p>
       </div>
     </section>
   )

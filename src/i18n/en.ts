@@ -120,6 +120,29 @@ export const en: Readonly<Record<string, string>> = {
   "axis.defensiveStability": "Defense",
   "axis.transition": "Speed",
 
+  // attributes (14 derived)
+  "attr.finishing": "Finishing",
+  "attr.longShots": "Long Shots",
+  "attr.passing": "Passing",
+  "attr.dribbling": "Dribbling",
+  "attr.firstTouch": "First Touch",
+  "attr.tackling": "Tackling",
+  "attr.marking": "Marking",
+  "attr.positioning": "Positioning",
+  "attr.vision": "Vision",
+  "attr.composure": "Composure",
+  "attr.workRate": "Work Rate",
+  "attr.pace": "Pace",
+  "attr.stamina": "Stamina",
+  "attr.strength": "Strength",
+
+  // position fit grades
+  "fit.natural": "Natural",
+  "fit.accomplished": "Accomplished",
+  "fit.competent": "Competent",
+  "fit.awkward": "Awkward",
+  "fit.ineffectual": "Ineffectual",
+
   // radar / chemistry
   "radar.title": "Squad ratings",
   "radar.you": "Your XI",
@@ -140,6 +163,28 @@ export const en: Readonly<Record<string, string>> = {
   "chem.region.lowlands": "Lowland Alliance",
   "chem.region.scandinavia": "Viking Brotherhood",
   "chem.region.balkans": "Balkan Spark",
+  "chem.grade.bronze": "Bronze",
+  "chem.grade.silver": "Silver",
+  "chem.grade.gold": "Gold",
+  "chem.grade.diamond": "Diamond",
+  "chem.detail.allStats": "All attributes +{bonus} for all {count} linked players",
+  "chem.detail.members": "Boosted players",
+  "chem.desc.nation":
+    "Triggers with 4+ players from the same country. The more you stack (6, 8), the bigger the bonus.",
+  "chem.desc.club":
+    "Triggers with 2+ players from the same club. Hard to assemble, so even small groups get a big bonus.",
+  "chem.desc.league":
+    "Triggers with 6+ players from the same league. A common combo, so the bonus is modest.",
+  "chem.desc.line":
+    "When 3 players on the same line (defence/midfield/attack) all share a nationality, they get a link bonus.",
+  "chem.desc.era":
+    "Triggers with 2+ cards from the same season (year). The hardest to collect, so the bonus is large.",
+  "chem.desc.rivalry":
+    "Two bitter rival nations playing together spark synergy through their competitive edge.",
+  "chem.desc.region":
+    "When 2+ nations from the same historic/cultural region gather, they earn a friendly bonus.",
+  "chem.desc.underdog":
+    "When the squad's average rating is low (underdog), grit gives everyone a small boost.",
 
   // match
   "match.result": "{round} result",
@@ -193,10 +238,24 @@ export const en: Readonly<Record<string, string>> = {
   "champion.userRankLeague": "Your club finished {rank}th.",
   "champion.userRankCup": "Your club went out in the {round}.",
 
+  // daily challenge
+  "daily.entry": "Daily Challenge",
+  "daily.desc": "Same seed, same setup every day — draft a Cup squad and chase your best score.",
+  "daily.title": "Daily Result",
+  "daily.score": "Run Score",
+  "daily.best": "Personal Best",
+  "daily.newRecord": "New Record!",
+  "daily.attempts": "{n} attempts",
+  "daily.rank": "Rank",
+  "daily.points": "Points",
+  "daily.gd": "Goal Diff",
+  "daily.achBonus": "Achievement Bonus",
+
   // ranks/units
   "unit.goals": "{n} goals",
   "draft.aiPickingBody": "The AI manager is choosing from candidate cards.",
   "ad.playing": "Playing ad…",
+  "ad.capped": "You've hit the ad limit for now. Please try again in a bit.",
 
   // share
   "share.button": "Share my result",

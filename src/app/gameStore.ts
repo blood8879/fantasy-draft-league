@@ -57,6 +57,8 @@ export type GameState = {
   readonly replayCheckpoint: ReplayCheckpoint | undefined
   /** 현재 지명 차례의 후보 리롤 횟수(광고 보상). 픽이 끝나면 0으로 초기화 */
   readonly rerollNonce: number
+  /** 데일리 도전 모드 여부. true면 보상광고 재경기가 비활성되고 종료 시 PB가 기록된다. */
+  readonly isDaily: boolean
 }
 
 export type GameAction =
@@ -67,6 +69,7 @@ export type GameAction =
       readonly formation: FormationType
       readonly tactic: TacticType
       readonly seed: string
+      readonly isDaily?: boolean
     }
   | { readonly type: "AI_PICK_STEP" }
   | { readonly type: "USER_PICK"; readonly cardId: string; readonly position?: string }
@@ -93,6 +96,7 @@ export const initialGameState: GameState = {
   pickError: undefined,
   replayCheckpoint: undefined,
   rerollNonce: 0,
+  isDaily: false,
 }
 
 function runRound(state: GameState, competition: Competition, seed: string) {
@@ -131,6 +135,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         phase: "draft",
         mode: action.mode,
         seasonSeed: action.seed,
+        isDaily: action.isDaily ?? false,
         clubs,
         draft: createFantasyDraft(clubs, draftPool, action.seed),
       }
@@ -266,7 +271,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
     }
     case "REPLAY_ROUND": {
-      if (state.replayCheckpoint === undefined || state.draft === undefined) {
+      // 데일리 점수 모드에선 보상광고 재경기를 비활성(무결성 보호).
+      if (state.replayCheckpoint === undefined || state.draft === undefined || state.isDaily) {
         return state
       }
       const nonce = state.replayCheckpoint.nonce + 1

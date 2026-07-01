@@ -104,6 +104,7 @@ function buildCards(): readonly PlayerCard[] {
             league: season.league,
             eligibleEra: entry.legend ? "career peak" : String(season.year ?? "season"),
             positions: entry.positions,
+            mainPos: entry.mainPos,
             roles: [role],
             tags: ["curated_pool", entry.legend ? "legend_card" : "season_card"],
             cost,

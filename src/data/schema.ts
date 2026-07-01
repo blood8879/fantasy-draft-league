@@ -20,6 +20,27 @@ export type RatingGrade = (typeof ratingGrades)[number]
 export type Rarity = (typeof rarityValues)[number]
 export type RatingStatus = (typeof ratingStatusValues)[number]
 
+/** FM식 세분 속성 키(8축에서 결정론 파생). 12~16개 범위 내 14개. */
+export const attributeKeys = [
+  "finishing",
+  "longShots",
+  "passing",
+  "dribbling",
+  "firstTouch",
+  "tackling",
+  "marking",
+  "positioning",
+  "vision",
+  "composure",
+  "workRate",
+  "pace",
+  "stamina",
+  "strength",
+] as const
+
+export type AttributeKey = (typeof attributeKeys)[number]
+export type PlayerAttributes = Readonly<Record<AttributeKey, number>>
+
 export type SourceRef = {
   readonly type: "biography" | "statistics" | "career_summary"
   readonly label: string
@@ -48,6 +69,7 @@ export type PlayerCard = {
   readonly league?: string
   readonly eligibleEra: string
   readonly positions: readonly string[]
+  readonly mainPos: string
   readonly roles: readonly string[]
   readonly ratings: Readonly<Record<RatingAxis, RatingGrade>>
   readonly internalScores: Readonly<Record<RatingAxis, number>>
@@ -90,6 +112,7 @@ export const PlayerCardSchema = z.object({
   league: z.string().min(1).optional(),
   eligibleEra: z.string().min(1),
   positions: z.array(z.string().min(1)).min(1),
+  mainPos: z.string().min(1),
   roles: z.array(z.string().min(1)).min(1),
   ratings: RatingSchema,
   internalScores: InternalScoreSchema,

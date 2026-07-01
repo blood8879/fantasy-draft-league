@@ -15,6 +15,7 @@ function card(overrides: Partial<PlayerCard> & { readonly country: string }): Pl
     age: null,
     eligibleEra: "all-time pool",
     positions: ["CM"],
+    mainPos: "CM",
     roles: ["Midfielder"],
     ratings: {
       scoring: "B",
@@ -57,30 +58,40 @@ describe("computeChemistry", () => {
     expect(result.links).toHaveLength(0)
   })
 
-  it("같은 국적 4명이면 국적 케미가 활성화되고 해당 선수에 보너스가 붙는다", () => {
-    const dutch = Array.from({ length: 4 }, () => card({ country: "Netherlands" }))
+  it("같은 국적 5명이면 국적 케미가 활성화되고 해당 선수에 보너스가 붙는다", () => {
+    const dutch = Array.from({ length: 5 }, () => card({ country: "Netherlands" }))
     const result = computeChemistry(dutch.map((c) => input(c)))
     const nation = result.links.find((link) => link.kind === "nation")
     expect(nation?.label).toBe("Netherlands")
-    expect(nation?.count).toBe(4)
+    expect(nation?.count).toBe(5)
     for (const c of dutch) {
       expect(result.bonusByCardId.get(c.id) ?? 0).toBeGreaterThan(0)
     }
     expect(result.score).toBeGreaterThan(75)
   })
 
-  it("국적 3명만으로는 국적 케미가 생기지 않는다", () => {
-    const three = Array.from({ length: 3 }, () => card({ country: "Brazil" }))
-    const result = computeChemistry(three.map((c) => input(c)))
+  it("국적 4명만으로는 국적 케미가 생기지 않는다", () => {
+    const four = Array.from({ length: 4 }, () => card({ country: "Brazil" }))
+    const result = computeChemistry(four.map((c) => input(c)))
     expect(result.links.some((link) => link.kind === "nation")).toBe(false)
   })
 
-  it("같은 클럽 2명이면 클럽 케미가 활성화된다", () => {
+  it("같은 클럽 2명만으로는 클럽 케미가 생기지 않는다", () => {
     const pair = [
       card({ country: "Spain", club: "Barcelona" }),
       card({ country: "Argentina", club: "Barcelona" }),
     ]
     const result = computeChemistry(pair.map((c) => input(c)))
+    expect(result.links.some((link) => link.kind === "club")).toBe(false)
+  })
+
+  it("같은 클럽 3명이면 클럽 케미가 활성화된다", () => {
+    const trio = [
+      card({ country: "Spain", club: "Barcelona" }),
+      card({ country: "Argentina", club: "Barcelona" }),
+      card({ country: "Brazil", club: "Barcelona" }),
+    ]
+    const result = computeChemistry(trio.map((c) => input(c)))
     expect(result.links.some((link) => link.kind === "club" && link.label === "Barcelona")).toBe(
       true,
     )
@@ -97,14 +108,14 @@ describe("computeChemistry", () => {
     expect(result.links.some((link) => link.kind === "underdog")).toBe(true)
   })
 
-  it("카드 보너스는 상한(+12)을 넘지 않는다", () => {
+  it("카드 보너스는 상한(+14)을 넘지 않는다", () => {
     // 같은 국적 8명 + 같은 클럽 4명 + 언더독을 한 선수에 겹쳐도 상한이 적용된다
     const stacked = Array.from({ length: 8 }, () =>
       card({ country: "Italy", club: "Juventus", cost: 55 }),
     )
     const result = computeChemistry(stacked.map((c) => input(c)))
     for (const c of stacked) {
-      expect(result.bonusByCardId.get(c.id) ?? 0).toBeLessThanOrEqual(12)
+      expect(result.bonusByCardId.get(c.id) ?? 0).toBeLessThanOrEqual(14)
     }
     expect(result.score).toBeLessThanOrEqual(100)
   })

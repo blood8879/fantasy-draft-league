@@ -1,9 +1,11 @@
-import type { DraftState } from "../domain/draft"
+import { cardsById } from "../app/gameStore"
+import { type DraftState, getSlotForFormation } from "../domain/draft"
 import type { Club } from "../domain/game"
 import { useI18n } from "../i18n"
+import { resolveFit } from "../simulation/positionFit"
 import type { TeamProfile } from "../simulation/types"
 import { RadarChart } from "./RadarChart"
-import { SquadPitch } from "./SquadPitch"
+import { AttributeGrid, FitBadge, SquadPitch } from "./SquadPitch"
 import { TeamStatBars } from "./TeamStatBars"
 
 type SquadDetailModalProps = {
@@ -55,6 +57,27 @@ export function SquadDetailModal({
             )}
           </div>
           <TeamStatBars average={leagueAvg} team={profile} />
+
+          <ul className="squad-attr-list">
+            {squad.picks.map((pick) => {
+              const card = cardsById.get(pick.cardId)
+              if (card === undefined) {
+                return null
+              }
+              const slot = getSlotForFormation(squad.formation, pick.slotId)
+              const fitGrade = resolveFit(card, slot.acceptedPositions).grade
+              return (
+                <li className="squad-attr-row" key={pick.slotId}>
+                  <div className="squad-attr-head">
+                    <span className="squad-attr-slot">{slot.label}</span>
+                    <span className="squad-attr-name">{card.label}</span>
+                    <FitBadge grade={fitGrade} t={t} />
+                  </div>
+                  <AttributeGrid card={card} t={t} />
+                </li>
+              )
+            })}
+          </ul>
         </div>
       </div>
     </div>

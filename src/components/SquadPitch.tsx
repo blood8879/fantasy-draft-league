@@ -1,11 +1,15 @@
 import { cardsById } from "../app/gameStore"
 import { tacticLabel } from "../components/labels"
+import { deriveAttributes } from "../data/attributes"
 import { positionOvr } from "../data/cardFactory"
+import { attributeKeys } from "../data/schema"
+import type { PlayerCard } from "../data/schema"
 import { type DraftState, getSlotForFormation } from "../domain/draft"
 import { formationRows } from "../domain/formations"
 import type { Club } from "../domain/game"
-import { useI18n } from "../i18n"
-import { computeChemistry } from "../simulation/chemistry"
+import { type I18nValue, useI18n } from "../i18n"
+import { chemistryGrade, computeChemistry } from "../simulation/chemistry"
+import { type PositionFitGrade, resolveFit } from "../simulation/positionFit"
 
 type SquadPitchProps = {
   readonly club: Club
@@ -51,7 +55,6 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
     }),
   )
   const chemBonus = chem.bonusByCardId
-  const chemKind = chem.dominantKindByCardId
 
   return (
     <div className="squad-pitch-wrap">
@@ -73,6 +76,8 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
             const cardId = pickBySlot.get(slotId)
             const card = cardId === undefined ? undefined : cardsById.get(cardId)
             const bonus = cardId === undefined ? 0 : (chemBonus.get(cardId) ?? 0)
+            const fitGrade =
+              card === undefined ? undefined : resolveFit(card, slot.acceptedPositions).grade
             return (
               <div
                 className="pitch-dot-wrap"
@@ -87,23 +92,59 @@ export function SquadPitch({ club, squad }: SquadPitchProps) {
                   {card === undefined
                     ? slot.label
                     : positionOvr(card.internalScores, slot.acceptedPositions[0] ?? slot.label)}
-                </div>
-                <div className="pitch-dot-name">
-                  {card?.label ?? t("pitch.unnamed")}
                   {card?.year != null ? (
-                    <span className="pitch-dot-year"> '{String(card.year).slice(2)}</span>
+                    <span className="pitch-dot-yearbadge">'{String(card.year).slice(2)}</span>
                   ) : null}
                   {bonus > 0 && cardId !== undefined ? (
-                    <span className="pitch-slot-bonus" data-kind={chemKind.get(cardId)}>
+                    <span className="pitch-dot-bonus" data-grade={chemistryGrade(bonus)}>
                       +{bonus}
                     </span>
                   ) : null}
                 </div>
+                <div className="pitch-dot-name">{card?.label ?? t("pitch.unnamed")}</div>
+                {fitGrade !== undefined ? <FitBadge grade={fitGrade} t={t} /> : null}
               </div>
             )
           })
         })}
       </div>
     </div>
+  )
+}
+
+/** 14속성 그리드(deriveAttributes로 파생). 카드 상세에서 8축 등급과 공존하는 보조 표시. */
+export function AttributeGrid({
+  card,
+  t,
+}: {
+  readonly card: PlayerCard
+  readonly t: I18nValue["t"]
+}) {
+  const attrs = deriveAttributes(card)
+  return (
+    <div className="attr-grid">
+      {attributeKeys.map((key) => (
+        <div className="attr-chip" key={key}>
+          <span className="attr-chip-label">{t(`attr.${key}`)}</span>
+          <span className="attr-chip-value">{attrs[key]}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** 포지션 적합 등급 배지. 등급별 색은 game.css의 data-grade로 구분. */
+export function FitBadge({
+  grade,
+  t,
+}: {
+  readonly grade: PositionFitGrade
+  readonly t: I18nValue["t"]
+}) {
+  const key = grade.toLowerCase()
+  return (
+    <span className="fit-badge" data-grade={key}>
+      {t(`fit.${key}`)}
+    </span>
   )
 }

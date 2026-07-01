@@ -1,5 +1,5 @@
 import { Film } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useAds } from "../ads/useAds"
 import { type GameAction, type GameState, cardsById, draftPool } from "../app/gameStore"
 import { modeLabel } from "../components/labels"
@@ -18,12 +18,13 @@ import {
 } from "../domain/fantasyDraft"
 import { USER_CLUB_ID } from "../domain/game"
 import { type I18nValue, useI18n } from "../i18n"
+import { resolveFit } from "../simulation/positionFit"
 import { averageProfiles, createTeamProfile } from "../simulation/teamProfile"
 import { ChemistryBadges } from "./ChemistryBadges"
 import { PoolBrowser } from "./PoolBrowser"
 import { RadarChart } from "./RadarChart"
 import { RewardedAdButton } from "./RewardedAdButton"
-import { SquadPitch } from "./SquadPitch"
+import { AttributeGrid, FitBadge, SquadPitch } from "./SquadPitch"
 import { TeamStatBars } from "./TeamStatBars"
 
 type DraftRoomProps = {
@@ -31,8 +32,12 @@ type DraftRoomProps = {
   readonly dispatch: (action: GameAction) => void
 }
 
-/** 리롤 시 보상 광고가 뜰 확률(나머지는 광고 없이 즉시 리롤). */
-const REROLL_AD_CHANCE = 0.25
+/** 픽당 허용하는 리롤 총 상한(어뷰징·RNG 치즈 방지). */
+const MAX_REROLLS_PER_PICK = 20
+/** 픽당 광고 없이 무료로 주는 리롤 수. */
+const FREE_REROLLS_PER_PICK = 3
+/** 보상 광고 1회를 보면 추가로 풀리는 리롤 수(광고 빈도를 낮추는 묶음 지급). */
+const REROLL_BATCH_PER_AD = 5
 
 export function DraftRoom({ state, dispatch }: DraftRoomProps) {
   const { t } = useI18n()
@@ -41,17 +46,42 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
   const [poolOpen, setPoolOpen] = useState(false)
   const [pitchOpen, setPitchOpen] = useState(false)
   const [strengthOpen, setStrengthOpen] = useState(false)
+  const [rerollCapped, setRerollCapped] = useState(false)
+  // 광고로 풀린 리롤 잔여 크레딧(현재 픽 한정). 픽이 바뀌면 0으로 리셋.
+  const adRerollCreditRef = useRef(0)
 
-  // 리롤은 매번이 아니라 일정 확률로만 보상 광고를 띄운다(나머지는 광고 없이 즉시 리롤).
+  // 픽이 바뀌면(rerollNonce가 0으로 초기화되면) 광고 크레딧을 리셋한다.
+  useEffect(() => {
+    if (state.rerollNonce === 0) {
+      adRerollCreditRef.current = 0
+    }
+  }, [state.rerollNonce])
+
+  // 리롤 경제: 픽당 무료 N회 → 이후 광고 1회=리롤 묶음 → 픽당 총 상한.
+  // 전역 광고 레이트리밋(useAds/adGuard)이 광고 빈도 자체를 추가로 제한한다.
   async function handleReroll() {
-    if (Math.random() < REROLL_AD_CHANCE) {
-      const outcome = await showRewarded("reroll_candidates")
-      if (outcome.rewarded) {
-        dispatch({ type: "REROLL_CANDIDATES" })
-      }
+    setRerollCapped(false)
+    const used = state.rerollNonce
+    if (used >= MAX_REROLLS_PER_PICK) {
       return
     }
-    dispatch({ type: "REROLL_CANDIDATES" })
+    if (used < FREE_REROLLS_PER_PICK) {
+      dispatch({ type: "REROLL_CANDIDATES" })
+      return
+    }
+    if (adRerollCreditRef.current > 0) {
+      adRerollCreditRef.current -= 1
+      dispatch({ type: "REROLL_CANDIDATES" })
+      return
+    }
+    const outcome = await showRewarded("reroll_candidates")
+    if (outcome.rewarded) {
+      adRerollCreditRef.current = REROLL_BATCH_PER_AD - 1
+      dispatch({ type: "REROLL_CANDIDATES" })
+    } else if (outcome.reason === "capped") {
+      setRerollCapped(true)
+    }
+    // 광고를 끝까지 안 봤거나(capped/dismissed) 보상 미지급이면 리롤하지 않는다.
   }
 
   // 우리 팀 능력치 + 리그 평균(픽이 있는 전 구단). 픽마다 draft가 갱신되어 자동 재계산된다.
@@ -272,7 +302,9 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                   ) : (
                     <button
                       className="rewarded-ad-button"
-                      disabled={pendingAction !== undefined}
+                      disabled={
+                        pendingAction !== undefined || state.rerollNonce >= MAX_REROLLS_PER_PICK
+                      }
                       onClick={handleReroll}
                       type="button"
                     >
@@ -285,6 +317,7 @@ export function DraftRoom({ state, dispatch }: DraftRoomProps) {
                     </button>
                   )}
                 </div>
+                {rerollCapped ? <output className="ad-capped-note">{t("ad.capped")}</output> : null}
                 {state.pickError !== undefined ? (
                   <p className="pick-error" role="alert">
                     {state.pickError}
@@ -494,10 +527,12 @@ function CandidateCard({
           {card.positions.join("/")}
           {card.year != null ? <span className="cc-year">{card.year}</span> : null}
         </div>
+        <AttributeGrid card={card} t={t} />
         <div className="cc-ctas">
           {choices.map((pos) => (
             <button className="cc-cta" key={pos} onClick={() => onPick(pos)} type="button">
               <span className="cc-cta-label">{t("draft.pickTo", { slot: pos })}</span>
+              <FitBadge grade={resolveFit(card, [pos]).grade} t={t} />
               <span className="cc-cta-ovr">{positionOvr(card.internalScores, pos)}</span>
             </button>
           ))}

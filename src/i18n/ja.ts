@@ -110,6 +110,29 @@ export const ja: Readonly<Record<string, string>> = {
   "axis.defensiveStability": "守備安定",
   "axis.transition": "スピード",
 
+  // attributes (14 derived)
+  "attr.finishing": "決定力",
+  "attr.longShots": "ロングシュート",
+  "attr.passing": "パス",
+  "attr.dribbling": "ドリブル",
+  "attr.firstTouch": "ファーストタッチ",
+  "attr.tackling": "タックル",
+  "attr.marking": "マーク",
+  "attr.positioning": "ポジショニング",
+  "attr.vision": "視野",
+  "attr.composure": "冷静さ",
+  "attr.workRate": "運動量",
+  "attr.pace": "スピード",
+  "attr.stamina": "スタミナ",
+  "attr.strength": "フィジカル",
+
+  // position fit grades
+  "fit.natural": "本職",
+  "fit.accomplished": "得意",
+  "fit.competent": "無難",
+  "fit.awkward": "不慣れ",
+  "fit.ineffectual": "不適合",
+
   "radar.title": "スカッド能力値",
   "radar.you": "自チーム",
   "radar.leagueAvg": "リーグ平均",
@@ -129,6 +152,23 @@ export const ja: Readonly<Record<string, string>> = {
   "chem.region.lowlands": "低地同盟",
   "chem.region.scandinavia": "北欧バイキング",
   "chem.region.balkans": "バルカンの火花",
+  "chem.grade.bronze": "Bronze",
+  "chem.grade.silver": "Silver",
+  "chem.grade.gold": "Gold",
+  "chem.grade.diamond": "Diamond",
+  "chem.detail.allStats": "対象選手{count}名全員の全能力 +{bonus}",
+  "chem.detail.members": "対象選手",
+  "chem.desc.nation":
+    "同じ国の選手が4人以上で発動。人数が増えるほど(6人・8人)ボーナスが大きくなります。",
+  "chem.desc.club": "同じクラブ出身が2人以上で発動。集めにくいため少人数でもボーナスが大きいです。",
+  "chem.desc.league": "同じリーグの選手が6人以上で発動。揃えやすいためボーナスは控えめです。",
+  "chem.desc.line": "同じライン(守備・中盤・攻撃)の3人が全員同じ国籍だと連携ボーナスが付きます。",
+  "chem.desc.era":
+    "同じシーズン(年)のカードを2枚以上で発動。最も集めにくいためボーナスが大きいです。",
+  "chem.desc.rivalry": "仲の悪いライバル国同士が共闘すると競争心でシナジーが生まれます。",
+  "chem.desc.region": "歴史的・文化的に近い同じ地域の国が2か国以上集まると友好ボーナスが付きます。",
+  "chem.desc.underdog":
+    "チーム平均戦力が低い(アンダードッグ)と闘志ボーナスで全員が少し強くなります。",
 
   "match.result": "{round} 結果",
   "match.live": "{round} · ライブ",
@@ -178,9 +218,23 @@ export const ja: Readonly<Record<string, string>> = {
   "champion.userRankLeague": "あなたのクラブは最終{rank}位で終えました。",
   "champion.userRankCup": "あなたのクラブは{round}で敗退しました。",
 
+  // デイリーチャレンジ
+  "daily.entry": "今日のチャレンジ",
+  "daily.desc": "毎日同じシード・同じ条件でカップのスカッドをドラフトし、自己ベストに挑戦しよう。",
+  "daily.title": "デイリー結果",
+  "daily.score": "総合スコア",
+  "daily.best": "自己ベスト",
+  "daily.newRecord": "新記録！",
+  "daily.attempts": "{n}回挑戦",
+  "daily.rank": "順位",
+  "daily.points": "勝点",
+  "daily.gd": "得失点差",
+  "daily.achBonus": "実績ボーナス",
+
   "unit.goals": "{n}点",
   "draft.aiPickingBody": "AI監督が候補カードから選手を選んでいます。",
   "ad.playing": "広告再生中…",
+  "ad.capped": "広告の上限に達しました。しばらくしてからもう一度お試しください。",
 
   "share.button": "結果をシェア",
   "share.working": "画像を作成中…",

@@ -19,7 +19,7 @@ export type RewardedOutcome = {
   /** 광고를 끝까지 시청해 보상 지급 조건을 충족했는지 */
   readonly rewarded: boolean
   /** 사용자가 닫았거나 광고 로드 실패 등으로 보상이 없을 때의 사유(로깅/UI용) */
-  readonly reason?: "dismissed" | "failed" | "not_ready"
+  readonly reason?: "dismissed" | "failed" | "not_ready" | "capped"
 }
 
 export type AdPlacement = {

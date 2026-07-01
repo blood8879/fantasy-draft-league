@@ -1,5 +1,5 @@
 import { Film } from "lucide-react"
-import type { ReactNode } from "react"
+import { type ReactNode, useState } from "react"
 import type { RewardedAction } from "../ads"
 import { useAds } from "../ads/useAds"
 import { useI18n } from "../i18n"
@@ -27,23 +27,30 @@ export function RewardedAdButton({
   const { t } = useI18n()
   const busy = pendingAction !== undefined
   const isPlaying = pendingAction === action
+  const [capped, setCapped] = useState(false)
 
   async function handleClick() {
+    setCapped(false)
     const outcome = await showRewarded(action)
     if (outcome.rewarded) {
       onReward()
+    } else if (outcome.reason === "capped") {
+      setCapped(true)
     }
   }
 
   return (
-    <button
-      className={`rewarded-ad-button${className === undefined ? "" : ` ${className}`}`}
-      disabled={disabled === true || busy}
-      onClick={handleClick}
-      type="button"
-    >
-      <Film aria-hidden="true" size={15} />
-      <span>{isPlaying ? t("ad.playing") : children}</span>
-    </button>
+    <>
+      <button
+        className={`rewarded-ad-button${className === undefined ? "" : ` ${className}`}`}
+        disabled={disabled === true || busy}
+        onClick={handleClick}
+        type="button"
+      >
+        <Film aria-hidden="true" size={15} />
+        <span>{isPlaying ? t("ad.playing") : children}</span>
+      </button>
+      {capped ? <output className="ad-capped-note">{t("ad.capped")}</output> : null}
+    </>
   )
 }

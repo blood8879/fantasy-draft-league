@@ -106,6 +106,39 @@ describe("레전드 드래프트 리그 앱", () => {
     expect(await screen.findByText(/컵 우승/)).toBeInTheDocument()
   }, 20000)
 
+  it("데일리 도전: 진입→드래프트→컵 시뮬 후 챔피언에서 종합점수와 PB가 표시된다", async () => {
+    renderApp()
+
+    // 데일리 진입(컵 + 오늘의 시드 + isDaily)
+    fireEvent.click(screen.getByRole("button", { name: /오늘의 도전/ }))
+    completeDraft()
+
+    fireEvent.click(screen.getByRole("button", { name: "컵 대회 개막" }))
+
+    // 1라운드: 리포트(풀타임) 화면에서 재경기(보상광고) 버튼이 데일리에선 노출되지 않음을 검증.
+    fireEvent.click(await screen.findByRole("button", { name: /킥오프|관전/ }))
+    const firstSkip = await screen.findByRole("button", {
+      name: /건너뛰기|계속 진행|시즌 결산 보기/,
+    })
+    if (firstSkip.textContent?.includes("건너뛰기")) {
+      fireEvent.click(firstSkip)
+    }
+    expect(screen.queryByRole("button", { name: /재경기/ })).toBeNull()
+    fireEvent.click(await screen.findByRole("button", { name: /계속 진행|시즌 결산 보기/ }))
+
+    // 8강 → 준결승 → 결승 (남은 3라운드)
+    for (let stage = 2; stage <= 4; stage += 1) {
+      fireEvent.click(await screen.findByRole("button", { name: /킥오프|관전/ }))
+      await advancePastMatch()
+    }
+
+    // 데일리 결과 카드: 종합 점수 + 개인 최고 + 첫 기록 신기록 배지
+    expect(await screen.findByText("데일리 결과")).toBeInTheDocument()
+    expect(screen.getByText("종합 점수")).toBeInTheDocument()
+    expect(screen.getByText("개인 최고")).toBeInTheDocument()
+    expect(screen.getByText("신기록!")).toBeInTheDocument()
+  }, 20000)
+
   it("스카우트 리포트: 광고 보상 후 다음 상대 전력이 공개된다", async () => {
     renderApp()
 

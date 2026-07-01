@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react"
+import { canShowRewarded, recordRewardedShown } from "./adGuard"
 import { createAdProvider } from "./index"
 import type { AdProvider, RewardedAction, RewardedOutcome } from "./types"
 
@@ -45,7 +46,12 @@ export function AdsProvider({
 
   const showRewarded = useCallback(
     async (action: RewardedAction): Promise<RewardedOutcome> => {
+      const decision = canShowRewarded()
+      if (!decision.allowed) {
+        return { rewarded: false, reason: "capped" }
+      }
       setPendingAction((current) => current ?? action)
+      recordRewardedShown()
       try {
         return await ads.showRewarded(action)
       } catch {

@@ -27,6 +27,7 @@ export function card(
     country,
     eligibleEra,
     positions,
+    mainPos: positions[0] ?? "CM",
     roles,
     tags,
     cost,

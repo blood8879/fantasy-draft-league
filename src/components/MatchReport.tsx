@@ -6,6 +6,7 @@ import { type Fixture, isCompetitionFinished } from "../domain/competition"
 import { type Club, USER_CLUB_ID } from "../domain/game"
 import { type I18nValue, useI18n } from "../i18n"
 import { getFixtureWinnerId } from "../simulation/fixture"
+import { RewardedAdButton } from "./RewardedAdButton"
 
 type MatchReportProps = {
   readonly state: GameState
@@ -73,7 +74,9 @@ export function MatchReport({ state, dispatch }: MatchReportProps) {
       fixture={userFixture}
       onContinue={handleContinue}
       onReplay={
-        state.replayCheckpoint !== undefined ? () => dispatch({ type: "REPLAY_ROUND" }) : undefined
+        state.replayCheckpoint !== undefined && !state.isDaily
+          ? () => dispatch({ type: "REPLAY_ROUND" })
+          : undefined
       }
       otherFixtures={otherFixtures}
       roundText={roundText}
@@ -263,9 +266,9 @@ function LiveMatch({
           ) : null}
           <div className="report-actions">
             {onReplay !== undefined && !didUserWin(result, userIsHome) ? (
-              <button className="rewarded-ad-button" onClick={onReplay} type="button">
+              <RewardedAdButton action="replay_match" onReward={onReplay}>
                 {t("match.replay")}
-              </button>
+              </RewardedAdButton>
             ) : null}
             <button
               className="primary-action primary-action--bright"

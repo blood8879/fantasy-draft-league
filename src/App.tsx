@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState } from "react"
 import type { AdProvider } from "./ads"
 import { AdsProvider } from "./ads/useAds"
+import { todayDailySeed } from "./app/dailySeed"
 import {
   type GameState,
   gameReducer,
@@ -80,6 +81,18 @@ function GameApp() {
               formation,
               tactic,
               seed: `${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`,
+            })
+          }}
+          onStartDaily={(clubName, formation, tactic) => {
+            setSavedGame(undefined)
+            dispatch({
+              type: "START_GAME",
+              mode: "컵",
+              clubName,
+              formation,
+              tactic,
+              seed: todayDailySeed(),
+              isDaily: true,
             })
           }}
         />
